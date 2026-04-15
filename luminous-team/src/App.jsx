@@ -6,19 +6,7 @@ import Teams from './pages/Teams';
 import Members from './pages/Members';
 import Analytics from './pages/Analytics';
 import Achievements from './pages/Achievements';
-import SquadAchievements from './pages/SquadAchievements';
-import ManagerDashboard from './pages/ManagerDashboard';
-import EmployeeDashboard from './pages/EmployeeDashboard';
-import SquadAnalytics from './pages/SquadAnalytics';
-import HRDashboard from './pages/HRDashboard';
 import Login from './pages/Login';
-import IndividualsManagement from './pages/IndividualsManagement';
-import TalentDensityHub from './pages/TalentDensityHub';
-import EmployeeExperience from './pages/EmployeeExperience';
-import LeadershipAlignment from './pages/LeadershipAlignment';
-import TeamVelocity from './pages/TeamVelocity';
-import OrganizationalHealth from './pages/OrganizationalHealth';
-import SystemStatus from './pages/SystemStatus';
 
 function App() {
   return (
@@ -36,19 +24,7 @@ function App() {
                   <Route path="/teams" element={<Teams />} />
                   <Route path="/members" element={<Members />} />
                   <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/squad-analytics" element={<SquadAnalytics />} />
-                  <Route path="/squad-achievements" element={<SquadAchievements />} />
                   <Route path="/achievements" element={<Achievements />} />
-                  <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
-                  <Route path="/manager-dashboard" element={<ManagerDashboard />} />
-                  <Route path="/hr" element={<HRDashboard />} />
-                  <Route path="/individuals" element={<IndividualsManagement />} />
-                  <Route path="/talent-density" element={<TalentDensityHub />} />
-                  <Route path="/experience" element={<EmployeeExperience />} />
-                  <Route path="/alignment" element={<LeadershipAlignment />} />
-                  <Route path="/velocity" element={<TeamVelocity />} />
-                  <Route path="/health" element={<OrganizationalHealth />} />
-                  <Route path="/status" element={<SystemStatus />} />
                 </Routes>
               </div>
             </div>
