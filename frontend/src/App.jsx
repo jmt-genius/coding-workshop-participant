@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import TopNavBar from './components/TopNavBar';
 import SideNavBar from './components/SideNavBar';
 import Dashboard from './pages/Dashboard';
@@ -19,49 +20,61 @@ import LeadershipAlignment from './pages/LeadershipAlignment';
 import TeamVelocity from './pages/TeamVelocity';
 import OrganizationalHealth from './pages/OrganizationalHealth';
 import SystemStatus from './pages/SystemStatus';
+import Settings from './pages/Settings';
+import DataManagement from './pages/DataManagement';
+import ManagerHQ from './pages/ManagerHQ';
+import MemberProfile from './pages/MemberProfile';
 
 function App() {
+  const { isAuthenticated } = useSelector((state) => state.auth);
+
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/*" element={
-          <div className="bg-surface-container-lowest min-h-screen text-on-surface">
-            <TopNavBar />
-            <div className="flex pt-16">
-              <SideNavBar />
-              <div className="flex-1 overflow-y-auto lg:ml-64 md:ml-64 sm:ml-0 min-h-screen">
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/teams" element={<Teams />} />
-                  <Route path="/members" element={<Members />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/squad-analytics" element={<SquadAnalytics />} />
-                  <Route path="/squad-achievements" element={<SquadAchievements />} />
-                  <Route path="/achievements" element={<Achievements />} />
-                  <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
-                  <Route path="/manager-dashboard" element={<ManagerDashboard />} />
-                  <Route path="/hr" element={<HRDashboard />} />
-                  <Route path="/individuals" element={<IndividualsManagement />} />
-                  <Route path="/talent-density" element={<TalentDensityHub />} />
-                  <Route path="/experience" element={<EmployeeExperience />} />
-                  <Route path="/alignment" element={<LeadershipAlignment />} />
-                  <Route path="/velocity" element={<TeamVelocity />} />
-                  <Route path="/health" element={<OrganizationalHealth />} />
-                  <Route path="/status" element={<SystemStatus />} />
-                </Routes>
+        {/* The Root is now the Login Page */}
+        <Route path="/" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} />
+        
+        {/* All Dashboard and related routes are now protected and prefixed */}
+        <Route path="/dashboard/*" element={
+          isAuthenticated ? (
+            <div className="bg-surface-container-lowest min-h-screen text-on-surface transition-colors duration-500">
+              <TopNavBar />
+              <div className="flex pt-16">
+                <SideNavBar />
+                <div className="flex-1 overflow-y-auto lg:ml-64 md:ml-64 sm:ml-0 min-h-screen">
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/teams" element={<Teams />} />
+                    <Route path="/members" element={<Members />} />
+                    <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/squad" element={<SquadAnalytics />} />
+                    <Route path="/squad-achievements" element={<SquadAchievements />} />
+                    <Route path="/achievements" element={<Achievements />} />
+                    <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
+                    <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+                    <Route path="/hr" element={<HRDashboard />} />
+                    <Route path="/individuals" element={<IndividualsManagement />} />
+                    <Route path="/talent-density" element={<TalentDensityHub />} />
+                    <Route path="/experience" element={<EmployeeExperience />} />
+                    <Route path="/alignment" element={<LeadershipAlignment />} />
+                    <Route path="/velocity" element={<TeamVelocity />} />
+                    <Route path="/health" element={<OrganizationalHealth />} />
+                    <Route path="/status" element={<SystemStatus />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/data-management" element={<DataManagement />} />
+                    <Route path="/manager" element={<ManagerHQ />} />
+                    <Route path="/member/:id" element={<MemberProfile />} />
+                  </Routes>
+                </div>
               </div>
             </div>
-            {/* Mobile Bottom Nav */}
-            <nav className="md:hidden fixed bottom-0 w-full bg-black/80 backdrop-blur-xl border-t border-outline-variant/10 flex justify-around py-4 z-50">
-              <a href="/"><span className="material-symbols-outlined text-[#87adff]" style={{fontVariationSettings: "'FILL' 1"}}>dashboard</span></a>
-              <a href="/teams"><span className="material-symbols-outlined text-[#ababab]">groups</span></a>
-              <a href="/members"><span className="material-symbols-outlined text-[#ababab]">person</span></a>
-              <a href="/analytics"><span className="material-symbols-outlined text-[#ababab]">leaderboard</span></a>
-              <a href="/achievements"><span className="material-symbols-outlined text-[#ababab]">emoji_events</span></a>
-            </nav>
-          </div>
+          ) : (
+            <Navigate to="/" replace />
+          )
         } />
+
+        {/* Catch-all to root/login */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

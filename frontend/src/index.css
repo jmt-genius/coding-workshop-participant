@@ -3,9 +3,45 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-surface-container-lowest: #000000;
+    --color-surface-container-low: #131313;
+    --color-surface-container: #191919;
+    --color-surface-container-high: #1f1f1f;
+    --color-surface-container-highest: #262626;
+    --color-surface: #0e0e0e;
+    --color-on-surface: #ffffff;
+    --color-on-surface-variant: #ababab;
+    --color-primary: #87adff;
+    --color-primary-dim: #006ff0;
+    --color-outline-variant: #484848;
+    --glass-background: rgba(25, 25, 25, 0.7);
+    --scrollbar-track: #000000;
+    --scrollbar-thumb: #1f1f1f;
+  }
+
+  :root.light {
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #f8f9fa;
+    --color-surface-container: #f1f3f5;
+    --color-surface-container-high: #e9ecef;
+    --color-surface-container-highest: #dee2e6;
+    --color-surface: #ffffff;
+    --color-on-surface: #121212;
+    --color-on-surface-variant: #495057;
+    --color-primary: #005ac6;
+    --color-primary-dim: #003d8e;
+    --color-outline-variant: #dee2e6;
+    --glass-background: rgba(255, 255, 255, 0.7);
+    --scrollbar-track: #f1f3f5;
+    --scrollbar-thumb: #ced4da;
+  }
+
   body {
-    @apply bg-surface-container-lowest text-on-surface font-body selection:bg-primary/30;
+    background-color: var(--color-surface-container-lowest);
+    color: var(--color-on-surface);
     font-family: 'Inter', sans-serif;
+    @apply transition-colors duration-300;
   }
 }
 
@@ -17,7 +53,6 @@
   background: rgba(25, 25, 25, 0.7);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(72, 72, 72, 0.2);
 }
 
 .luminous-gradient {

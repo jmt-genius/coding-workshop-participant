@@ -1,0 +1,52 @@
+model Project {
+  id              String   @id @default(uuid())
+  name            String   @unique
+  description     String?
+  status          String   @default("ACTIVE") // ACTIVE, COMPLETED, ON_HOLD
+  requiredSkills  String[] // Array of strings representing required tech stacks
+  managerId       String
+  manager         User     @relation("ProjectManager", fields: [managerId], references: [id])
+  currentEngineers EmployeeProfile[] @relation("CurrentProject")
+  history         ProjectHistory[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ProjectHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation("UserProjectHistory", fields: [userId], references: [id], onDelete: Cascade)
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  role        String
+  startDate   DateTime
+  endDate     DateTime?
+}
+
+model EmployeeSkill {
+  id          String   @id @default(uuid())
+  skillName   String
+  proficiency Float    // 1.0 (Beginner) to 5.0 (Expert)
+  profileId   String
+  profile     EmployeeProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model Training {
+  id             String   @id @default(uuid())
+  name           String
+  description    String?
+  completionDate DateTime
+  profileId      String
+  profile        EmployeeProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model PerformanceReview {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation("UserReviews", fields: [userId], references: [id], onDelete: Cascade)
+  reviewerId  String
+  reviewer    User     @relation("Reviewer", fields: [reviewerId], references: [id])
+  rating      Float    // 1.0 to 5.0
+  comments    String?
+  date        DateTime @default(now())
+}

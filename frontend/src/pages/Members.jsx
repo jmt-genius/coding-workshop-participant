@@ -1,189 +1,163 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { Search, MapPin, Users, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react';
+
+const API_BASE = 'http://localhost:8000';
 
 const Members = () => {
+  const [members, setMembers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/employees`);
+        setMembers(response.data);
+      } catch (err) {
+        console.error("Failed to fetch members", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMembers();
+  }, []);
+
+  const filteredMembers = members.filter(m => 
+    m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    m.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (m.profile?.specialization || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (isLoading) return (
+    <div className="flex items-center justify-center min-h-[60vh] text-primary font-black uppercase tracking-widest animate-pulse">
+      Syncing Org Matrix...
+    </div>
+  );
+
   return (
-    <div className="px-8 py-12 max-w-7xl mx-auto w-full">
+    <div className="px-8 py-12 max-w-7xl mx-auto w-full animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-        <div className="space-y-2">
-          <h1 className="text-[3.5rem] font-bold leading-tight tracking-[-0.04em] text-on-surface">Organization Members</h1>
-          <p className="text-on-surface-variant text-lg max-w-2xl">Manage your global workforce with atmospheric precision. Oversee roles, reporting structures, and distributed locations in a unified workspace.</p>
+        <div className="space-y-4">
+           <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full text-[10px] font-black uppercase tracking-widest text-primary italic">
+              <Users size={12} /> Organizational Intelligence
+           </div>
+          <h1 className="text-5xl font-black leading-tight tracking-tighter text-on-surface">Human <span className="text-primary italic">Capital</span> Catalog</h1>
+          <p className="text-on-surface-variant text-lg max-w-2xl font-medium opacity-70">
+            Real-time synchronization of the global engineer matrix. Interrogate nodes for delivery performance and specialization.
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative group">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl transition-colors group-focus-within:text-primary">search</span>
-            <input className="w-72 bg-surface-container-high border-none rounded-xl py-3 pl-12 pr-4 text-on-surface placeholder:text-on-surface-variant focus:ring-2 focus:ring-primary/15 transition-all shadow-inner" placeholder="Search members..." type="text" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl transition-colors group-focus-within:text-primary" size={18} />
+            <input 
+              className="w-80 bg-surface-container-high border-none rounded-2xl py-4 pl-12 pr-4 text-on-surface placeholder:text-on-surface-variant focus:ring-4 focus:ring-primary/10 transition-all shadow-inner font-medium text-sm" 
+              placeholder="Filter by name, role, or stack..." 
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-8">
-        <div className="bg-surface-container rounded-2xl overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,111,240,0.05)]">
+        <div className="bg-surface-container rounded-[2.5rem] overflow-hidden shadow-2xl border border-on-surface/5">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-surface-container-low/50 border-b border-outline-variant/10">
-                  <th className="px-8 py-5 text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Name</th>
-                  <th className="px-6 py-5 text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Role</th>
-                  <th className="px-6 py-5 text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Team</th>
-                  <th className="px-6 py-5 text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Location</th>
-                  <th className="px-6 py-5 text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Reporting</th>
-                  <th className="px-8 py-5 text-xs font-semibold uppercase tracking-wider text-on-surface-variant text-right">Actions</th>
+                <tr className="bg-surface-container-low/50 border-b border-on-surface/5">
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-40">Agent Node</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-40">Classification</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-40">Cluster</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-40">Coordinates</th>
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-40 text-right">Verification</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-outline-variant/10">
-                <tr className="group hover:bg-surface-container-high transition-colors">
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden ring-1 ring-outline-variant/20">
-                        <img alt="User Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGJKEntiAhcRYUHAopiacmWb87jtF0KZboudr8yVfm9gMYYkA-CjGuDugmni-_55aDtT-pzAJzbj0qHTXlDpqQZ4ofW0p7BXqOJZY1EsST_ei9oQ16QZaeBR0qSC_mkBIJhn-fGe48YbAKhrcq-G4jjfwHf7WZPDHMiE0jZG9QBD0KdLf23b6nCDJBN50XYt7V9fDM6z-JU1WfGFJb1DRuPtNuw7knQyx78qr2FNogBh_iCIhzW50FVqYSz4ozJYK6qj_up6AtB4N3" />
+              <tbody className="divide-y divide-on-surface/5">
+                {filteredMembers.map((member) => (
+                  <tr 
+                    key={member.id} 
+                    onClick={() => navigate(`/dashboard/member/${member.id}`)}
+                    className="group hover:bg-surface-container-highest transition-all cursor-pointer"
+                  >
+                    <td className="px-8 py-7">
+                      <div className="flex items-center gap-5">
+                        <div className="w-12 h-12 rounded-2xl bg-surface-container-highest border border-on-surface/5 flex items-center justify-center text-primary font-black shadow-inner overflow-hidden relative group-hover:scale-110 transition-transform">
+                           <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                           {member.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <div>
+                          <div className="text-on-surface font-black tracking-tight">{member.name}</div>
+                          <div className="text-on-surface-variant text-[10px] font-black uppercase tracking-widest opacity-40">{member.email}</div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="text-on-surface font-semibold">Alex Chen</div>
-                        <div className="text-on-surface-variant text-xs">alex.chen@luminous.com</div>
+                    </td>
+                    <td className="px-6 py-7">
+                      <span className="text-on-surface text-sm font-bold tracking-tight">{member.profile?.specialization || 'Engineer'}</span>
+                    </td>
+                    <td className="px-6 py-7">
+                      <span className="px-3 py-1 bg-surface-container-high text-primary rounded-full text-[9px] font-black uppercase tracking-widest border border-primary/10">
+                        {member.profile?.team?.name || 'Unassigned'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-7">
+                      <div className="flex items-center gap-1.5 text-on-surface-variant text-xs font-semibold">
+                        <MapPin size={12} className="text-primary opacity-60" />
+                        {member.profile?.location || 'Remote Node'}
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-6">
-                    <span className="text-on-surface text-sm font-medium">Principal Engineer</span>
-                  </td>
-                  <td className="px-6 py-6">
-                    <span className="px-3 py-1 bg-surface-container-highest text-primary-fixed rounded-full text-xs font-semibold tracking-tight">Core Infrastructure</span>
-                  </td>
-                  <td className="px-6 py-6">
-                    <div className="flex items-center gap-1.5 text-on-surface-variant text-sm">
-                      <span className="material-symbols-outlined text-sm">location_on</span>
-                      San Francisco, CA
-                    </div>
-                  </td>
-                  <td className="px-6 py-6">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">Direct</span>
-                  </td>
-                  <td className="px-8 py-6 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 text-on-surface-variant hover:text-white hover:bg-surface-variant rounded-lg transition-all"><span className="material-symbols-outlined">edit</span></button>
-                      <button className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/20 rounded-lg transition-all"><span className="material-symbols-outlined">delete</span></button>
-                    </div>
-                  </td>
-                </tr>
-
-                <tr className="group hover:bg-surface-container-high transition-colors">
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden ring-1 ring-outline-variant/20">
-                        <img alt="User Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAiW5xWmMyKs7mJY3ibnmp4mkDhfGjTHzr1O7v2Y1__1Tz2ejX29k7VdyQp_VRPAAMpRd-fErMuN_MZn47jP10R3DMH8_VYr0WRlbgNHhEOgrC_MYlh1vMeFyxrnQOuE65LLYwsPgkkLeJrdydBeSGb53vfxiq_vNUiPiviPObjk3s08w_bamTFLLKRR7mqRcp05BiIZVmx0K9aF5xMmkzDTmv-pVjTx5Cu9HVEc2oO_UmY9oiq_ZsplCIUJ97XYr-EvnDTqWIMRWx" />
-                      </div>
-                      <div>
-                        <div className="text-on-surface font-semibold">Elena Rodriguez</div>
-                        <div className="text-on-surface-variant text-xs">elena.r@luminous.com</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-6">
-                    <span className="text-on-surface text-sm font-medium">Senior Product Designer</span>
-                  </td>
-                  <td className="px-6 py-6">
-                    <span className="px-3 py-1 bg-surface-container-highest text-secondary-dim rounded-full text-xs font-semibold tracking-tight">UX/Product</span>
-                  </td>
-                  <td className="px-6 py-6">
-                    <div className="flex items-center gap-1.5 text-on-surface-variant text-sm">
-                      <span className="material-symbols-outlined text-sm">location_on</span>
-                      Barcelona, Spain
-                    </div>
-                  </td>
-                  <td className="px-6 py-6">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-outline-variant/20 text-on-surface-variant">Non-Direct</span>
-                  </td>
-                  <td className="px-8 py-6 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 text-on-surface-variant hover:text-white hover:bg-surface-variant rounded-lg transition-all"><span className="material-symbols-outlined">edit</span></button>
-                      <button className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/20 rounded-lg transition-all"><span className="material-symbols-outlined">delete</span></button>
-                    </div>
-                  </td>
-                </tr>
-
-                <tr className="group hover:bg-surface-container-high transition-colors">
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden ring-1 ring-outline-variant/20">
-                        <img alt="User Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDygVBFQU6em5UzJuVQV3YmarYxFhoFoZ8cuVNPyDCEYdv2xY5riKPt3eoRXqdxGwwNRbumhP3yQrBTglahEENj2PaWGzmRQm5WHclFvfB0HfrRP4RijJkJ3VzjvGHVAOUdQBRa65SsJELUOdGvkqgQ7Kgj3VDlTIzz_7LcsiHi5BKRjvPFvWJZItRiL-49GeLjav2ECOAVMwWHB5LJqKfMHmTY9fRTYus3BiSqgG5D58UHJXik8vfyOYU2ZqzDkHHMg9psHHNUQGt" />
-                      </div>
-                      <div>
-                        <div className="text-on-surface font-semibold">Jordan Smith</div>
-                        <div className="text-on-surface-variant text-xs">j.smith@luminous.com</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-6">
-                    <span className="text-on-surface text-sm font-medium">Head of Operations</span>
-                  </td>
-                  <td className="px-6 py-6">
-                    <span className="px-3 py-1 bg-surface-container-highest text-tertiary-dim rounded-full text-xs font-semibold tracking-tight">HQ Leadership</span>
-                  </td>
-                  <td className="px-6 py-6">
-                    <div className="flex items-center gap-1.5 text-on-surface-variant text-sm">
-                      <span className="material-symbols-outlined text-sm">location_on</span>
-                      London, UK
-                    </div>
-                  </td>
-                  <td className="px-6 py-6">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">Direct</span>
-                  </td>
-                  <td className="px-8 py-6 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 text-on-surface-variant hover:text-white hover:bg-surface-variant rounded-lg transition-all"><span className="material-symbols-outlined">edit</span></button>
-                      <button className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/20 rounded-lg transition-all"><span className="material-symbols-outlined">delete</span></button>
-                    </div>
-                  </td>
-                </tr>
+                    </td>
+                    <td className="px-8 py-7 text-right">
+                       <button className="px-4 py-2 bg-surface-container-low text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-xl group-hover:bg-primary group-hover:text-black transition-all">
+                          View Intel
+                       </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
 
-          <div className="px-8 py-5 bg-surface-container-low/30 border-t border-outline-variant/10 flex items-center justify-between">
-            <p className="text-on-surface-variant text-xs font-medium">Showing <span className="text-on-surface">1 - 3</span> of 128 members</p>
+          <div className="px-8 py-6 bg-surface-container-low/30 border-t border-on-surface/5 flex items-center justify-between">
+            <p className="text-on-surface-variant text-[10px] font-black uppercase tracking-widest opacity-40">
+              Total Managed Entities: <span className="text-on-surface opacity-100">{filteredMembers.length}</span>
+            </p>
             <div className="flex items-center gap-4">
-              <button className="p-2 text-on-surface-variant hover:text-white disabled:opacity-30" disabled>
-                <span className="material-symbols-outlined">chevron_left</span>
+              <button className="p-2 text-on-surface-variant hover:text-primary disabled:opacity-30" disabled>
+                <ChevronLeft size={20} />
               </button>
-              <span className="text-xs font-bold text-primary">1</span>
-              <span className="text-xs font-medium text-on-surface-variant cursor-pointer hover:text-white">2</span>
-              <span className="text-xs font-medium text-on-surface-variant cursor-pointer hover:text-white">3</span>
-              <button className="p-2 text-on-surface-variant hover:text-white">
-                <span className="material-symbols-outlined">chevron_right</span>
+              <span className="text-xs font-black text-primary">01</span>
+              <button className="p-2 text-on-surface-variant hover:text-primary">
+                <ChevronRight size={20} />
               </button>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-surface-container p-6 rounded-2xl flex flex-col justify-between h-40">
-            <span className="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Active Seats</span>
-            <div className="flex items-end justify-between">
-              <span className="text-4xl font-bold text-on-surface">128</span>
-              <span className="text-primary-fixed text-xs font-semibold">+12 this month</span>
-            </div>
-          </div>
-          <div className="bg-surface-container p-6 rounded-2xl flex flex-col justify-between h-40">
-            <span className="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Distributed Teams</span>
-            <div className="flex items-end justify-between">
-              <span className="text-4xl font-bold text-on-surface">14</span>
-              <span className="text-secondary-dim text-xs font-semibold">6 Timezones</span>
-            </div>
-          </div>
-          <div className="bg-primary/5 p-6 rounded-2xl flex flex-col justify-between h-40 border border-primary/10 relative overflow-hidden">
-            <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-primary/10 rounded-full blur-3xl"></div>
-            <span className="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Recent Activity</span>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                <span className="text-sm text-on-surface">Alex Chen updated role</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
-                <span className="text-sm text-on-surface">New member: Sarah K.</span>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+           <div className="bg-surface-container p-8 rounded-[2.5rem] shadow-xl border border-on-surface/5 flex flex-col justify-between h-44 group hover:bg-primary/5 transition-colors">
+             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-40">Active Nodes</span>
+             <div className="flex items-end justify-between">
+               <span className="text-5xl font-black text-on-surface tracking-tighter">{members.length}</span>
+               <span className="text-primary text-[10px] font-black uppercase tracking-widest italic mb-2">Live Sync</span>
+             </div>
+           </div>
+           <div className="bg-surface-container p-8 rounded-[2.5rem] shadow-xl border border-on-surface/5 flex flex-col justify-between h-44 group hover:bg-secondary/5 transition-colors">
+             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-40">Clusters Online</span>
+             <div className="flex items-end justify-between">
+               <span className="text-5xl font-black text-on-surface tracking-tighter">{[...new Set(members.map(m => m.profile?.teamId))].length}</span>
+               <span className="text-secondary text-[10px] font-black uppercase tracking-widest italic mb-2">Multi-Region</span>
+             </div>
+           </div>
+           <div className="bg-gradient-to-br from-primary/10 to-transparent p-8 rounded-[2.5rem] shadow-xl border border-primary/10 flex flex-col justify-between h-44 relative overflow-hidden group">
+             <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-primary/10 rounded-full blur-3xl group-hover:scale-150 transition-transform"></div>
+             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary opacity-60">Provisioning</span>
+             <button className="flex items-center gap-2 text-primary font-black uppercase tracking-[0.2em] text-[10px] group-hover:gap-4 transition-all">
+               Onboard New Node <ChevronRight size={14} />
+             </button>
+           </div>
         </div>
       </div>
     </div>

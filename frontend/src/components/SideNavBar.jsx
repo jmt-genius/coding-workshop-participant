@@ -1,102 +1,99 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+
+const SideNavGroup = ({ title, children }) => (
+  <div className="mb-6">
+    <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-on-surface-variant opacity-40 px-3 mb-3">{title}</h3>
+    <div className="flex flex-col gap-1">
+      {children}
+    </div>
+  </div>
+);
+
+const NavLink = ({ to, icon, label, isActive }) => (
+  <Link to={to} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium tracking-tight transition-all ${isActive ? 'text-primary bg-primary/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'}`}>
+    <span className="material-symbols-outlined text-[20px]" style={isActive ? {fontVariationSettings: "'FILL' 1"} : {}}>{icon}</span>
+    <span>{label}</span>
+  </Link>
+);
 
 const SideNavBar = () => {
   const location = useLocation();
-  const isActive = (path) => location.pathname === path;
+  const { user } = useSelector((state) => state.auth);
+  
+  // Adjusted isActive check to handle /dashboard prefix
+  const isActive = (path) => {
+    if (path === '/dashboard') return location.pathname === '/dashboard' || location.pathname === '/dashboard/';
+    return location.pathname === path;
+  };
+
+  const role = user?.role || 'EMPLOYEE';
 
   return (
-    <aside className="hidden md:flex flex-col fixed left-0 top-16 z-40 bg-[#131313] py-6 px-4 gap-4 h-[calc(100vh-64px)] w-64 border-r border-[#484848]/20 shadow-[32px_0_64px_-20px_rgba(0,111,240,0.08)]">
+    <aside className="hidden md:flex flex-col fixed left-0 top-16 z-40 bg-surface-container-low py-6 px-4 h-[calc(100vh-64px)] w-64 shadow-[32px_0_64px_-20px_rgba(0,0,0,0.2)] overflow-y-auto no-scrollbar transition-colors duration-300">
       <div className="flex items-center gap-3 mb-8 px-2">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#87adff] to-[#006ff0] flex items-center justify-center">
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-primary-dim flex items-center justify-center shadow-lg shadow-primary/10">
           <span className="material-symbols-outlined text-black font-bold" style={{fontVariationSettings: "'FILL' 1"}}>dataset</span>
         </div>
         <div>
-          <h2 className="text-lg font-black text-white leading-none">HQ Operations</h2>
-          <p className="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">Global Team</p>
+          <h2 className="text-lg font-black text-on-surface leading-none tracking-tighter">HQ Ops</h2>
+          <p className="text-[9px] text-primary uppercase font-black tracking-widest mt-1 italic">{role} Portal</p>
         </div>
       </div>
-      <nav className="flex flex-col gap-1 flex-1">
-        <Link to="/" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/') ? {fontVariationSettings: "'FILL' 1"} : {}}>dashboard</span>
-          <span>Overview</span>
-        </Link>
-        <Link to="/employee-dashboard" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/employee-dashboard') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/employee-dashboard') ? {fontVariationSettings: "'FILL' 1"} : {}}>person</span>
-          <span>My Profile</span>
-        </Link>
-        <Link to="/manager-dashboard" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/manager-dashboard') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/manager-dashboard') ? {fontVariationSettings: "'FILL' 1"} : {}}>manager</span>
-          <span>Manager HQ</span>
-        </Link>
-        <Link to="/hr" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/hr') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/hr') ? {fontVariationSettings: "'FILL' 1"} : {}}>admin_panel_settings</span>
-          <span>HR Administration</span>
-        </Link>
-        <Link to="/individuals" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/individuals') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/individuals') ? {fontVariationSettings: "'FILL' 1"} : {}}>person_search</span>
-          <span>Individual Tracker</span>
-        </Link>
-        <Link to="/teams" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/teams') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/teams') ? {fontVariationSettings: "'FILL' 1"} : {}}>groups</span>
-          <span>Team Directory</span>
-        </Link>
-        <Link to="/analytics" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/analytics') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/analytics') ? {fontVariationSettings: "'FILL' 1"} : {}}>leaderboard</span>
-          <span>Global Analytics</span>
-        </Link>
-        <Link to="/talent-density" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/talent-density') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/talent-density') ? {fontVariationSettings: "'FILL' 1"} : {}}>hub</span>
-          <span>Talent Hub</span>
-        </Link>
-        <Link to="/experience" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/experience') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/experience') ? {fontVariationSettings: "'FILL' 1"} : {}}>favorite</span>
-          <span>Experience</span>
-        </Link>
-        <Link to="/alignment" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/alignment') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/alignment') ? {fontVariationSettings: "'FILL' 1"} : {}}>mediation</span>
-          <span>Alignment Matrix</span>
-        </Link>
-        <Link to="/velocity" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/velocity') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/velocity') ? {fontVariationSettings: "'FILL' 1"} : {}}>speed</span>
-          <span>Team Velocity</span>
-        </Link>
-        <Link to="/health" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/health') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/health') ? {fontVariationSettings: "'FILL' 1"} : {}}>monitor_heart</span>
-          <span>Org Health</span>
-        </Link>
-        <Link to="/status" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/status') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/status') ? {fontVariationSettings: "'FILL' 1"} : {}}>security</span>
-          <span>System Status</span>
-        </Link>
-        <Link to="/squad-analytics" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/squad-analytics') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/squad-analytics') ? {fontVariationSettings: "'FILL' 1"} : {}}>analytics</span>
-          <span>Squad Performance</span>
-        </Link>
-        <Link to="/squad-achievements" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/squad-achievements') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/squad-achievements') ? {fontVariationSettings: "'FILL' 1"} : {}}>military_tech</span>
-          <span>Squad Wins</span>
-        </Link>
-        <Link to="/achievements" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/achievements') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/achievements') ? {fontVariationSettings: "'FILL' 1"} : {}}>emoji_events</span>
-          <span>Milestones</span>
-        </Link>
-        <Link to="/settings" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium tracking-tight ${isActive('/settings') ? 'text-[#87adff] border-l-2 border-[#87adff] bg-gradient-to-r from-[#87adff]/10 to-transparent' : 'text-[#ababab] hover:text-white hover:bg-[#191919] transition-all'}`}>
-          <span className="material-symbols-outlined" style={isActive('/settings') ? {fontVariationSettings: "'FILL' 1"} : {}}>settings</span>
-          <span>Settings</span>
-        </Link>
+
+      <nav className="flex-1">
+        <SideNavGroup title="Core">
+          <NavLink to="/dashboard" icon="dashboard" label="Overview" isActive={isActive('/dashboard')} />
+          <NavLink to="/dashboard/employee-dashboard" icon="person" label="My Profile" isActive={isActive('/dashboard/employee-dashboard')} />
+        </SideNavGroup>
+
+        {role === 'HR' && (
+          <SideNavGroup title="Governance">
+            <NavLink to="/dashboard/hr" icon="admin_panel_settings" label="HR Admin" isActive={isActive('/dashboard/hr')} />
+            <NavLink to="/dashboard/talent-density" icon="hub" label="Talent Hub" isActive={isActive('/dashboard/talent-density')} />
+            <NavLink to="/dashboard/data-management" icon="database" label="Data Management" isActive={isActive('/dashboard/data-management')} />
+            <NavLink to="/dashboard/experience" icon="favorite" label="Experience" isActive={isActive('/dashboard/experience')} />
+            <NavLink to="/dashboard/health" icon="monitor_heart" label="Org Health" isActive={isActive('/dashboard/health')} />
+            <NavLink to="/dashboard/status" icon="security" label="System Status" isActive={isActive('/dashboard/status')} />
+          </SideNavGroup>
+        )}
+
+        {(role === 'MANAGER' || role === 'HR') && (
+          <SideNavGroup title="Leadership & Projects">
+            <NavLink to="/dashboard" icon="dashboard" label="Global Dashboard" isActive={isActive('/dashboard')} />
+            {user.role === 'MANAGER' && <NavLink to="/dashboard/manager" icon="business_center" label="Project Management" isActive={isActive('/dashboard/manager')} />}
+            <NavLink to="/dashboard/squad" icon="groups" label="Team Intelligence" isActive={isActive('/dashboard/squad')} />
+          </SideNavGroup>
+        )}
+
+        <SideNavGroup title="Performance Indices">
+          <NavLink to="/dashboard/squad-achievements" icon="military_tech" label="Team Wins" isActive={isActive('/dashboard/squad-achievements')} />
+        </SideNavGroup>
+
+        <SideNavGroup title="System">
+          <NavLink to="/dashboard/settings" icon="settings" label="Global Settings" isActive={isActive('/dashboard/settings')} />
+        </SideNavGroup>
       </nav>
-      <div className="mt-auto pt-6 border-t border-outline-variant/10 flex flex-col gap-1">
-        <button className="w-full bg-surface-container-high border border-outline-variant/30 text-white py-2.5 rounded-xl font-bold text-xs tracking-widest hover:bg-surface-variant transition-all flex items-center justify-center gap-2 mb-4">
-          <span className="material-symbols-outlined text-sm">add</span>
-          New Project
-        </button>
-        <a className="flex items-center gap-3 px-3 py-2 text-[#ababab] hover:text-white hover:bg-[#191919] transition-all rounded-lg text-sm" href="#">
-          <span className="material-symbols-outlined text-lg">help</span> Support
-        </a>
-        <a className="flex items-center gap-3 px-3 py-2 text-[#ababab] hover:text-white hover:bg-[#191919] transition-all rounded-lg text-sm" href="#">
-          <span className="material-symbols-outlined text-lg">description</span> Documentation
-        </a>
+
+      <div className="mt-auto pt-6 flex flex-col gap-1">
+        <div className="flex flex-col">
+           <a className="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface transition-all rounded-xl text-xs font-bold" href="#">
+             <span className="material-symbols-outlined text-sm">help</span> Support
+           </a>
+           <a className="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface transition-all rounded-xl text-xs font-bold" href="#">
+             <span className="material-symbols-outlined text-sm">description</span> Docs
+           </a>
+           <button 
+             onClick={() => {
+               dispatch(logout());
+               window.location.href = '/';
+             }}
+             className="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-error transition-all rounded-xl text-xs font-bold w-full text-left"
+           >
+             <span className="material-symbols-outlined text-sm">logout</span> Sign Out
+           </button>
+        </div>
       </div>
     </aside>
   );
