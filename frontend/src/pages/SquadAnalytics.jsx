@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { 
   BarChart3, Users, TrendingUp, ShieldAlert, 
   Activity, Zap, ChevronRight, LayoutGrid,
-  Search, Filter
+  Search, Filter, Crown
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:8000';
 
 const SquadAnalytics = () => {
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.auth.user);
   const [teams, setTeams] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [squadData, setSquadData] = useState(null);
@@ -21,7 +24,9 @@ const SquadAnalytics = () => {
 
   const fetchTeams = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/teams`);
+      // Filter teams by logged-in manager's ID
+      const params = user?.id ? { leadId: user.id } : {};
+      const response = await axios.get(`${API_BASE}/teams`, { params });
       setTeams(response.data);
       if (response.data.length > 0) {
         await handleTeamSelect(response.data[0].id);
@@ -32,6 +37,7 @@ const SquadAnalytics = () => {
       setIsLoading(false);
     }
   };
+
 
   const handleTeamSelect = async (id) => {
     setIsLoading(true);
@@ -235,43 +241,81 @@ const SquadAnalytics = () => {
       </div>
 
       <div className="grid grid-cols-12 gap-8">
-        {/* Engineering Throughput Matrix */}
+        {/* Delivery Throughput — Ranked Leaderboard */}
         <section className="col-span-12 lg:col-span-8 bg-surface-container rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden group">
            <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-2xl font-black text-on-surface tracking-tight mb-2">Delivery Throughput</h3>
-                <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-variant font-black opacity-40 italic">Individual Contribution & VCS Metrics Matrix</p>
+                <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-variant font-black opacity-40 italic">Team Rankings for {squadData.teamName}</p>
               </div>
               <Activity size={24} className="text-on-surface-variant opacity-10" />
            </div>
-           
-           <div className="grid grid-cols-12 gap-3">
-               {squadData.memberBreakdown.map((member, i) => (
-                <div 
-                  key={member.id} 
-                  onClick={() => navigate(`/dashboard/member/${member.id}`)}
-                  className="col-span-6 md:col-span-3 p-4 bg-surface-container-low rounded-2xl hover:bg-surface-container-high transition-all group/member cursor-pointer border border-on-surface/5 hover:border-primary/20"
-                >
-                   <div className="flex justify-between items-center mb-4">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-primary italic">Node {i + 1}</span>
-                      <div className={`w-2 h-2 rounded-full ${member.score > 8.0 ? 'bg-success' : member.score > 4.0 ? 'bg-primary' : 'bg-error'} shadow-lg shadow-current/20`}></div>
-                   </div>
-                   <h4 className="text-sm font-black text-on-surface tracking-tight mb-1 truncate">{member.name}</h4>
-                   <div className="flex flex-col gap-1">
-                      <div className="flex justify-between items-center text-[9px] font-black text-on-surface-variant opacity-40 uppercase tracking-widest">
-                         <span>Code Commits</span>
-                         <span>{member.commits}</span>
+
+           <div className="flex flex-col gap-3">
+              {[...squadData.memberBreakdown]
+                .sort((a, b) => b.score - a.score)
+                .map((member, i) => {
+                  const isTop = i === 0;
+                  return (
+                    <div
+                      key={member.id}
+                      onClick={() => navigate(`/dashboard/member/${member.id}`)}
+                      className={`flex items-center gap-5 p-5 rounded-2xl transition-all cursor-pointer hover:bg-surface-container-high ${
+                        isTop ? 'bg-surface-container-low ring-1 ring-primary/20' : 'bg-surface-container-low/50'
+                      }`}
+                    >
+                      {/* Rank */}
+                      <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: isTop ? 'rgba(135,173,255,0.15)' : 'transparent' }}>
+                        {isTop ? (
+                          <Crown size={16} style={{ color: '#fbbf24' }} />
+                        ) : (
+                          <span className="text-xs font-black text-on-surface-variant opacity-40">#{i + 1}</span>
+                        )}
                       </div>
-                      <div className="flex justify-between items-center text-[9px] font-black text-on-surface-variant opacity-40 uppercase tracking-widest">
-                         <span>Resolved Tickets</span>
-                         <span>{member.tickets}</span>
+
+                      {/* Name & Score */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h4 className={`text-sm font-black tracking-tight truncate ${isTop ? 'text-primary' : 'text-on-surface'}`}>{member.name}</h4>
+                          {isTop && <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full" style={{ background: 'rgba(135,173,255,0.15)', color: '#87adff' }}>Top Performer</span>}
+                        </div>
+                        <div className="flex items-center gap-4 mt-1">
+                          <span className="text-[9px] font-black text-on-surface-variant opacity-50 uppercase tracking-widest">Score: {member.score.toFixed(1)}</span>
+                        </div>
                       </div>
-                   </div>
-                </div>
-              ))}
+
+                      {/* Commits */}
+                      <div className="text-center px-4">
+                        <p className="text-base font-black text-on-surface tracking-tight">{member.commits}</p>
+                        <p className="text-[8px] font-black uppercase tracking-widest text-on-surface-variant opacity-40">Commits</p>
+                      </div>
+
+                      {/* Tickets */}
+                      <div className="text-center px-4">
+                        <p className="text-base font-black text-on-surface tracking-tight">{member.tickets}</p>
+                        <p className="text-[8px] font-black uppercase tracking-widest text-on-surface-variant opacity-40">Tickets</p>
+                      </div>
+
+                      {/* Score Bar */}
+                      <div className="w-24 shrink-0">
+                        <div className="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-700"
+                            style={{
+                              width: `${member.score * 10}%`,
+                              background: 'linear-gradient(to right, rgba(135,173,255,0.5), #87adff)'
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <ChevronRight size={14} className="text-on-surface-variant opacity-20 shrink-0" />
+                    </div>
+                  );
+                })}
            </div>
 
-           <div className="mt-12 pt-8 border-t border-on-surface/5">
+           <div className="mt-10 pt-8 border-t border-on-surface/5">
               <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-3 flex items-center gap-2 italic">
                  <TrendingUp size={14} /> HR Suggestion
               </h4>

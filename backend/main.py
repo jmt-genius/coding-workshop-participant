@@ -360,7 +360,9 @@ async def log_bug(data: BugLog):
     )
 
 @app.get("/teams")
-async def get_teams():
+async def get_teams(leadId: Optional[str] = None):
+    if leadId:
+        return await db.team.find_many(where={"leadId": leadId})
     return await db.team.find_many()
 
 if __name__ == "__main__":
