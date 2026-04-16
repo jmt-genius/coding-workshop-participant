@@ -256,3 +256,7 @@ tfplan
 
 # Snyk Security Extension - AI Rules (auto-generated)
 .github/instructions/snyk_rules.instructions.md
+
+# Google OAuth secrets (meetings-service)
+backend/meetings-service/token.json
+backend/meetings-service/client_secret*.json
