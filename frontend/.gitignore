@@ -6,12 +6,12 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
+/home/abea1ae5/citi/coding-workshop-participant/backend/meetings-service/client_secret_856514425819-5lrajk1apelen4h27c08ua76i7klk2vf.apps.googleusercontent.com.json
 node_modules
 dist
 dist-ssr
 *.local
-
+backend/meetings-service/token.json
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

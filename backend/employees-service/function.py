@@ -396,108 +396,421 @@ def remove_from_team(manager_id, user_id):
 
 def get_employee_detail(user_id):
     """Get detailed employee profile with stats."""
+    try:
+        conn = get_connection()
+        with conn.cursor() as cur:
+            # Basic user info
+            cur.execute('SELECT id, name, email, role FROM "User" WHERE id = %s', (user_id,))
+            user = cur.fetchone()
+            if not user:
+                return None
+
+            uid, name, email, role = user
+
+            # Profile
+            cur.execute('''
+                SELECT ep.id, ep."teamId", ep."projectId", ep.specialization,
+                       ep."performanceRating", ep."promotionReady", ep."attritionRisk",
+                       t.name as team_name, p.name as project_name
+                FROM "EmployeeProfile" ep
+                LEFT JOIN "Team" t ON t.id = ep."teamId"
+                LEFT JOIN "Project" p ON p.id = ep."projectId"
+                WHERE ep."userId" = %s
+            ''', (uid,))
+            profile_row = cur.fetchone()
+
+            profile = None
+            if profile_row:
+                # Skills
+                cur.execute('''
+                    SELECT id, "skillName", proficiency
+                    FROM "EmployeeSkill"
+                    WHERE "profileId" = %s
+                ''', (profile_row[0],))
+                skills = [{"id": r[0], "skillName": r[1], "proficiency": r[2]} for r in cur.fetchall()]
+
+                # Trainings
+                cur.execute('''
+                    SELECT id, name, description, "completionDate"
+                    FROM "Training"
+                    WHERE "profileId" = %s
+                ''', (profile_row[0],))
+                trainings = [{"id": r[0], "name": r[1], "description": r[2],
+                              "completionDate": r[3].isoformat() if r[3] else None} for r in cur.fetchall()]
+
+                profile = {
+                    "id": profile_row[0], "teamId": profile_row[1],
+                    "projectId": profile_row[2], "specialization": profile_row[3] or "Engineer",
+                    "performanceRating": profile_row[4] if profile_row[4] is not None else 0.0,
+                    "promotionReady": profile_row[5] if profile_row[5] is not None else False,
+                    "attritionRisk": profile_row[6] if profile_row[6] is not None else "LOW",
+                    "team": {"name": profile_row[7]} if profile_row[7] else None,
+                    "project": {"name": profile_row[8]} if profile_row[8] else None,
+                    "employeeSkills": skills,
+                    "trainings": trainings
+                }
+
+            # Performance reviews
+            cur.execute('''
+                SELECT pr.id, pr.rating, pr.comments, pr.date,
+                       rev.name as reviewer_name
+                FROM "PerformanceReview" pr
+                LEFT JOIN "User" rev ON rev.id = pr."reviewerId"
+                WHERE pr."userId" = %s
+                ORDER BY pr.date DESC
+            ''', (uid,))
+            reviews = [{"id": r[0], "rating": r[1], "comments": r[2],
+                         "date": r[3].isoformat() if r[3] else None,
+                         "reviewer": {"name": r[4]} if r[4] else None} for r in cur.fetchall()]
+
+            # Project history
+            cur.execute('''
+                SELECT ph.id, ph.role, ph."startDate", ph."endDate",
+                       p.name as project_name, p.id as project_id
+                FROM "ProjectHistory" ph
+                JOIN "Project" p ON p.id = ph."projectId"
+                WHERE ph."userId" = %s
+                ORDER BY COALESCE(ph."endDate", ph."startDate") DESC
+            ''', (uid,))
+            history = [{"id": r[0], "role": r[1],
+                         "startDate": r[2].isoformat() if r[2] else None,
+                         "endDate": r[3].isoformat() if r[3] else None,
+                         "project": {"name": r[4], "id": r[5]}} for r in cur.fetchall()]
+
+            # Stats
+            cur.execute('SELECT COUNT(*) FROM "Commit" WHERE "userId" = %s', (uid,))
+            total_commits = cur.fetchone()[0]
+            cur.execute('SELECT COUNT(*) FROM "Ticket" WHERE "assigneeId" = %s AND status = %s', (uid, 'CLOSED'))
+            total_tickets = cur.fetchone()[0]
+            cur.execute('SELECT COUNT(*) FROM "Bug" WHERE "ownerId" = %s', (uid,))
+            total_bugs = cur.fetchone()[0]
+            rating = calculate_performance_rating(total_tickets, total_commits, total_bugs)
+
+            return {
+                "id": uid,
+                "name": name,
+                "email": email,
+                "profile": profile,
+                "performanceReviews": reviews,
+                "projectHistory": history,
+                "stats": {
+                    "commits": total_commits,
+                    "tickets": total_tickets,
+                    "bugs": total_bugs,
+                    "rating": rating
+                }
+            }
+    except Exception as e:
+        logger.error(f"get_employee_detail error for user {user_id}: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return None
+
+
+def list_all_engineers():
+    """List all engineers with full details for HR database view."""
     conn = get_connection()
     with conn.cursor() as cur:
-        # Basic user info
-        cur.execute('SELECT id, name, email, role FROM "User" WHERE id = %s', (user_id,))
-        user = cur.fetchone()
-        if not user:
-            return None
-
-        uid, name, email, role = user
-
-        # Profile
         cur.execute('''
-            SELECT ep.id, ep."teamId", ep."projectId", ep.specialization,
-                   ep."performanceRating", ep."promotionReady", ep."attritionRisk",
-                   t.name as team_name, p.name as project_name
-            FROM "EmployeeProfile" ep
+            SELECT u.id, u.name, u.email, u.role,
+                   ep.id AS profile_id,
+                   ep.specialization,
+                   ep."performanceRating",
+                   ep."promotionReady",
+                   ep."attritionRisk",
+                   ep."joinedAt",
+                   t.name AS team_name,
+                   t.id AS team_id,
+                   mgr.name AS manager_name,
+                   mgr.id AS manager_id,
+                   p.name AS project_name,
+                   p.id AS project_id,
+                   p.status AS project_status
+            FROM "User" u
+            LEFT JOIN "EmployeeProfile" ep ON ep."userId" = u.id
             LEFT JOIN "Team" t ON t.id = ep."teamId"
+            LEFT JOIN "User" mgr ON mgr.id = t."leadId"
             LEFT JOIN "Project" p ON p.id = ep."projectId"
-            WHERE ep."userId" = %s
-        ''', (uid,))
-        profile_row = cur.fetchone()
+            WHERE u.role = 'EMPLOYEE'
+            ORDER BY u.name
+        ''')
+        rows = cur.fetchall()
 
-        profile = None
-        if profile_row:
+        engineers = []
+        for row in rows:
+            profile_id = row[4]
+            user_id = row[0]
+
             # Skills
-            cur.execute('''
-                SELECT id, "skillName", proficiency
-                FROM "EmployeeSkill"
-                WHERE "profileId" = %s
-            ''', (profile_row[0],))
-            skills = [{"id": r[0], "skillName": r[1], "proficiency": r[2]} for r in cur.fetchall()]
+            skills = []
+            if profile_id:
+                cur.execute('SELECT "skillName", proficiency FROM "EmployeeSkill" WHERE "profileId" = %s ORDER BY proficiency DESC', (profile_id,))
+                skills = [{"skillName": s[0], "proficiency": s[1]} for s in cur.fetchall()]
 
-            # Trainings
-            cur.execute('''
-                SELECT id, name, description, "completionDate"
-                FROM "Training"
-                WHERE "profileId" = %s
-            ''', (profile_row[0],))
-            trainings = [{"id": r[0], "name": r[1], "description": r[2],
-                          "completionDate": r[3].isoformat() if r[3] else None} for r in cur.fetchall()]
+            # Stats
+            cur.execute('SELECT COUNT(*) FROM "Commit" WHERE "userId" = %s', (user_id,))
+            commits = cur.fetchone()[0]
+            cur.execute('SELECT COUNT(*) FROM "Ticket" WHERE "assigneeId" = %s AND status = %s', (user_id, 'CLOSED'))
+            tickets = cur.fetchone()[0]
+            cur.execute('SELECT COUNT(*) FROM "Bug" WHERE "ownerId" = %s AND status = %s', (user_id, 'OPEN'))
+            bugs = cur.fetchone()[0]
 
-            profile = {
-                "id": profile_row[0], "teamId": profile_row[1],
-                "projectId": profile_row[2], "specialization": profile_row[3],
-                "performanceRating": profile_row[4], "promotionReady": profile_row[5],
-                "attritionRisk": profile_row[6],
-                "team": {"name": profile_row[7]} if profile_row[7] else None,
-                "project": {"name": profile_row[8]} if profile_row[8] else None,
-                "employeeSkills": skills,
-                "trainings": trainings
-            }
+            engineers.append({
+                "id": user_id,
+                "name": row[1],
+                "email": row[2],
+                "specialization": row[5] or "Generalist",
+                "performanceRating": row[6],
+                "promotionReady": row[7] or False,
+                "attritionRisk": row[8] or "LOW",
+                "joinedAt": row[9].isoformat() if row[9] else None,
+                "teamName": row[10],
+                "teamId": row[11],
+                "managerName": row[12],
+                "managerId": row[13],
+                "projectName": row[14],
+                "projectId": row[15],
+                "projectStatus": row[16],
+                "skills": skills,
+                "stats": {
+                    "commits": commits,
+                    "tickets": tickets,
+                    "bugs": bugs,
+                    "rating": calculate_performance_rating(tickets, commits, bugs),
+                }
+            })
+        return engineers
 
-        # Performance reviews
+
+def list_all_managers():
+    """List all managers with their teams, projects, and team members for HR database view."""
+    conn = get_connection()
+    with conn.cursor() as cur:
         cur.execute('''
-            SELECT pr.id, pr.rating, pr.comments, pr.date,
-                   rev.name as reviewer_name
-            FROM "PerformanceReview" pr
-            LEFT JOIN "User" rev ON rev.id = pr."reviewerId"
-            WHERE pr."userId" = %s
-            ORDER BY pr.date DESC
-        ''', (uid,))
-        reviews = [{"id": r[0], "rating": r[1], "comments": r[2],
-                     "date": r[3].isoformat() if r[3] else None,
-                     "reviewer": {"name": r[4]} if r[4] else None} for r in cur.fetchall()]
+            SELECT u.id, u.name, u.email
+            FROM "User" u
+            WHERE u.role = 'MANAGER'
+            ORDER BY u.name
+        ''')
+        managers = cur.fetchall()
 
-        # Project history
+        result = []
+        for mgr in managers:
+            mgr_id, mgr_name, mgr_email = mgr
+
+            # Teams led by this manager
+            cur.execute('''
+                SELECT t.id, t.name
+                FROM "Team" t
+                WHERE t."leadId" = %s
+                ORDER BY t.name
+            ''', (mgr_id,))
+            teams = [{"id": r[0], "name": r[1]} for r in cur.fetchall()]
+
+            # Projects managed
+            cur.execute('''
+                SELECT p.id, p.name, p.status, t.name AS team_name
+                FROM "Project" p
+                LEFT JOIN "Team" t ON t.id = p."teamId"
+                WHERE p."managerId" = %s
+                ORDER BY p.name
+            ''', (mgr_id,))
+            projects = [{"id": r[0], "name": r[1], "status": r[2], "teamName": r[3]} for r in cur.fetchall()]
+
+            # Team members under this manager (via team lead or project manager)
+            cur.execute('''
+                SELECT DISTINCT u.id, u.name, u.email,
+                       ep.specialization,
+                       ep."promotionReady",
+                       ep."attritionRisk",
+                       ep."performanceRating",
+                       t.name AS team_name,
+                       p.name AS project_name
+                FROM "User" u
+                JOIN "EmployeeProfile" ep ON ep."userId" = u.id
+                LEFT JOIN "Team" t ON t.id = ep."teamId"
+                LEFT JOIN "Project" p ON p.id = ep."projectId"
+                WHERE u.role = 'EMPLOYEE'
+                  AND (t."leadId" = %s OR p."managerId" = %s)
+                ORDER BY u.name
+            ''', (mgr_id, mgr_id))
+            members = []
+            for r in cur.fetchall():
+                members.append({
+                    "id": r[0], "name": r[1], "email": r[2],
+                    "specialization": r[3] or "Generalist",
+                    "promotionReady": r[4] or False,
+                    "attritionRisk": r[5] or "LOW",
+                    "performanceRating": r[6],
+                    "teamName": r[7],
+                    "projectName": r[8],
+                })
+
+            result.append({
+                "id": mgr_id,
+                "name": mgr_name,
+                "email": mgr_email,
+                "teams": teams,
+                "projects": projects,
+                "members": members,
+                "teamCount": len(teams),
+                "projectCount": len(projects),
+                "memberCount": len(members),
+            })
+        return result
+
+
+def recruit_from_talent_pool(manager_id, user_id, project_id):
+    """Recruit a talent pool candidate into a manager's project and team."""
+    conn = get_connection()
+    with conn.cursor() as cur:
+        # Verify user is in talent pool (no team, no project)
         cur.execute('''
-            SELECT ph.id, ph.role, ph."startDate", ph."endDate",
-                   p.name as project_name, p.id as project_id
-            FROM "ProjectHistory" ph
-            JOIN "Project" p ON p.id = ph."projectId"
-            WHERE ph."userId" = %s
-            ORDER BY COALESCE(ph."endDate", ph."startDate") DESC
-        ''', (uid,))
-        history = [{"id": r[0], "role": r[1],
-                     "startDate": r[2].isoformat() if r[2] else None,
-                     "endDate": r[3].isoformat() if r[3] else None,
-                     "project": {"name": r[4], "id": r[5]}} for r in cur.fetchall()]
+            SELECT ep.id, ep.specialization
+            FROM "EmployeeProfile" ep
+            WHERE ep."userId" = %s AND ep."teamId" IS NULL AND ep."projectId" IS NULL
+        ''', (user_id,))
+        profile = cur.fetchone()
+        if not profile:
+            raise ValueError("Employee is not in the talent pool")
+        profile_id, specialization = profile
 
-        # Stats
-        cur.execute('SELECT COUNT(*) FROM "Commit" WHERE "userId" = %s', (uid,))
-        total_commits = cur.fetchone()[0]
-        cur.execute('SELECT COUNT(*) FROM "Ticket" WHERE "assigneeId" = %s AND status = %s', (uid, 'CLOSED'))
-        total_tickets = cur.fetchone()[0]
-        cur.execute('SELECT COUNT(*) FROM "Bug" WHERE "ownerId" = %s', (uid,))
-        total_bugs = cur.fetchone()[0]
-        rating = calculate_performance_rating(total_tickets, total_commits, total_bugs)
+        # Verify project belongs to this manager
+        cur.execute(
+            'SELECT id, "teamId" FROM "Project" WHERE id = %s AND "managerId" = %s',
+            (project_id, manager_id),
+        )
+        project = cur.fetchone()
+        if not project:
+            raise ValueError("Project not found for this manager")
+        target_project_id, target_team_id = project
 
+        # Assign to project and team
+        cur.execute('''
+            UPDATE "EmployeeProfile"
+            SET "projectId" = %s, "teamId" = %s, "updatedAt" = NOW()
+            WHERE "userId" = %s
+        ''', (target_project_id, target_team_id, user_id))
+
+        # Create project history
+        cur.execute('''
+            INSERT INTO "ProjectHistory" (id, "userId", "projectId", role, "startDate", "endDate")
+            VALUES (%s, %s, %s, %s, NOW(), NULL)
+        ''', (str(uuid.uuid4()), user_id, target_project_id, specialization or 'Engineer'))
+
+        conn.commit()
         return {
-            "id": uid,
-            "name": name,
-            "email": email,
-            "profile": profile,
-            "performanceReviews": reviews,
-            "projectHistory": history,
-            "stats": {
-                "commits": total_commits,
-                "tickets": total_tickets,
-                "bugs": total_bugs,
-                "rating": rating
-            }
+            "status": "success",
+            "userId": user_id,
+            "projectId": target_project_id,
+            "teamId": target_team_id,
         }
+
+
+def get_manager_projects(manager_id):
+    """Get all projects for a manager (for recruit dropdown)."""
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute('''
+            SELECT p.id, p.name, p.status, t.name AS team_name
+            FROM "Project" p
+            LEFT JOIN "Team" t ON t.id = p."teamId"
+            WHERE p."managerId" = %s
+            ORDER BY p.name
+        ''', (manager_id,))
+        return [{"id": r[0], "name": r[1], "status": r[2], "teamName": r[3]} for r in cur.fetchall()]
+
+
+def list_talent_pool():
+    """List employees in the talent pool (no team and no project assigned)."""
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute('''
+            SELECT u.id, u.name, u.email,
+                   ep.id AS profile_id,
+                   ep.specialization,
+                   ep."joinedAt",
+                   ep."attritionRisk"
+            FROM "User" u
+            JOIN "EmployeeProfile" ep ON ep."userId" = u.id
+            WHERE u.role = 'EMPLOYEE'
+              AND ep."teamId" IS NULL
+              AND ep."projectId" IS NULL
+            ORDER BY ep."joinedAt" DESC
+        ''')
+        rows = cur.fetchall()
+
+        pool = []
+        for row in rows:
+            profile_id = row[3]
+            # Skills
+            cur.execute('SELECT "skillName", proficiency FROM "EmployeeSkill" WHERE "profileId" = %s ORDER BY proficiency DESC', (profile_id,))
+            skills = [{"skillName": s[0], "proficiency": s[1]} for s in cur.fetchall()]
+            # Trainings
+            cur.execute('SELECT id, name, description, "completionDate" FROM "Training" WHERE "profileId" = %s ORDER BY "completionDate" DESC', (profile_id,))
+            trainings = [{"id": t[0], "name": t[1], "description": t[2], "completionDate": t[3].isoformat() if t[3] else None} for t in cur.fetchall()]
+
+            pool.append({
+                "id": row[0],
+                "name": row[1],
+                "email": row[2],
+                "profileId": profile_id,
+                "specialization": row[4] or "Generalist",
+                "joinedAt": row[5].isoformat() if row[5] else None,
+                "attritionRisk": row[6] or "LOW",
+                "skills": skills,
+                "trainings": trainings,
+            })
+        return pool
+
+
+def add_talent_pool_employee(data):
+    """Add a new employee to the talent pool."""
+    conn = get_connection()
+    with conn.cursor() as cur:
+        user_id = str(uuid.uuid4())
+        profile_id = str(uuid.uuid4())
+        name = data.get("name", "").strip()
+        email = data.get("email", "").strip()
+        specialization = data.get("specialization", "Generalist").strip()
+        skills = data.get("skills", [])
+        trainings = data.get("trainings", [])
+
+        if not name or not email:
+            raise ValueError("name and email are required")
+
+        # Default password hash (same as seeded users)
+        password_hash = "$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA"
+
+        cur.execute(
+            'INSERT INTO "User" (id, email, "passwordHash", name, role, "createdAt") VALUES (%s, %s, %s, %s, %s, NOW())',
+            (user_id, email, password_hash, name, 'EMPLOYEE')
+        )
+        cur.execute(
+            'INSERT INTO "EmployeeProfile" (id, "userId", "teamId", "projectId", specialization, "joinedAt", "updatedAt", "performanceRating", "promotionReady", "attritionRisk") VALUES (%s, %s, NULL, NULL, %s, NOW(), NOW(), NULL, false, %s)',
+            (profile_id, user_id, specialization, 'LOW')
+        )
+
+        for skill in skills:
+            skill_name = skill.get("skillName", "").strip()
+            proficiency = float(skill.get("proficiency", 3.0))
+            if skill_name:
+                cur.execute(
+                    'INSERT INTO "EmployeeSkill" (id, "skillName", proficiency, "profileId") VALUES (%s, %s, %s, %s)',
+                    (str(uuid.uuid4()), skill_name, proficiency, profile_id)
+                )
+
+        for training in trainings:
+            t_name = training.get("name", "").strip()
+            t_desc = training.get("description", "").strip()
+            if t_name:
+                cur.execute(
+                    'INSERT INTO "Training" (id, name, description, "completionDate", "profileId") VALUES (%s, %s, %s, NOW(), %s)',
+                    (str(uuid.uuid4()), t_name, t_desc, profile_id)
+                )
+
+        conn.commit()
+        return {"status": "success", "id": user_id, "profileId": profile_id, "name": name, "email": email}
 
 
 def list_users():
@@ -605,6 +918,42 @@ def handler(event=None, context=None):
                     "body": json.dumps({"error": f"Unknown action: {action}"})
                 }
 
+            return {"statusCode": 200, "headers": headers, "body": json.dumps(result, default=str)}
+
+        # POST /recruit — recruit from talent pool
+        if "recruit" in parts and method == "POST":
+            body = json.loads(event.get("body", "{}"))
+            manager_id = body.get("managerId")
+            user_id = body.get("userId")
+            project_id = body.get("projectId")
+            if not manager_id or not user_id or not project_id:
+                return {"statusCode": 400, "headers": headers, "body": json.dumps({"error": "managerId, userId, projectId required"})}
+            result = recruit_from_talent_pool(manager_id, user_id, project_id)
+            return {"statusCode": 200, "headers": headers, "body": json.dumps(result, default=str)}
+
+        # GET /manager-projects/{managerId}
+        if "manager-projects" in parts:
+            mgr_id = parts[-1]
+            result = get_manager_projects(mgr_id)
+            return {"statusCode": 200, "headers": headers, "body": json.dumps(result, default=str)}
+
+        # GET /talent-pool or POST /talent-pool
+        if "talent-pool" in parts:
+            if method == "POST":
+                body = json.loads(event.get("body", "{}"))
+                result = add_talent_pool_employee(body)
+                return {"statusCode": 201, "headers": headers, "body": json.dumps(result, default=str)}
+            result = list_talent_pool()
+            return {"statusCode": 200, "headers": headers, "body": json.dumps(result, default=str)}
+
+        # GET /all-managers (HR manager database view)
+        if "all-managers" in parts:
+            result = list_all_managers()
+            return {"statusCode": 200, "headers": headers, "body": json.dumps(result, default=str)}
+
+        # GET /all-engineers (HR database view)
+        if "all-engineers" in parts:
+            result = list_all_engineers()
             return {"statusCode": 200, "headers": headers, "body": json.dumps(result, default=str)}
 
         # GET /users

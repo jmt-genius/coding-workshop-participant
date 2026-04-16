@@ -73,22 +73,25 @@ def handler(event=None, context=None):
                     cur.execute('SELECT COUNT(*) FROM public."User"')
                     user_count = cur.fetchone()[0]
                     if user_count > 0:
-                        logger.info("Database already seeded with %s users.", user_count)
-                        return {
-                            "statusCode": 200,
-                            "body": json.dumps(
-                                {
-                                    "message": "Database already seeded",
-                                    "userCount": user_count,
-                                }
-                            ),
-                        }
+                        logger.info("Database already seeded with %s users. Skipping main seed.", user_count)
+                        # Don't return early - still check if talent pool needs seeding
+                    else:
+                        # Run main seed only if database is empty
+                        with open(sql_path, "r") as f:
+                            sql_content = sanitize_seed_sql(f.read())
+                        with conn.cursor() as cur:
+                            cur.execute(sql_content)
+                        logger.info("Main database seeding completed.")
 
-            with open(sql_path, "r") as f:
-                sql_content = sanitize_seed_sql(f.read())
-
-            with conn.cursor() as cur:
-                cur.execute(sql_content)
+            # Also execute talent pool seed if it exists
+            talent_pool_path = os.path.join(os.path.dirname(__file__), "seed-talent-pool.sql")
+            if os.path.exists(talent_pool_path):
+                logger.info("Seeding talent pool...")
+                with open(talent_pool_path, "r") as f:
+                    talent_pool_sql = sanitize_seed_sql(f.read())
+                with conn.cursor() as cur:
+                    cur.execute(talent_pool_sql)
+                logger.info("Talent pool seeding completed.")
 
             logger.info("Database seeding completed successfully.")
             return {"statusCode": 200, "body": json.dumps({"message": "Database seeded successfully"})}

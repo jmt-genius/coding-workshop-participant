@@ -54,11 +54,10 @@ const SideNavBar = () => {
         {role === 'HR' && (
           <SideNavGroup title="Governance">
             <NavLink to="/dashboard/hr" icon="admin_panel_settings" label="HR Admin" isActive={isActive('/dashboard/hr')} />
+            <NavLink to="/dashboard/engineer-database" icon="engineering" label="Engineer Database" isActive={isActive('/dashboard/engineer-database')} />
+            <NavLink to="/dashboard/manager-database" icon="supervisor_account" label="Manager Database" isActive={isActive('/dashboard/manager-database')} />
+            <NavLink to="/dashboard/talent-pool" icon="person_search" label="Talent Pool" isActive={isActive('/dashboard/talent-pool')} />
             <NavLink to="/dashboard/talent-density" icon="hub" label="Talent Hub" isActive={isActive('/dashboard/talent-density')} />
-            <NavLink to="/dashboard/data-management" icon="database" label="Data Management" isActive={isActive('/dashboard/data-management')} />
-            <NavLink to="/dashboard/experience" icon="favorite" label="Experience" isActive={isActive('/dashboard/experience')} />
-            <NavLink to="/dashboard/health" icon="monitor_heart" label="Org Health" isActive={isActive('/dashboard/health')} />
-            <NavLink to="/dashboard/status" icon="security" label="System Status" isActive={isActive('/dashboard/status')} />
           </SideNavGroup>
         )}
 
@@ -67,6 +66,7 @@ const SideNavBar = () => {
             <NavLink to="/dashboard" icon="dashboard" label="Global Dashboard" isActive={isActive('/dashboard')} />
             {role === 'MANAGER' && <NavLink to="/dashboard/manager" icon="business_center" label="Project Management" isActive={isActive('/dashboard/manager')} />}
             {role === 'MANAGER' && <NavLink to="/dashboard/team-management" icon="group" label="Team Management" isActive={isActive('/dashboard/team-management')} />}
+            {role === 'MANAGER' && <NavLink to="/dashboard/talent-pool" icon="person_search" label="Talent Pool" isActive={isActive('/dashboard/talent-pool')} />}
             <NavLink to="/dashboard/calendar" icon="calendar_month" label="Calendar" isActive={isActive('/dashboard/calendar')} />
             <NavLink to="/dashboard/squad" icon="groups" label="Team Intelligence" isActive={isActive('/dashboard/squad')} />
           </SideNavGroup>

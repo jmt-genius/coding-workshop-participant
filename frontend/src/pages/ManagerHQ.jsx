@@ -354,7 +354,7 @@ const ManagerHQ = () => {
                       <div className="text-right">
                         <div className="text-[9px] font-black text-primary uppercase tracking-widest mb-1 opacity-50">Score</div>
                         <div className="text-xl font-black text-on-surface tracking-tighter">
-                          {member.performanceRating.toFixed(1)}
+                          {(member.performanceRating ?? 0).toFixed(1)}
                         </div>
                       </div>
                     </div>

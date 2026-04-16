@@ -26,6 +26,9 @@ import ManagerHQ from './pages/ManagerHQ';
 import MemberProfile from './pages/MemberProfile';
 import TeamManagement from './pages/TeamManagement';
 import Calendar from './pages/Calendar';
+import EngineerDatabase from './pages/EngineerDatabase';
+import ManagerDatabase from './pages/ManagerDatabase';
+import TalentPool from './pages/TalentPool';
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -67,6 +70,9 @@ function App() {
                     <Route path="/manager" element={<ManagerHQ />} />
                     <Route path="/team-management" element={<TeamManagement />} />
                     <Route path="/calendar" element={<Calendar />} />
+                    <Route path="/engineer-database" element={<EngineerDatabase />} />
+                    <Route path="/manager-database" element={<ManagerDatabase />} />
+                    <Route path="/talent-pool" element={<TalentPool />} />
                     <Route path="/member/:id" element={<MemberProfile />} />
                   </Routes>
                 </div>
