@@ -203,13 +203,15 @@ const MemberProfile = () => {
                           <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{new Date(review.date).toLocaleDateString()}</span>
                           <div className="flex gap-0.5">
                              {[...Array(5)].map((_, idx) => (
-                                <Star key={idx} size={10} className={idx < Math.round(review.rating / 20) ? 'text-primary fill-primary' : 'text-on-surface-variant opacity-20'} />
+                                <Star key={idx} size={10} className={idx < Math.round(review.rating) ? 'text-primary fill-primary' : 'text-on-surface-variant opacity-20'} />
                              ))}
-                          </div>
+                           </div>
                        </div>
-                       <p className="text-xs text-on-surface font-medium leading-relaxed italic opacity-80 mb-6">"{review.reviewText}"</p>
+                       <p className="text-xs text-on-surface font-medium leading-relaxed italic opacity-80 mb-6">"{review.comments}"</p>
                        <div className="text-right">
-                          <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-40 italic">— Lead Architect</p>
+                          <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-40 italic">
+                            — {review.reviewer?.name || 'Manager'}
+                          </p>
                        </div>
                     </div>
                  )) : (

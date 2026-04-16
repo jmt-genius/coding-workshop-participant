@@ -8,6 +8,7 @@ Endpoints:
 
 import json
 import logging
+import uuid
 from postgres_service import get_connection
 
 logger = logging.getLogger()
@@ -51,6 +52,306 @@ def list_employees():
             }
             users.append(user)
         return users
+
+
+def get_manager_engineers(manager_id):
+    """List all engineers managed by the given manager."""
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute(
+            '''
+            SELECT DISTINCT
+                u.id,
+                u.email,
+                u.name,
+                u.role,
+                ep.id,
+                ep."teamId",
+                ep."projectId",
+                ep.specialization,
+                ep."performanceRating",
+                ep."promotionReady",
+                ep."attritionRisk",
+                t.name AS team_name,
+                p.name AS project_name
+            FROM "User" u
+            JOIN "EmployeeProfile" ep ON ep."userId" = u.id
+            LEFT JOIN "Team" t ON t.id = ep."teamId"
+            LEFT JOIN "Project" p ON p.id = ep."projectId"
+            LEFT JOIN "Project" mp ON mp.id = ep."projectId"
+            WHERE u.role = 'EMPLOYEE'
+              AND (
+                t."leadId" = %s OR
+                mp."managerId" = %s
+              )
+            ORDER BY u.name
+            ''',
+            (manager_id, manager_id),
+        )
+        rows = cur.fetchall()
+
+        engineers = []
+        for row in rows:
+            user_id = row[0]
+            cur.execute('SELECT "skillName" FROM "EmployeeSkill" WHERE "profileId" = %s ORDER BY "skillName"', (row[4],))
+            skills = [skill[0] for skill in cur.fetchall()]
+
+            cur.execute('SELECT COUNT(*) FROM "Commit" WHERE "userId" = %s', (user_id,))
+            commits = cur.fetchone()[0]
+            cur.execute('SELECT COUNT(*) FROM "Ticket" WHERE "assigneeId" = %s AND status = %s', (user_id, 'CLOSED'))
+            tickets = cur.fetchone()[0]
+            cur.execute('SELECT COUNT(*) FROM "Bug" WHERE "ownerId" = %s AND status = %s', (user_id, 'OPEN'))
+            bugs = cur.fetchone()[0]
+
+            engineers.append({
+                "id": row[0],
+                "email": row[1],
+                "name": row[2],
+                "role": row[3],
+                "profile": {
+                    "id": row[4],
+                    "teamId": row[5],
+                    "projectId": row[6],
+                    "specialization": row[7],
+                    "performanceRating": row[8],
+                    "promotionReady": row[9],
+                    "attritionRisk": row[10],
+                    "team": {"name": row[11]} if row[11] else None,
+                    "project": {"name": row[12]} if row[12] else None,
+                    "employeeSkills": skills,
+                },
+                "stats": {
+                    "commits": commits,
+                    "tickets": tickets,
+                    "bugs": bugs,
+                    "rating": calculate_performance_rating(tickets, commits, bugs),
+                },
+                "isSuspended": row[10] == "SUSPENDED",
+            })
+
+        return engineers
+
+
+def ensure_manager_scope(cur, manager_id, user_id):
+    """Ensure the engineer is currently under the given manager."""
+    cur.execute(
+        '''
+        SELECT ep.id, ep."teamId", ep."projectId", ep.specialization
+        FROM "EmployeeProfile" ep
+        LEFT JOIN "Team" t ON t.id = ep."teamId"
+        LEFT JOIN "Project" p ON p.id = ep."projectId"
+        WHERE ep."userId" = %s
+          AND (t."leadId" = %s OR p."managerId" = %s)
+        ''',
+        (user_id, manager_id, manager_id),
+    )
+    row = cur.fetchone()
+    if not row:
+        raise ValueError("Engineer is not managed by this manager")
+    return {
+        "profileId": row[0],
+        "teamId": row[1],
+        "projectId": row[2],
+        "specialization": row[3] or "Engineer",
+    }
+
+
+def suspend_engineer(manager_id, user_id):
+    """Mark an engineer as suspended."""
+    conn = get_connection()
+    with conn.cursor() as cur:
+        ensure_manager_scope(cur, manager_id, user_id)
+        cur.execute(
+            '''
+            UPDATE "EmployeeProfile"
+            SET "attritionRisk" = 'SUSPENDED'
+            WHERE "userId" = %s
+            RETURNING "userId"
+            ''',
+            (user_id,),
+        )
+        conn.commit()
+        if not cur.fetchone():
+            raise ValueError("Engineer not found")
+        return {"status": "success", "userId": user_id, "isSuspended": True}
+
+
+def add_performance_review(manager_id, user_id, rating, comments):
+    """Add a performance review and persist the latest rating."""
+    conn = get_connection()
+    with conn.cursor() as cur:
+        ensure_manager_scope(cur, manager_id, user_id)
+        cur.execute(
+            '''
+            INSERT INTO "PerformanceReview" (id, "userId", "reviewerId", rating, comments, date)
+            VALUES (%s, %s, %s, %s, %s, NOW())
+            ''',
+            (str(uuid.uuid4()), user_id, manager_id, rating, comments),
+        )
+        cur.execute(
+            '''
+            UPDATE "EmployeeProfile"
+            SET "performanceRating" = %s
+            WHERE "userId" = %s
+            ''',
+            (round(float(rating), 1), user_id),
+        )
+        conn.commit()
+        return {"status": "success", "userId": user_id, "rating": rating}
+
+
+def remove_from_project(manager_id, user_id):
+    """Unassign an engineer from their current project."""
+    conn = get_connection()
+    with conn.cursor() as cur:
+        profile = ensure_manager_scope(cur, manager_id, user_id)
+        if not profile["projectId"]:
+            return {"status": "success", "userId": user_id, "projectId": None}
+
+        cur.execute(
+            '''
+            UPDATE "ProjectHistory"
+            SET "endDate" = NOW()
+            WHERE "userId" = %s AND "projectId" = %s AND "endDate" IS NULL
+            ''',
+            (user_id, profile["projectId"]),
+        )
+        cur.execute(
+            'SELECT id FROM "Team" WHERE id = %s AND "leadId" = %s',
+            (profile["teamId"], manager_id),
+        )
+        managed_team = cur.fetchone() if profile["teamId"] else None
+
+        if managed_team:
+            cur.execute(
+                '''
+                UPDATE "EmployeeProfile"
+                SET "projectId" = NULL,
+                    "teamId" = NULL
+                WHERE "userId" = %s
+                ''',
+                (user_id,),
+            )
+        else:
+            cur.execute(
+                '''
+                UPDATE "EmployeeProfile"
+                SET "projectId" = NULL
+                WHERE "userId" = %s
+                ''',
+                (user_id,),
+            )
+        conn.commit()
+        return {
+            "status": "success",
+            "userId": user_id,
+            "projectId": None,
+            "teamId": None if managed_team else profile["teamId"],
+        }
+
+
+def assign_to_project(manager_id, user_id, project_id):
+    """Assign an engineer to a project managed by the current manager."""
+    conn = get_connection()
+    with conn.cursor() as cur:
+        profile = ensure_manager_scope(cur, manager_id, user_id)
+        cur.execute(
+            'SELECT id, "teamId" FROM "Project" WHERE id = %s AND "managerId" = %s',
+            (project_id, manager_id),
+        )
+        project = cur.fetchone()
+        if not project:
+            raise ValueError("Project not found for this manager")
+
+        target_project_id, target_team_id = project
+
+        if profile["projectId"] and profile["projectId"] != target_project_id:
+            cur.execute(
+                '''
+                UPDATE "ProjectHistory"
+                SET "endDate" = NOW()
+                WHERE "userId" = %s AND "projectId" = %s AND "endDate" IS NULL
+                ''',
+                (user_id, profile["projectId"]),
+            )
+
+        cur.execute(
+            '''
+            UPDATE "EmployeeProfile"
+            SET "projectId" = %s,
+                "teamId" = %s
+            WHERE "userId" = %s
+            ''',
+            (target_project_id, target_team_id, user_id),
+        )
+
+        cur.execute(
+            '''
+            SELECT id
+            FROM "ProjectHistory"
+            WHERE "userId" = %s AND "projectId" = %s AND "endDate" IS NULL
+            ''',
+            (user_id, target_project_id),
+        )
+        existing_history = cur.fetchone()
+        if not existing_history:
+            cur.execute(
+                '''
+                INSERT INTO "ProjectHistory" (id, "userId", "projectId", role, "startDate", "endDate")
+                VALUES (%s, %s, %s, %s, NOW(), NULL)
+                ''',
+                (str(uuid.uuid4()), user_id, target_project_id, profile["specialization"]),
+            )
+
+        conn.commit()
+        return {
+            "status": "success",
+            "userId": user_id,
+            "projectId": target_project_id,
+            "teamId": target_team_id,
+        }
+
+
+def remove_from_team(manager_id, user_id):
+    """Unassign an engineer from the current team led by the manager."""
+    conn = get_connection()
+    with conn.cursor() as cur:
+        profile = ensure_manager_scope(cur, manager_id, user_id)
+        if not profile["teamId"]:
+            return {"status": "success", "userId": user_id, "teamId": None}
+
+        cur.execute('SELECT id FROM "Team" WHERE id = %s AND "leadId" = %s', (profile["teamId"], manager_id))
+        team = cur.fetchone()
+        if not team:
+            raise ValueError("Engineer is not on a team led by this manager")
+
+        if profile["projectId"]:
+            cur.execute(
+                'SELECT id FROM "Project" WHERE id = %s AND "managerId" = %s',
+                (profile["projectId"], manager_id),
+            )
+            managed_project = cur.fetchone()
+            if managed_project:
+                cur.execute(
+                    '''
+                    UPDATE "ProjectHistory"
+                    SET "endDate" = NOW()
+                    WHERE "userId" = %s AND "projectId" = %s AND "endDate" IS NULL
+                    ''',
+                    (user_id, profile["projectId"]),
+                )
+
+        cur.execute(
+            '''
+            UPDATE "EmployeeProfile"
+            SET "teamId" = NULL,
+                "projectId" = NULL
+            WHERE "userId" = %s
+            ''',
+            (user_id,),
+        )
+        conn.commit()
+        return {"status": "success", "userId": user_id, "teamId": None, "projectId": None}
 
 
 def get_employee_detail(user_id):
@@ -218,6 +519,50 @@ def handler(event=None, context=None):
             result = update_metrics(user_id, metrics_data)
             return {"statusCode": 200, "headers": headers, "body": json.dumps(result)}
 
+        if method == "GET" and "manager" in parts and parts[-1] != "actions":
+            manager_id = parts[-1]
+            result = get_manager_engineers(manager_id)
+            return {"statusCode": 200, "headers": headers, "body": json.dumps(result, default=str)}
+
+        if method == "POST" and "actions" in parts:
+            body = json.loads(event.get("body", "{}"))
+            action = body.get("action")
+            manager_id = body.get("managerId")
+            user_id = body.get("userId")
+
+            if not manager_id or not user_id or not action:
+                return {
+                    "statusCode": 400,
+                    "headers": headers,
+                    "body": json.dumps({"error": "managerId, userId, and action are required"})
+                }
+
+            if action == "suspend":
+                result = suspend_engineer(manager_id, user_id)
+            elif action == "review":
+                rating = body.get("rating")
+                comments = body.get("comments", "")
+                if rating is None:
+                    raise ValueError("rating is required")
+                result = add_performance_review(manager_id, user_id, float(rating), comments)
+            elif action == "remove_project":
+                result = remove_from_project(manager_id, user_id)
+            elif action == "assign_project":
+                project_id = body.get("projectId")
+                if not project_id:
+                    raise ValueError("projectId is required")
+                result = assign_to_project(manager_id, user_id, project_id)
+            elif action == "remove_team":
+                result = remove_from_team(manager_id, user_id)
+            else:
+                return {
+                    "statusCode": 400,
+                    "headers": headers,
+                    "body": json.dumps({"error": f"Unknown action: {action}"})
+                }
+
+            return {"statusCode": 200, "headers": headers, "body": json.dumps(result, default=str)}
+
         # GET /users
         if "users" in parts:
             result = list_users()
@@ -242,6 +587,14 @@ def handler(event=None, context=None):
             "statusCode": 200,
             "headers": headers,
             "body": json.dumps(result, default=str)
+        }
+
+    except ValueError as e:
+        logger.error("Employees validation error: %s", str(e))
+        return {
+            "statusCode": 400,
+            "headers": headers,
+            "body": json.dumps({"error": "Invalid request", "message": str(e)})
         }
 
     except Exception as e:

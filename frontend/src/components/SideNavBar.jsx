@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { logout } from '../store/authSlice';
 
 const SideNavGroup = ({ title, children }) => (
   <div className="mb-6">
@@ -20,6 +22,7 @@ const NavLink = ({ to, icon, label, isActive }) => (
 
 const SideNavBar = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   
   // Adjusted isActive check to handle /dashboard prefix
@@ -44,7 +47,7 @@ const SideNavBar = () => {
 
       <nav className="flex-1">
         <SideNavGroup title="Core">
-          <NavLink to="/dashboard" icon="dashboard" label="Overview" isActive={isActive('/dashboard')} />
+          {role !== 'MANAGER' && <NavLink to="/dashboard" icon="dashboard" label="Overview" isActive={isActive('/dashboard')} />}
           <NavLink to="/dashboard/employee-dashboard" icon="person" label="My Profile" isActive={isActive('/dashboard/employee-dashboard')} />
         </SideNavGroup>
 
@@ -62,7 +65,8 @@ const SideNavBar = () => {
         {(role === 'MANAGER' || role === 'HR') && (
           <SideNavGroup title="Leadership & Projects">
             <NavLink to="/dashboard" icon="dashboard" label="Global Dashboard" isActive={isActive('/dashboard')} />
-            {user.role === 'MANAGER' && <NavLink to="/dashboard/manager" icon="business_center" label="Project Management" isActive={isActive('/dashboard/manager')} />}
+            {role === 'MANAGER' && <NavLink to="/dashboard/manager" icon="business_center" label="Project Management" isActive={isActive('/dashboard/manager')} />}
+            {role === 'MANAGER' && <NavLink to="/dashboard/team-management" icon="group" label="Team Management" isActive={isActive('/dashboard/team-management')} />}
             <NavLink to="/dashboard/squad" icon="groups" label="Team Intelligence" isActive={isActive('/dashboard/squad')} />
           </SideNavGroup>
         )}

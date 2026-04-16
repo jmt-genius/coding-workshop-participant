@@ -24,6 +24,7 @@ import Settings from './pages/Settings';
 import DataManagement from './pages/DataManagement';
 import ManagerHQ from './pages/ManagerHQ';
 import MemberProfile from './pages/MemberProfile';
+import TeamManagement from './pages/TeamManagement';
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -63,6 +64,7 @@ function App() {
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/data-management" element={<DataManagement />} />
                     <Route path="/manager" element={<ManagerHQ />} />
+                    <Route path="/team-management" element={<TeamManagement />} />
                     <Route path="/member/:id" element={<MemberProfile />} />
                   </Routes>
                 </div>
