@@ -109,9 +109,11 @@ if [ "$PG_OK" = false ]; then
             echo -e "  ✗ PostgreSQL failed to start within 10 seconds"
             exit 1
         fi
-        sleep 1
     done
 fi
+
+# Run database seeding
+"$SCRIPT_DIR/seed-database.sh"
 
 echo ""
 
@@ -369,7 +371,7 @@ export AWS_REGION=us-east-1
 unset AWS_SESSION_TOKEN
 
 # Ensure the Terraform state bucket exists in LocalStack
-BUCKET_NAME="coding-workshop-tfstate-${PARTICIPANT_ID:-abcd1234}"
+BUCKET_NAME="coding-workshop-us-east-1-${PARTICIPANT_ID:-abcd1234}"
 if ! aws s3 ls 2>/dev/null | grep -q "$BUCKET_NAME"; then
     echo -e "  Creating Terraform state bucket: $BUCKET_NAME"
     aws s3 mb "s3://$BUCKET_NAME" > /dev/null 2>&1 || {
@@ -380,7 +382,7 @@ fi
 
 # Ensure terraform is initialized against the correct LocalStack backend
 terraform init -reconfigure \
-    -backend-config="bucket=coding-workshop-tfstate-${PARTICIPANT_ID:-abcd1234}" \
+    -backend-config="bucket=coding-workshop-us-east-1-${PARTICIPANT_ID:-abcd1234}" \
     -backend-config="region=${AWS_REGION:-us-east-1}" \
     > /tmp/tf-init.log 2>&1 || {
     echo -e "  ✗ Terraform init failed:"

@@ -1,0 +1,3716 @@
+﻿--
+-- PostgreSQL database dump
+--
+
+\restrict Aj3FRZrYs35p5BRDSwTuBzmSTRNkJJdaFf6IbfGLAHRVMJoospRN36ZJNRLxzT5
+
+-- Dumped from database version 18.1
+-- Dumped by pg_dump version 18.1
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+ALTER SCHEMA public OWNER TO postgres;
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA public IS '';
+
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: Achievement; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Achievement" (
+    id text NOT NULL,
+    title text NOT NULL,
+    description text NOT NULL,
+    "teamId" text,
+    date timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    icon text DEFAULT 'emoji_events'::text NOT NULL
+);
+
+
+ALTER TABLE public."Achievement" OWNER TO postgres;
+
+--
+-- Name: Bug; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Bug" (
+    id text NOT NULL,
+    title text NOT NULL,
+    severity text NOT NULL,
+    status text DEFAULT 'OPEN'::text NOT NULL,
+    "projectId" text,
+    "reporterId" text NOT NULL,
+    "ownerId" text,
+    "resolverId" text,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public."Bug" OWNER TO postgres;
+
+--
+-- Name: Commit; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Commit" (
+    id text NOT NULL,
+    hash text NOT NULL,
+    message text NOT NULL,
+    impact double precision DEFAULT 1.0 NOT NULL,
+    "userId" text NOT NULL,
+    "projectId" text,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public."Commit" OWNER TO postgres;
+
+--
+-- Name: EmployeeProfile; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."EmployeeProfile" (
+    id text NOT NULL,
+    "userId" text NOT NULL,
+    "teamId" text,
+    "projectId" text,
+    specialization text DEFAULT 'Generalist'::text NOT NULL,
+    "joinedAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updatedAt" timestamp(3) without time zone NOT NULL,
+    "performanceRating" double precision,
+    "promotionReady" boolean DEFAULT false NOT NULL,
+    "attritionRisk" text DEFAULT 'LOW'::text NOT NULL
+);
+
+
+ALTER TABLE public."EmployeeProfile" OWNER TO postgres;
+
+--
+-- Name: EmployeeSkill; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."EmployeeSkill" (
+    id text NOT NULL,
+    "skillName" text NOT NULL,
+    proficiency double precision NOT NULL,
+    "profileId" text NOT NULL
+);
+
+
+ALTER TABLE public."EmployeeSkill" OWNER TO postgres;
+
+--
+-- Name: Milestone; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Milestone" (
+    id text NOT NULL,
+    "projectId" text NOT NULL,
+    title text NOT NULL,
+    description text,
+    duration text,
+    impact double precision DEFAULT 1.0 NOT NULL,
+    "isAchieved" boolean DEFAULT false NOT NULL,
+    date timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public."Milestone" OWNER TO postgres;
+
+--
+-- Name: PerformanceReview; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."PerformanceReview" (
+    id text NOT NULL,
+    "userId" text NOT NULL,
+    "reviewerId" text NOT NULL,
+    rating double precision NOT NULL,
+    comments text,
+    date timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public."PerformanceReview" OWNER TO postgres;
+
+--
+-- Name: Project; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Project" (
+    id text NOT NULL,
+    name text NOT NULL,
+    description text,
+    status text DEFAULT 'ACTIVE'::text NOT NULL,
+    "requiredSkills" text[],
+    "managerId" text NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updatedAt" timestamp(3) without time zone NOT NULL,
+    "teamId" text
+);
+
+
+ALTER TABLE public."Project" OWNER TO postgres;
+
+--
+-- Name: ProjectHistory; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."ProjectHistory" (
+    id text NOT NULL,
+    "userId" text NOT NULL,
+    "projectId" text NOT NULL,
+    role text NOT NULL,
+    "startDate" timestamp(3) without time zone NOT NULL,
+    "endDate" timestamp(3) without time zone
+);
+
+
+ALTER TABLE public."ProjectHistory" OWNER TO postgres;
+
+--
+-- Name: Team; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Team" (
+    id text NOT NULL,
+    name text NOT NULL,
+    "leadId" text NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public."Team" OWNER TO postgres;
+
+--
+-- Name: Ticket; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Ticket" (
+    id text NOT NULL,
+    title text NOT NULL,
+    status text NOT NULL,
+    difficulty double precision DEFAULT 1.0 NOT NULL,
+    "projectId" text,
+    "assigneeId" text,
+    "openedById" text NOT NULL,
+    "closedById" text,
+    "closedAt" timestamp(3) without time zone,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public."Ticket" OWNER TO postgres;
+
+--
+-- Name: Training; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Training" (
+    id text NOT NULL,
+    name text NOT NULL,
+    description text,
+    "completionDate" timestamp(3) without time zone NOT NULL,
+    "profileId" text NOT NULL
+);
+
+
+ALTER TABLE public."Training" OWNER TO postgres;
+
+--
+-- Name: User; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."User" (
+    id text NOT NULL,
+    email text NOT NULL,
+    "passwordHash" text NOT NULL,
+    name text NOT NULL,
+    role text NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public."User" OWNER TO postgres;
+
+--
+-- Data for Name: Achievement; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Achievement" (id, title, description, "teamId", date, icon) FROM stdin;
+aaf1750a-110c-4682-ae26-492a10c6385b	Uptime Excellence	Maintained 99.9% availability across all managed cluster nodes for 30 days.	a0ceb753-272e-451b-9038-c3142593ff2b	2026-03-11 01:26:50.817	emoji_events
+174ad6f5-7486-4e9b-9f12-6eaffeed9d9f	Zero-Bug Deployment	Successfully deployed major feature updates with zero critical bugs reported in production.	a0ceb753-272e-451b-9038-c3142593ff2b	2026-03-21 01:26:50.853	emoji_events
+885e9503-09f4-407d-9f50-1c93d9f867e1	Feature Impact Award	Delivered features that directly increased user engagement metrics by 25%.	e3d1fc44-bb7b-4f4c-9f8b-41d7beb0b9c0	2026-03-06 01:26:50.859	emoji_events
+e41f9ed7-28e4-4c53-b3a4-a2b14148c503	Legacy Refactor King	Successfully migrated 50% of technical debt into modernized architecture patterns.	e3d1fc44-bb7b-4f4c-9f8b-41d7beb0b9c0	2026-04-02 01:26:50.865	emoji_events
+a89e1ac4-0906-4bb6-96a0-f5a010858621	Feature Impact Award	Delivered features that directly increased user engagement metrics by 25%.	3d990fec-154b-43a7-bd66-80a135ab1d5a	2026-02-27 01:26:50.872	emoji_events
+83d6e85e-2937-43d1-9760-ecaa4a975d41	Legacy Refactor King	Successfully migrated 50% of technical debt into modernized architecture patterns.	3d990fec-154b-43a7-bd66-80a135ab1d5a	2026-03-03 01:26:50.877	emoji_events
+818b679e-11a9-41e4-be51-a2485f28f905	Unit Test Standard	Achieved 95% test coverage across the entire project codebase.	ff26b4c5-d014-4b71-8ab2-460684706127	2026-04-09 01:26:50.885	emoji_events
+5ef496ce-1993-4d61-a2fe-81f31697ef8c	Sprint Velocity Leader	Exceeded projected delivery targets by 15% in the previous performance cycle.	ff26b4c5-d014-4b71-8ab2-460684706127	2026-03-06 01:26:50.89	emoji_events
+09ee01db-7d0b-4cd6-a695-4f5ea1680bae	Uptime Excellence	Maintained 99.9% availability across all managed cluster nodes for 30 days.	b72c1672-ba9c-4326-95c0-70ab116bf435	2026-04-12 01:26:50.896	emoji_events
+cfb2024a-f663-4a0a-b5eb-697479f0f819	Unit Test Standard	Achieved 95% test coverage across the entire project codebase.	b72c1672-ba9c-4326-95c0-70ab116bf435	2026-02-17 01:26:50.902	emoji_events
+040b91d1-4183-4d94-844b-994622c88125	Feature Impact Award	Delivered features that directly increased user engagement metrics by 25%.	7ac82137-cbc9-4908-ac2b-66caecc3494e	2026-04-06 01:26:50.908	emoji_events
+221e7d47-e442-425b-9852-43b50ad42cd8	Security Guardian	Identified and patched 12 high-risk vulnerabilities during the internal audit phase.	7ac82137-cbc9-4908-ac2b-66caecc3494e	2026-02-15 01:26:50.913	emoji_events
+0541227f-c31b-45ff-abd5-6742c67c07f0	Unit Test Standard	Achieved 95% test coverage across the entire project codebase.	59a1b253-1257-47e9-b0ca-634aadbb82f8	2026-03-05 01:26:50.919	emoji_events
+e373268e-3dce-4450-9415-c0669deacd00	Zero-Bug Deployment	Successfully deployed major feature updates with zero critical bugs reported in production.	59a1b253-1257-47e9-b0ca-634aadbb82f8	2026-04-03 01:26:50.923	emoji_events
+1d244ccd-a937-4397-964d-57a0e372d04f	Zero-Bug Deployment	Successfully deployed major feature updates with zero critical bugs reported in production.	d9536d0c-3882-40cb-8794-291981dce4b3	2026-04-13 01:26:50.929	emoji_events
+47e11e7d-46b9-4c41-8873-dd1152089c61	Sprint Velocity Leader	Exceeded projected delivery targets by 15% in the previous performance cycle.	d9536d0c-3882-40cb-8794-291981dce4b3	2026-03-16 01:26:50.934	emoji_events
+ccd16062-730b-4745-b0d0-4cdf1a9e4846	Zero-Bug Deployment	Successfully deployed major feature updates with zero critical bugs reported in production.	f1cc7e35-a3a2-44e7-a8bb-c11fa06713e2	2026-04-10 01:26:50.94	emoji_events
+9b8579ef-23f6-4c30-a637-16a93f98ead1	Sprint Velocity Leader	Exceeded projected delivery targets by 15% in the previous performance cycle.	f1cc7e35-a3a2-44e7-a8bb-c11fa06713e2	2026-03-17 01:26:50.944	emoji_events
+5bbb4f0f-0f3f-4f6b-8558-b84567960939	Unit Test Standard	Achieved 95% test coverage across the entire project codebase.	89e25fcd-4e24-40e4-bb8f-7633cb53f453	2026-02-28 01:26:50.952	emoji_events
+caa0317f-c55f-41dc-b751-d7f5db9052d4	Legacy Refactor King	Successfully migrated 50% of technical debt into modernized architecture patterns.	89e25fcd-4e24-40e4-bb8f-7633cb53f453	2026-03-21 01:26:50.957	emoji_events
+\.
+
+
+--
+-- Data for Name: Bug; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Bug" (id, title, severity, status, "projectId", "reporterId", "ownerId", "resolverId", "createdAt") FROM stdin;
+8125da87-a9b7-4877-9373-d0e5b497ae8f	Regression in Product Engineering Initiative 1 build	MEDIUM	OPEN	c7599686-6b3b-44e0-b391-ea15e2e2823b	20f1e5ce-7792-42ce-b465-e6764fc9d46d	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-15 18:36:04.301
+90cb735a-b743-4476-bf32-d97b2827330e	Regression in Product Engineering Initiative 1 build	CRITICAL	OPEN	c7599686-6b3b-44e0-b391-ea15e2e2823b	ad644a94-f98d-4e72-9fd0-c69447f09c61	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-15 18:36:04.306
+c0e48f3b-01bb-4c8e-bda0-2ed14ffd7eb4	Regression in Product Engineering Initiative 1 build	MEDIUM	OPEN	c7599686-6b3b-44e0-b391-ea15e2e2823b	ad644a94-f98d-4e72-9fd0-c69447f09c61	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-15 18:36:04.31
+ebfe1e82-ac23-4d2c-a461-1f80caa42d75	Regression in Product Engineering Initiative 1 build	HIGH	OPEN	c7599686-6b3b-44e0-b391-ea15e2e2823b	20f1e5ce-7792-42ce-b465-e6764fc9d46d	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-15 18:36:04.313
+63de300a-3743-45eb-92f7-fd2851f1c51c	Regression in Product Engineering Initiative 1 build	CRITICAL	OPEN	c7599686-6b3b-44e0-b391-ea15e2e2823b	20f1e5ce-7792-42ce-b465-e6764fc9d46d	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-15 18:36:04.316
+22e0e04a-9936-4a3e-b6c7-c368a94a7dfa	Regression in Infrastructure Initiative 1 build	CRITICAL	OPEN	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-15 18:36:05.838
+2c6d98ca-8f34-4f9c-9d71-1d029759d062	Regression in Infrastructure Initiative 1 build	HIGH	OPEN	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	20f1e5ce-7792-42ce-b465-e6764fc9d46d	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-15 18:36:05.84
+f0ef8055-dc50-40cd-891e-14cfb9f02cad	Regression in Infrastructure Initiative 1 build	CRITICAL	CLOSED	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	2026-04-15 18:36:05.843
+200df21c-7c63-48ad-b173-15d4394d9100	Regression in Infrastructure Initiative 1 build	MEDIUM	OPEN	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-15 18:36:05.845
+c9368936-d916-43c2-85f6-29e072969ada	Regression in Infrastructure Initiative 1 build	MEDIUM	CLOSED	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	20f1e5ce-7792-42ce-b465-e6764fc9d46d	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	2026-04-15 18:36:05.846
+a870ba8c-72a9-435c-bec6-44d710476a59	Regression in Infrastructure Initiative 1 build	HIGH	OPEN	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	20f1e5ce-7792-42ce-b465-e6764fc9d46d	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-15 18:36:05.848
+a8d8fed8-815f-4f19-a77e-b608505d94b3	Regression in Site Reliability Initiative 1 build	MEDIUM	OPEN	551a836f-c2c2-4418-a73c-76dbfafd8442	20f1e5ce-7792-42ce-b465-e6764fc9d46d	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-04-15 18:36:06.108
+139d7042-6a6b-4d43-b93e-8221ba82f223	Regression in Site Reliability Initiative 1 build	HIGH	CLOSED	551a836f-c2c2-4418-a73c-76dbfafd8442	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-15 18:36:06.11
+f53609e0-5e81-4f12-9880-9c575e642fb1	Regression in Site Reliability Initiative 1 build	LOW	OPEN	551a836f-c2c2-4418-a73c-76dbfafd8442	20f1e5ce-7792-42ce-b465-e6764fc9d46d	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-04-15 18:36:06.112
+d1158c0b-612b-42d0-8019-0a732d453fec	Regression in Site Reliability Initiative 1 build	HIGH	OPEN	551a836f-c2c2-4418-a73c-76dbfafd8442	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-04-15 18:36:06.113
+a41b3421-e5ab-4f2d-ab75-678daefe74b9	Regression in Site Reliability Initiative 1 build	MEDIUM	CLOSED	551a836f-c2c2-4418-a73c-76dbfafd8442	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-15 18:36:06.115
+0b0bfcc0-9b21-4e27-a81f-1660e5f3b7c7	Regression in Site Reliability Initiative 1 build	HIGH	CLOSED	551a836f-c2c2-4418-a73c-76dbfafd8442	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-15 18:36:06.117
+38cb5ccd-d75f-4fa6-8f93-6413d3b03adb	Regression in Site Reliability Initiative 1 build	LOW	CLOSED	551a836f-c2c2-4418-a73c-76dbfafd8442	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-15 18:36:06.119
+f3ee1317-4620-495e-b2ef-f8272c63f21b	Regression in Product Design Initiative 2 build	HIGH	CLOSED	176cf575-1e8f-4447-93d3-2999415d2173	20f1e5ce-7792-42ce-b465-e6764fc9d46d	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	2026-04-15 18:36:06.201
+104f6c21-468a-4f74-8574-5fa3ba9fe05a	Regression in Product Design Initiative 2 build	HIGH	CLOSED	176cf575-1e8f-4447-93d3-2999415d2173	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	2026-04-15 18:36:06.204
+859d355f-4d85-4816-b2fa-cc2158a9371b	Regression in Product Design Initiative 2 build	LOW	OPEN	176cf575-1e8f-4447-93d3-2999415d2173	20f1e5ce-7792-42ce-b465-e6764fc9d46d	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-15 18:36:06.207
+e9048664-c669-4b59-9da5-5fc6743896d5	Regression in Product Design Initiative 2 build	HIGH	OPEN	176cf575-1e8f-4447-93d3-2999415d2173	20f1e5ce-7792-42ce-b465-e6764fc9d46d	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-15 18:36:06.209
+ddc1bf44-6fea-44f9-8bae-e0bdcde2dd65	Regression in Product Design Initiative 2 build	MEDIUM	CLOSED	176cf575-1e8f-4447-93d3-2999415d2173	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	2026-04-15 18:36:06.212
+a231d33c-0d79-4c4b-ba84-a524d23c603d	Regression in Product Design Initiative 2 build	MEDIUM	CLOSED	176cf575-1e8f-4447-93d3-2999415d2173	20f1e5ce-7792-42ce-b465-e6764fc9d46d	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	2026-04-15 18:36:06.215
+c3d3fd95-fa13-4082-8a11-d8b36356603b	Regression in Product Design Initiative 2 build	MEDIUM	OPEN	176cf575-1e8f-4447-93d3-2999415d2173	20f1e5ce-7792-42ce-b465-e6764fc9d46d	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-15 18:36:06.218
+6c0e4d99-bf7d-4ff7-987a-aca4f44b703e	Regression in Product Design Initiative 2 build	HIGH	OPEN	176cf575-1e8f-4447-93d3-2999415d2173	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-15 18:36:06.221
+ae5d3f8e-c056-4fd6-9028-7c5a9ce747dd	Regression in Product Design Initiative 2 build	HIGH	OPEN	176cf575-1e8f-4447-93d3-2999415d2173	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-15 18:36:06.223
+163e7504-26eb-4877-b3c9-acccacada598	Regression in Hardware Initiative 1 build	MEDIUM	CLOSED	dd9b845e-7538-4306-b480-e9fbcd48b6f4	20f1e5ce-7792-42ce-b465-e6764fc9d46d	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	2026-04-15 18:36:06.497
+0b17b167-8b72-495a-bd29-90f3d6d81701	Regression in Hardware Initiative 1 build	CRITICAL	OPEN	dd9b845e-7538-4306-b480-e9fbcd48b6f4	20f1e5ce-7792-42ce-b465-e6764fc9d46d	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-15 18:36:06.5
+350a2f95-1582-43ea-ad5d-7c62ce25ef70	Regression in Hardware Initiative 1 build	MEDIUM	OPEN	dd9b845e-7538-4306-b480-e9fbcd48b6f4	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-15 18:36:06.503
+f34b9df8-9285-44c6-bf8e-80546b9e5cd1	Regression in Hardware Initiative 1 build	CRITICAL	OPEN	dd9b845e-7538-4306-b480-e9fbcd48b6f4	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-15 18:36:06.508
+33e0455d-9625-4669-adcf-98191476bbf6	Regression in Hardware Initiative 1 build	CRITICAL	OPEN	dd9b845e-7538-4306-b480-e9fbcd48b6f4	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-15 18:36:06.511
+72452a97-3d48-46ac-9137-fb5312c6cdb6	Regression in Hardware Initiative 1 build	MEDIUM	CLOSED	dd9b845e-7538-4306-b480-e9fbcd48b6f4	20f1e5ce-7792-42ce-b465-e6764fc9d46d	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	2026-04-15 18:36:06.514
+8ed0a26f-d4a2-4a92-ab5f-9f3b37f54779	Regression in Hardware Initiative 1 build	LOW	CLOSED	dd9b845e-7538-4306-b480-e9fbcd48b6f4	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	2026-04-15 18:36:06.517
+47faf239-c579-490e-af01-bdba8d852054	Regression in Hardware Initiative 1 build	MEDIUM	OPEN	dd9b845e-7538-4306-b480-e9fbcd48b6f4	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-15 18:36:06.52
+ebd75a1c-cc8f-4d3b-9447-713166215f86	Regression in Site Reliability Initiative 1 build	MEDIUM	OPEN	551a836f-c2c2-4418-a73c-76dbfafd8442	20f1e5ce-7792-42ce-b465-e6764fc9d46d	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-15 18:36:07.195
+26fb8694-edbc-496c-9a5d-fbfbb3d84a66	Regression in Site Reliability Initiative 1 build	CRITICAL	CLOSED	551a836f-c2c2-4418-a73c-76dbfafd8442	20f1e5ce-7792-42ce-b465-e6764fc9d46d	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-15 18:36:07.198
+ff6fef26-4536-41f7-ae76-d16986276e41	Regression in Site Reliability Initiative 1 build	HIGH	CLOSED	551a836f-c2c2-4418-a73c-76dbfafd8442	20f1e5ce-7792-42ce-b465-e6764fc9d46d	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-15 18:36:07.2
+4f1bfd88-f35a-496b-a9b4-9fefa9fd67b4	Regression in Site Reliability Initiative 1 build	MEDIUM	CLOSED	551a836f-c2c2-4418-a73c-76dbfafd8442	20f1e5ce-7792-42ce-b465-e6764fc9d46d	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-15 18:36:07.202
+789c8abe-54f5-48db-912f-2c8f4f2b324d	Regression in Site Reliability Initiative 1 build	MEDIUM	OPEN	551a836f-c2c2-4418-a73c-76dbfafd8442	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-15 18:36:07.204
+a0b2d8dd-ccba-4500-aea9-0418b3cd95d7	Regression in Site Reliability Initiative 1 build	MEDIUM	CLOSED	551a836f-c2c2-4418-a73c-76dbfafd8442	20f1e5ce-7792-42ce-b465-e6764fc9d46d	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-15 18:36:07.206
+0d5f5136-da03-4b9e-b1bf-d6200e5a5905	Regression in Site Reliability Initiative 1 build	CRITICAL	CLOSED	551a836f-c2c2-4418-a73c-76dbfafd8442	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-15 18:36:07.208
+2ae66f3e-315c-4663-9d03-4d7a31cc0dab	Regression in Site Reliability Initiative 1 build	HIGH	CLOSED	551a836f-c2c2-4418-a73c-76dbfafd8442	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-15 18:36:07.21
+2002fa5a-ef4d-4e7d-84de-c843099d68e6	Regression in Site Reliability Initiative 1 build	MEDIUM	OPEN	551a836f-c2c2-4418-a73c-76dbfafd8442	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-15 18:36:07.212
+3a954a77-4e7d-4d76-b881-6c37cf567dd2	Regression in Security Operations Initiative 2 build	LOW	CLOSED	6e156838-4c84-457f-a32a-06e9f55602b9	20f1e5ce-7792-42ce-b465-e6764fc9d46d	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	2026-04-15 18:36:07.843
+1bf757f2-2a41-4c9e-96a7-88f03979f908	Regression in Security Operations Initiative 2 build	HIGH	CLOSED	6e156838-4c84-457f-a32a-06e9f55602b9	20f1e5ce-7792-42ce-b465-e6764fc9d46d	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	2026-04-15 18:36:07.844
+ec97ded7-d4f7-4744-b2ba-8ced27456b47	Regression in Security Operations Initiative 2 build	HIGH	OPEN	6e156838-4c84-457f-a32a-06e9f55602b9	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-15 18:36:07.846
+df32b38a-496b-4f69-9746-2e8c2e615241	Regression in Security Operations Initiative 2 build	LOW	CLOSED	6e156838-4c84-457f-a32a-06e9f55602b9	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	2026-04-15 18:36:07.848
+380a2f39-412a-4f4f-8bad-c27e2f0443ee	Regression in Security Operations Initiative 2 build	MEDIUM	OPEN	6e156838-4c84-457f-a32a-06e9f55602b9	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-15 18:36:07.85
+c1c7fe3b-2a26-4bc6-8cb8-73060ebb0032	Regression in Security Operations Initiative 2 build	LOW	CLOSED	6e156838-4c84-457f-a32a-06e9f55602b9	20f1e5ce-7792-42ce-b465-e6764fc9d46d	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	2026-04-15 18:36:07.852
+eaecaa85-701d-4b55-b4cd-01a709e28eb4	Regression in Security Operations Initiative 2 build	LOW	OPEN	6e156838-4c84-457f-a32a-06e9f55602b9	20f1e5ce-7792-42ce-b465-e6764fc9d46d	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-15 18:36:07.854
+631059bb-19b1-4bc1-9cde-9cd6f3fa8ccd	Regression in Security Operations Initiative 2 build	LOW	OPEN	6e156838-4c84-457f-a32a-06e9f55602b9	20f1e5ce-7792-42ce-b465-e6764fc9d46d	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-15 18:36:07.856
+6cb67316-d603-4b89-a1b0-e8a0aaffe0de	Regression in Security Operations Initiative 2 build	MEDIUM	OPEN	6e156838-4c84-457f-a32a-06e9f55602b9	20f1e5ce-7792-42ce-b465-e6764fc9d46d	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-15 18:36:07.858
+fd7a22b2-09a1-4377-ac79-5ab0f4b89a01	Regression in Security Operations Initiative 2 build	HIGH	OPEN	6e156838-4c84-457f-a32a-06e9f55602b9	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-15 18:36:07.859
+528899b3-03ef-423d-8c9d-9c7ef98e6971	Regression in Data Science Initiative 2 build	LOW	CLOSED	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	a135b85e-cf22-44be-a014-cc6116529fc9	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-15 18:36:08.036
+bea2c177-4875-454e-a69a-9805649d3f47	Regression in Data Science Initiative 2 build	LOW	OPEN	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-04-15 18:36:08.039
+222ecdbf-ea50-4aee-ac1d-45322f45efb4	Regression in Data Science Initiative 2 build	LOW	OPEN	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-04-15 18:36:08.041
+1e32af0d-9585-4092-8138-dab0fb410230	Regression in Data Science Initiative 2 build	HIGH	CLOSED	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	a135b85e-cf22-44be-a014-cc6116529fc9	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-15 18:36:08.044
+d3a57e71-7882-41ac-9893-1c0346a973a1	Regression in Data Science Initiative 2 build	LOW	CLOSED	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	a135b85e-cf22-44be-a014-cc6116529fc9	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-15 18:36:08.046
+ab3c52d6-c499-465f-a6c3-ef66687dd080	Regression in Data Science Initiative 2 build	LOW	CLOSED	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	a135b85e-cf22-44be-a014-cc6116529fc9	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-15 18:36:08.049
+85946a4f-ff7e-4729-9c43-4165fcaebe81	Regression in Data Science Initiative 2 build	HIGH	OPEN	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-04-15 18:36:08.051
+49416af0-14c4-464c-88ce-2a21b2817c07	Regression in Data Science Initiative 2 build	MEDIUM	CLOSED	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	a135b85e-cf22-44be-a014-cc6116529fc9	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-15 18:36:08.053
+f4638cc8-5718-4b40-9b05-a4b9e12db956	Regression in Data Science Initiative 2 build	LOW	CLOSED	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	a135b85e-cf22-44be-a014-cc6116529fc9	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-15 18:36:08.055
+2026954d-2824-49ec-882e-6968a0636959	Regression in Data Science Initiative 2 build	HIGH	CLOSED	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-15 18:36:09.145
+26229c1b-966e-4793-b0fa-70a0cbfa3e15	Regression in Data Science Initiative 2 build	HIGH	OPEN	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	d5afc715-6859-4fb4-a128-b535547d272e	\N	2026-04-15 18:36:09.148
+bb4cb3a7-bae1-45bd-a68b-e3897b7048cb	Regression in Data Science Initiative 2 build	CRITICAL	OPEN	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	d5afc715-6859-4fb4-a128-b535547d272e	\N	2026-04-15 18:36:09.15
+fcfaf7f8-ca16-41e8-8d9c-396572679655	Regression in Data Science Initiative 2 build	HIGH	OPEN	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	d5afc715-6859-4fb4-a128-b535547d272e	\N	2026-04-15 18:36:09.152
+7e80b163-c670-41a0-9cb6-4a195b7728e3	Regression in Data Science Initiative 2 build	CRITICAL	CLOSED	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-15 18:36:09.155
+48914897-d21c-46c9-992e-7d5f1ad30d69	Regression in Data Science Initiative 2 build	LOW	CLOSED	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-15 18:36:09.158
+80c355de-bc29-418f-98f4-77308d71bc45	Regression in Data Science Initiative 2 build	LOW	CLOSED	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-15 18:36:09.16
+fd97597f-033b-44ca-8ae3-f6406365c2f1	Regression in Data Science Initiative 2 build	CRITICAL	CLOSED	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-15 18:36:09.163
+27131d37-fdb7-4f0e-a401-1953847e5d67	Regression in Data Science Initiative 2 build	HIGH	CLOSED	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	20f1e5ce-7792-42ce-b465-e6764fc9d46d	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-15 18:36:09.166
+70ad4076-61f9-467a-b22f-18c2a4c8891b	Regression in Data Science Initiative 2 build	LOW	OPEN	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	d5afc715-6859-4fb4-a128-b535547d272e	\N	2026-04-15 18:36:09.168
+\.
+
+
+--
+-- Data for Name: Commit; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Commit" (id, hash, message, impact, "userId", "projectId", "createdAt") FROM stdin;
+28c88512-528a-41ef-832e-bd296a20bf1a	5B70952F	Refactored Product Engineering Initiative 1 core modules	1.071830895181627	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.212
+bd3d0878-5fbb-43e1-88d6-bfda7e9878d8	6249A827	Refactored Product Engineering Initiative 1 core modules	1.766319858112841	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.217
+1b719cf2-002f-4f87-bd86-0efa964adda1	169D0C43	Refactored Product Engineering Initiative 1 core modules	1.145269963175784	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.219
+03b0f34e-857a-4b29-9d6b-bc9831b43ef7	DAFA7B23	Refactored Product Engineering Initiative 1 core modules	1.888859498401029	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.222
+c892b745-2ea8-4e46-9465-d0dd523e5ce3	D207C537	Refactored Product Engineering Initiative 1 core modules	1.738822664390787	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.224
+36d58c9d-f08b-4d01-8331-9207008372e0	158F96A0	Refactored Product Engineering Initiative 1 core modules	0.5046976370712386	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.227
+d03f07f9-fa04-4ae9-b80d-0839ff34629d	49F5364B	Refactored Product Engineering Initiative 1 core modules	0.5876894106858375	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.229
+7bbf92b3-dc42-4780-b052-222f5a829ea9	56777978	Refactored Product Engineering Initiative 1 core modules	1.757117336226069	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.231
+91850aeb-a058-421c-aa0e-655767843256	62ACAC2C	Refactored Product Engineering Initiative 1 core modules	0.9476832605490848	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.233
+f30db714-0d1d-4e97-9038-5e87972e5ddf	4888ABC8	Refactored Product Engineering Initiative 1 core modules	0.6582442108885593	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.235
+2fd2386b-d2e1-435c-9f66-c7c1d277fbf2	0A80FD1E	Refactored Product Engineering Initiative 1 core modules	1.971656924157406	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.238
+2a525f3b-4f71-44d9-ac50-d1d5d1e53828	178ADA5F	Refactored Product Engineering Initiative 1 core modules	0.7041572384376542	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.241
+355ff066-80cc-4869-96b9-cf59a852e55d	6601E7E9	Refactored Product Engineering Initiative 1 core modules	0.790718614983351	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.244
+483ef1e5-02ba-4abb-9769-cd6155307e24	07A75017	Refactored Product Engineering Initiative 1 core modules	0.798127845861488	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.247
+23c2d112-2e35-4fbe-95c9-aa792698a0b1	F108B924	Refactored Product Engineering Initiative 1 core modules	0.9933358470120014	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.249
+8861fe7e-1169-428c-8ce7-e163c016d3b4	EDE6575E	Refactored Product Engineering Initiative 1 core modules	1.152332534316762	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.252
+ff673ff0-3fa8-4d45-a802-8398e8fcd9f3	0DEDA134	Refactored Product Engineering Initiative 1 core modules	1.224312557376293	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.254
+ca0c63d7-0c48-491b-8a11-a7529a8600b0	04778C20	Refactored Product Engineering Initiative 1 core modules	1.403583298323143	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.257
+e9e80afb-fc03-40a3-a43a-7be7644facec	8BA24096	Refactored Product Engineering Initiative 1 core modules	1.582235157850123	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:04.26
+33e474b2-050f-4780-a096-517f3b80d526	CD080D1E	Refactored DevOps Initiative 2 core modules	1.453648959842708	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.352
+3039c573-2bc3-4d41-a315-342c5058a91a	1DB6AB37	Refactored DevOps Initiative 2 core modules	0.8585977601631325	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.354
+ccfe2b57-fccb-4f52-97ab-b3d044a70cbf	84665101	Refactored DevOps Initiative 2 core modules	1.202078498163453	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.357
+dddc77ea-ffbc-469a-a988-e95d7668e95f	1835A4C2	Refactored DevOps Initiative 2 core modules	1.3136027639269	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.359
+dd857012-cafb-4e6e-b7ec-6f419e5c7883	4898C722	Refactored DevOps Initiative 2 core modules	1.827184317624446	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.361
+17c780e9-1d81-4429-b788-108a5ed756e7	53D707E1	Refactored DevOps Initiative 2 core modules	1.711533649803777	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.364
+77954e1c-ae9d-4cb6-84b2-987488d44177	BEBDD960	Refactored DevOps Initiative 2 core modules	1.261716427110203	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.366
+fc5e700e-ec48-4e3b-8890-1a7c0c5ba8e6	68251E49	Refactored DevOps Initiative 2 core modules	1.622172880372709	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.368
+9a11b7ca-d30b-452b-ade1-1ccf67187fc4	1F793148	Refactored DevOps Initiative 2 core modules	1.543375441190566	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.371
+acee92bc-cff8-4dd6-9fb5-f9de217869e7	1DD315C2	Refactored DevOps Initiative 2 core modules	1.703973768224802	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.373
+8842f8ff-2ea0-4358-ae59-fd82700e6e22	76C967D9	Refactored DevOps Initiative 2 core modules	1.783862427223744	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.375
+7aff6f39-174d-44dd-93d7-fd922e5fff47	E1A041C2	Refactored DevOps Initiative 2 core modules	1.771272699353747	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.377
+2472a6a6-e945-48b8-a5dd-a41cf8015905	C77E7DE9	Refactored DevOps Initiative 2 core modules	1.766152324321826	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.379
+e2f6b1ba-d2cf-409c-90b8-9359c396973f	64A0F4C4	Refactored DevOps Initiative 2 core modules	0.9519431510305658	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.382
+777c198f-b13d-40bb-b9ca-21592bf2157b	1DE5E7F6	Refactored DevOps Initiative 2 core modules	1.091202107104027	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.384
+98599f25-c4fa-490f-942b-23dff3afd047	0DDC0A19	Refactored DevOps Initiative 2 core modules	1.701220266618055	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.386
+2dac8476-93b4-4ed9-9491-7fa1226bf5b6	130786B7	Refactored DevOps Initiative 2 core modules	1.291073515083425	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.388
+60fadf32-e129-4309-b614-c1adf473af3a	FC9A3524	Refactored DevOps Initiative 2 core modules	1.16596919439133	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.39
+db9d2172-4a61-4ce4-802c-8b1656ea0b69	E6DB91C4	Refactored DevOps Initiative 2 core modules	0.8404603878045038	20e1523e-19b0-4103-b411-c65151555e82	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:04.394
+0574399e-87ac-4fe1-935d-f18d1b253dbf	05CBC1B1	Refactored Hardware Initiative 1 core modules	1.411258025943809	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.471
+03e407ae-4551-4b3a-a0bb-57c880c17103	B200964F	Refactored Hardware Initiative 1 core modules	0.6752302273970238	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.474
+256332a1-ea4f-4393-b6ac-f233a202acc9	42F16C4E	Refactored Hardware Initiative 1 core modules	1.652647777312864	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.477
+ac082196-f90f-447f-a04d-eed5a60f414f	21AD2817	Refactored Hardware Initiative 1 core modules	0.9775491239704546	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.48
+0a5aea14-a485-419e-bdf3-47459e60dbbf	5522215B	Refactored Hardware Initiative 1 core modules	1.577617950890501	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.483
+38bb28b5-8dd2-4a6c-b3e1-ba19c57b4109	7E688035	Refactored Hardware Initiative 1 core modules	1.344482378781612	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.485
+846c3a3b-1ed2-4f25-8444-ceb96d1a2fdf	C0129836	Refactored Hardware Initiative 1 core modules	1.89795655184265	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.488
+2dde0fcb-ce4d-4e2a-b4e4-b66be3d03933	9C69B6B5	Refactored Hardware Initiative 1 core modules	1.989066868544203	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.492
+1cedd918-2123-464a-a838-123fd8403c62	120E8D95	Refactored Hardware Initiative 1 core modules	1.1521182971735	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.495
+a63343cd-a165-442e-8926-8fcf2ae7ac1c	4A612621	Refactored Hardware Initiative 1 core modules	1.128497219775871	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.497
+204ea7bc-1e95-4533-9935-4e22c4f38865	4F8C5C60	Refactored Hardware Initiative 1 core modules	0.9793242193552668	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.499
+bb568efc-68cf-4697-8206-191a61fac127	74AFC6EA	Refactored Hardware Initiative 1 core modules	1.945372336619174	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.502
+711c7eb8-2ff7-4afc-9f0c-6c3c5392d64f	3D04A5F0	Refactored Hardware Initiative 1 core modules	1.255545001662636	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.504
+d23bc972-bb61-45b2-80ba-49c63106ffd6	B80A22AE	Refactored Hardware Initiative 1 core modules	0.667713510367797	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.507
+eb7fc639-dd8c-4010-a49f-fc383ee3f67f	F0AF500B	Refactored Hardware Initiative 1 core modules	1.580198255600294	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.509
+69eb2c52-4eae-4bee-b65e-7436903373e9	740B754B	Refactored Hardware Initiative 1 core modules	1.257519403350313	b39ddc58-6212-46bb-9cab-e59568337275	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:04.511
+7f4767f1-6881-4110-8edb-05802a21ea28	45F71876	Refactored Quality Assurance Initiative 2 core modules	1.071129905318461	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.585
+8294396a-faf3-48e2-8dde-ef7b49ccf395	2410ECEC	Refactored Quality Assurance Initiative 2 core modules	0.8765062120156014	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.587
+55eb3004-6596-4cbd-a0ac-f4c1db808a7d	46E0D289	Refactored Quality Assurance Initiative 2 core modules	0.7747728185740413	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.589
+8897718b-53a8-4cb5-93fd-69176e4ae3f9	F4E523F8	Refactored Quality Assurance Initiative 2 core modules	1.936821020019018	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.59
+bf4695cf-1e02-4d64-abfe-40129294d191	EBE0364D	Refactored Quality Assurance Initiative 2 core modules	1.781943868855698	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.592
+b2a87649-37c5-48ef-9acd-4c20acf2cad7	486458C8	Refactored Quality Assurance Initiative 2 core modules	1.208563093068962	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.594
+0639eedf-c1c2-48d1-ba23-26e76297b40a	21560E43	Refactored Quality Assurance Initiative 2 core modules	1.3917851658434	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.596
+0ce7f2f9-bb9e-4278-9aba-a00e89af0062	15CD54B3	Refactored Quality Assurance Initiative 2 core modules	0.7677171050072067	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.598
+23ac53ce-b569-49a4-87a9-7afccbf88732	9261A7C4	Refactored Quality Assurance Initiative 2 core modules	1.790694799257938	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.601
+8c16f75c-d0f5-4074-ac74-288ad7e4841a	67F47D34	Refactored Quality Assurance Initiative 2 core modules	1.506398572200766	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.602
+57f072e1-8ab5-4af7-a8a1-c76651327970	E57BEA79	Refactored Quality Assurance Initiative 2 core modules	1.192489159698482	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.604
+fb45a6c3-7943-4145-ad85-94e3e22ff2e3	4AFF4927	Refactored Quality Assurance Initiative 2 core modules	0.5918239655714616	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.606
+452d5d73-5966-4799-ae88-8afc85adc448	3CD68B04	Refactored Quality Assurance Initiative 2 core modules	1.554343302105438	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.608
+febdf45d-b3d5-4d31-a5a6-32709127deb9	1E324A84	Refactored Quality Assurance Initiative 2 core modules	0.8546954986029401	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.609
+711accb2-eec7-44a9-a0a3-c59adbe36fbb	392C309A	Refactored Quality Assurance Initiative 2 core modules	0.570989594382675	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.611
+fe852b80-e0a7-4e43-9331-51b47ef22726	BDC8A212	Refactored Quality Assurance Initiative 2 core modules	0.6811153946723679	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.613
+478cabf5-1cf7-4dfb-917f-00fd2fb46438	910CADA6	Refactored Quality Assurance Initiative 2 core modules	1.959900028182623	af0bbab8-3b33-4ff7-b88e-11c4699da50b	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:04.615
+d4486aee-170e-425a-a000-6e35635305b8	4F7E70C3	Refactored Security Operations Initiative 2 core modules	1.29777317576952	d674df84-6046-430c-9694-b2f7516f202c	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:04.671
+b4ef7a5a-0a23-405d-b77b-e5aa58eb24ea	BE4902DA	Refactored Security Operations Initiative 2 core modules	1.224235326458738	d674df84-6046-430c-9694-b2f7516f202c	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:04.673
+e0445731-1319-4c6c-a14c-3abb11d88658	7A0D8D55	Refactored Security Operations Initiative 2 core modules	0.7847514215797159	d674df84-6046-430c-9694-b2f7516f202c	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:04.675
+474c6a5d-8e03-484d-a280-a3233e3c5c2b	0C1AE080	Refactored Security Operations Initiative 2 core modules	0.9349948313735226	d674df84-6046-430c-9694-b2f7516f202c	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:04.677
+b8b9de80-1a43-4fcf-9f83-ece2d5f59e1c	36A7486E	Refactored Security Operations Initiative 2 core modules	1.187794049059971	d674df84-6046-430c-9694-b2f7516f202c	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:04.679
+dbac87f8-e821-47d3-8b23-6fb1338f2c4b	D94A694B	Refactored Security Operations Initiative 2 core modules	1.696287087723173	d674df84-6046-430c-9694-b2f7516f202c	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:04.681
+708c1a58-33c2-4c01-b8ee-c6ec07a010bf	5CD7A99D	Refactored Security Operations Initiative 2 core modules	1.917634979322287	d674df84-6046-430c-9694-b2f7516f202c	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:04.682
+fb16067c-5d15-4263-a01b-0986f2874188	A07C3D9B	Refactored Security Operations Initiative 2 core modules	1.012945601615483	d674df84-6046-430c-9694-b2f7516f202c	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:04.684
+a3bace54-6dd8-468a-80a4-61214589e457	0223A81C	Refactored Security Operations Initiative 2 core modules	1.894013404776688	d674df84-6046-430c-9694-b2f7516f202c	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:04.686
+f3de6c11-f61b-42b2-a82a-e53bce97da46	CAE15AF8	Refactored Security Operations Initiative 2 core modules	1.066831705064692	d674df84-6046-430c-9694-b2f7516f202c	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:04.688
+d2808a93-4f3c-49a2-96e6-9e114bd09344	AFF0EBF6	Refactored Security Operations Initiative 2 core modules	1.348137738479062	d674df84-6046-430c-9694-b2f7516f202c	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:04.691
+6a4349bc-5640-4bbc-b829-2f9a0efb8b3c	4184A0CF	Refactored Security Operations Initiative 2 core modules	0.9177778542404522	d674df84-6046-430c-9694-b2f7516f202c	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:04.693
+8dee29be-708a-4552-962e-36c6500f569f	76DFEB30	Refactored Security Operations Initiative 2 core modules	1.231457554813774	d674df84-6046-430c-9694-b2f7516f202c	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:04.695
+f0d44d9d-7dfc-46b5-8027-2b370926b3e9	574538AC	Refactored Infrastructure Initiative 1 core modules	0.6785998679486988	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.758
+6f57fdfd-8c24-40e0-ac0a-ebbcea5b55e7	BFDBC9BC	Refactored Infrastructure Initiative 1 core modules	1.832347754073223	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.76
+0b433a28-8386-4912-84a1-4128c1fb1dbc	F7B370E0	Refactored Infrastructure Initiative 1 core modules	0.7221032604107336	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.762
+7eb8acbb-755b-4e53-b2af-c141536a3fd2	E1E2C809	Refactored Infrastructure Initiative 1 core modules	1.702305323036096	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.764
+d87b1af9-383c-4ebb-a6bf-494e6fae080a	7B56F422	Refactored Infrastructure Initiative 1 core modules	0.8514850120379701	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.766
+41bb2b3d-0fb0-40ac-ad92-459c9fb2c2ad	4EF3DBE7	Refactored Infrastructure Initiative 1 core modules	0.8983741327627048	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.768
+cfba85ac-8d11-4188-a40e-d554bd14a941	A8D998AC	Refactored Infrastructure Initiative 1 core modules	0.6790244947232229	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.77
+ac578e54-96ce-4751-ac09-c71c16c22571	B0B374BB	Refactored Infrastructure Initiative 1 core modules	1.952539574313179	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.772
+a077a602-796c-407a-a8a1-0eff5fdf600a	2E04D386	Refactored Infrastructure Initiative 1 core modules	1.330836597567409	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.773
+5704c578-ccba-438e-9a61-a5e21fac85db	6B269A78	Refactored Infrastructure Initiative 1 core modules	1.030677221412141	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.775
+9be93439-6248-4570-90e5-62ec3f59d267	5815C262	Refactored Infrastructure Initiative 1 core modules	1.117180431909365	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.777
+4dfd2624-9f00-435c-859c-4f931d0b6519	0BDF11E7	Refactored Infrastructure Initiative 1 core modules	0.7746205511915405	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.779
+5b72bb98-8abc-43af-9907-762bce07d664	D42121D3	Refactored Infrastructure Initiative 1 core modules	0.9778815317225831	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.78
+57e2bc01-18b4-4f97-8b2e-7db59ce04ba9	11B49F5B	Refactored Infrastructure Initiative 1 core modules	1.115951435045482	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.782
+22f9a77c-a92b-467a-a393-e835215f3eb6	CB7131FD	Refactored Infrastructure Initiative 1 core modules	1.378800683509418	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.784
+1a509cbb-6382-4547-b6cd-febb198c9299	C8061670	Refactored Infrastructure Initiative 1 core modules	1.539645131982874	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.786
+69c18ca8-e14c-4e16-9f82-cec16809c674	90B4B548	Refactored Infrastructure Initiative 1 core modules	0.7318592870569371	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.788
+55eb8cb1-fbe2-416b-805d-c0885542861c	092B59C0	Refactored Infrastructure Initiative 1 core modules	1.978737578323711	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.79
+5503ecda-3745-4817-a9f9-d56cd002ab04	E69A34D4	Refactored Infrastructure Initiative 1 core modules	1.989409937635995	da706c4a-8b92-4d33-8975-a97639743688	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:04.792
+6fc2ed8e-e9cb-4b54-8b01-0a0dc4ac20cc	EAAC3BED	Refactored Data Science Initiative 2 core modules	1.382102436251621	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:04.853
+20aab3ae-a636-4123-9b99-07e02bd619d8	A9FFD1ED	Refactored Data Science Initiative 2 core modules	1.400241144138054	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:04.855
+64c753cb-cc8c-45cb-ad13-3a318273ddae	93E1F70F	Refactored Data Science Initiative 2 core modules	1.131138239419675	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:04.857
+729bb544-51e6-4552-b3aa-03feef209faa	26A162D0	Refactored Data Science Initiative 2 core modules	1.77168077572659	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:04.859
+963407ff-c7c8-4061-a2ee-bcb3bfff6396	2EBF4609	Refactored Data Science Initiative 2 core modules	1.987415351085687	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:04.86
+7ca7bfa1-d75e-4bf7-b600-1893e964bc8d	BC676B7A	Refactored Data Science Initiative 2 core modules	0.9594478506609383	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:04.863
+eee78b27-ff11-4112-986b-040a2856c122	65D4AE3B	Refactored Data Science Initiative 2 core modules	0.6713881146335285	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:04.865
+027a075d-c3f7-4491-932c-d30af481396b	A4462B5E	Refactored Data Science Initiative 2 core modules	0.823545130497803	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:04.866
+0ddbb4f2-737a-46d7-9522-69a4ef95f576	2721CFE8	Refactored Data Science Initiative 2 core modules	1.622735969929639	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:04.868
+d7565a74-4812-41a8-8374-0cbc41aee8cd	CFA9E78F	Refactored Data Science Initiative 2 core modules	0.6915898736385868	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:04.87
+c80f0973-74c8-4708-acf4-de4ebe496fb7	DF88F998	Refactored Data Science Initiative 2 core modules	1.350235686131926	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:04.872
+8e379c38-21ba-4aae-bee1-497a1b8a9d85	B142B10D	Refactored Mobile Development Initiative 2 core modules	1.393693451629485	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.926
+6781f8de-611b-498b-8d89-bdfd77998f9b	7C6917AE	Refactored Mobile Development Initiative 2 core modules	1.470903055887437	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.927
+e8c81d21-ee84-43cf-baf4-54ad5bb99439	7AFA7216	Refactored Mobile Development Initiative 2 core modules	1.284726640655056	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.929
+195df29d-9eeb-41f9-9dc8-3bcff3baa5cb	B09B025F	Refactored Mobile Development Initiative 2 core modules	1.927825825890834	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.931
+b098a8a1-5902-41ac-822e-f8eae9f296d9	E4A3CBFB	Refactored Mobile Development Initiative 2 core modules	1.88363199969546	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.933
+ddb01981-3db5-4d25-a635-afc82d3ce48e	1C315C7B	Refactored Mobile Development Initiative 2 core modules	1.709085365282102	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.935
+a29eeffe-2545-4035-abe1-d2b8c082af15	87FAB691	Refactored Mobile Development Initiative 2 core modules	0.960378474996864	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.936
+491bcab3-825d-4154-857d-3f669bc7d339	6D0BBAC8	Refactored Mobile Development Initiative 2 core modules	1.43388924136684	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.938
+afefa4c2-1997-457e-8579-9d890bdc0cc9	A278FE5E	Refactored Mobile Development Initiative 2 core modules	0.5416585326945649	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.941
+a0e476ba-2509-4fce-a00a-9e8ac273bd06	88627EA7	Refactored Mobile Development Initiative 2 core modules	1.409895736605473	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.942
+97fbc4f1-0d95-4c4e-9a44-d9436895dc76	0B532C59	Refactored Mobile Development Initiative 2 core modules	1.56922877190943	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.944
+a01aa42a-8c72-4b8f-b629-85a56ad3ffa9	7FE2824F	Refactored Mobile Development Initiative 2 core modules	1.001504305804072	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.946
+c6fdaece-03b9-4618-8670-7e4630909b16	F5C0CB3E	Refactored Mobile Development Initiative 2 core modules	1.331212741719616	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.948
+4170ad3a-ae6c-456f-b78f-689f068d5d82	313FD907	Refactored Mobile Development Initiative 2 core modules	0.8949296974641341	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.949
+2e253dbb-77fb-4c0c-acf6-c3949ac27fad	156DE9DF	Refactored Mobile Development Initiative 2 core modules	0.7552758533477444	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.951
+7bae6633-f34a-4ecc-bc5f-66d0853ecbd5	2DDFA3B9	Refactored Mobile Development Initiative 2 core modules	1.758365585871365	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.953
+76850818-4d09-4cd0-8516-b360969fb731	7F7243EE	Refactored Mobile Development Initiative 2 core modules	1.303551604842075	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.955
+73e59710-b6ae-4d33-ab49-e2ff4bd10f4c	6162E2D3	Refactored Mobile Development Initiative 2 core modules	1.664858907442953	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.957
+a1c94a1b-457e-4cf6-a205-cbaf2c135e0c	35F1C2F1	Refactored Mobile Development Initiative 2 core modules	1.657719098079916	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:04.958
+d3d96512-7f55-4d83-b616-0e8a094bf8d0	83A79493	Refactored Site Reliability Initiative 2 core modules	0.6259716346566477	2a023e98-8c19-4530-9921-69200099e4e9	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:05.034
+32d2e2a4-38ec-4cd4-985a-2481c72be28c	1A76267A	Refactored Site Reliability Initiative 2 core modules	1.62430900470584	2a023e98-8c19-4530-9921-69200099e4e9	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:05.037
+cf45389e-2c40-4c52-8650-5c4abd14de1b	2DC0DD7E	Refactored Site Reliability Initiative 2 core modules	1.780762426727522	2a023e98-8c19-4530-9921-69200099e4e9	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:05.039
+620df17f-ecca-45f8-97f2-80257cf9b411	C2F06C06	Refactored Site Reliability Initiative 2 core modules	1.520344367953177	2a023e98-8c19-4530-9921-69200099e4e9	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:05.042
+9372d01d-a313-4a36-89fa-591460ab5f7c	9ADFDD7D	Refactored Site Reliability Initiative 2 core modules	0.9291752776339167	2a023e98-8c19-4530-9921-69200099e4e9	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:05.045
+9182fbe2-6449-47b1-b5c6-c57929d8f957	88877ACA	Refactored Site Reliability Initiative 2 core modules	1.181140015072216	2a023e98-8c19-4530-9921-69200099e4e9	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:05.047
+ed735cb8-dfdc-4af1-bb67-614c954af562	EFCC5DE4	Refactored Site Reliability Initiative 2 core modules	1.887835837478109	2a023e98-8c19-4530-9921-69200099e4e9	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:05.05
+3f39116b-77aa-4de1-b0ff-3a555e4281e4	71505CCE	Refactored Site Reliability Initiative 2 core modules	1.901964600485371	2a023e98-8c19-4530-9921-69200099e4e9	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:05.052
+b1068ac1-4759-4204-b74e-b64503e32c08	CBF03D4D	Refactored Site Reliability Initiative 2 core modules	0.8248947173316574	2a023e98-8c19-4530-9921-69200099e4e9	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:05.055
+5fbd7c29-fc1e-43ef-a71b-ad00e21e88a0	3B723EC1	Refactored Site Reliability Initiative 2 core modules	1.489631456769685	2a023e98-8c19-4530-9921-69200099e4e9	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:05.057
+b925a722-fd5b-49e4-b232-78d7152bfeb5	451D1D64	Refactored Site Reliability Initiative 2 core modules	0.9863854154876655	2a023e98-8c19-4530-9921-69200099e4e9	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:05.059
+f190c1a1-e78e-43b5-b986-3f61b8f86c37	FD7C2F59	Refactored Site Reliability Initiative 2 core modules	0.5417865246141353	2a023e98-8c19-4530-9921-69200099e4e9	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:05.061
+07c03730-2acc-4d98-acec-61eb1448998b	A3696973	Refactored Product Design Initiative 2 core modules	1.983929295467375	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.122
+44691ce2-f076-474f-8bf7-090879618bc2	3E24C54B	Refactored Product Design Initiative 2 core modules	1.804578044773897	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.124
+34fa1390-3a28-4b23-b38a-a6285a649316	CF1D3681	Refactored Product Design Initiative 2 core modules	1.504632544917592	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.127
+5222d3b2-ce94-4d40-95da-24f3ea01e117	5145EFFA	Refactored Product Design Initiative 2 core modules	1.514840725609932	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.129
+7c7d233b-c478-456d-9981-61ae7867b920	F94BA114	Refactored Product Design Initiative 2 core modules	0.5507931320071922	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.131
+cbbc192b-d660-4d76-86b8-91e95e232291	AF14E2A8	Refactored Product Design Initiative 2 core modules	1.1463950260789	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.133
+90ab6019-8f1d-458b-9187-9df97f41dd88	75C3FEB2	Refactored Product Design Initiative 2 core modules	1.682791735187016	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.135
+7c3b4e90-00e5-424b-9526-7b85ca844adc	ADDF1D59	Refactored Product Design Initiative 2 core modules	1.718171924571087	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.137
+ff5005bc-557e-488c-ad15-17913a7c9482	91A8EA08	Refactored Product Design Initiative 2 core modules	0.5853059935770664	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.14
+3c7845f9-d430-48a5-8c25-6a2b2565d55c	02C7B51E	Refactored Product Design Initiative 2 core modules	1.571852597186303	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.142
+5a431086-31fb-4ac2-8c43-8ac4e2eb2fe1	666BA0FE	Refactored Product Design Initiative 2 core modules	0.7158165648141982	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.144
+6118b831-6fa5-4af3-9fdd-6dbc4a1b30b4	FA1EA433	Refactored Product Design Initiative 2 core modules	1.540292348754384	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.146
+a0349032-dd38-47a0-b219-3a2ce25d8249	4856DCB1	Refactored Product Design Initiative 2 core modules	0.6696682869644557	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.148
+6359a12f-5b23-4b4d-bdaa-a761f0f958c1	9A8DE634	Refactored Product Design Initiative 2 core modules	1.549509489292332	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.15
+5845f0f6-f6ec-4823-9d96-ab8390ea75a5	359CED6B	Refactored Product Design Initiative 2 core modules	1.464676256932173	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.152
+2b3b9eec-63a1-4619-a3cd-1e823a094e33	73532831	Refactored Product Design Initiative 2 core modules	1.654015184980385	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.154
+ccf33c16-0759-4d6f-9b59-6d24fe887e06	7EDEEC96	Refactored Product Design Initiative 2 core modules	1.619786343877295	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.157
+08638d81-06ad-4453-babc-28b89ffded94	6611EDE8	Refactored Product Design Initiative 2 core modules	1.821333319670918	8929de17-01c9-4486-bde1-caec1ed32ef2	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:05.16
+2fc2226a-1d14-40f9-a8f3-2718e85d4d06	C845B6AB	Refactored Product Engineering Initiative 2 core modules	0.6529629398490564	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.254
+2343bb21-3102-4824-b397-6210a665a615	F0B52707	Refactored Product Engineering Initiative 2 core modules	1.165357049128596	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.257
+c0a57596-6413-4985-8939-0df6a57addc0	5383E759	Refactored Product Engineering Initiative 2 core modules	0.7321212263655397	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.26
+5ce5de14-b2ee-455c-b3cc-920b1b11f3f2	6A6502E2	Refactored Product Engineering Initiative 2 core modules	1.395088047049962	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.263
+aa96bfe2-c629-4150-9237-6155a45f9837	E367DF75	Refactored Product Engineering Initiative 2 core modules	0.621073812100115	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.266
+fa0b85da-f4c5-4e7c-b74e-0ac1f1ea9065	1458ED3C	Refactored Product Engineering Initiative 2 core modules	0.5301317725327238	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.269
+d216ccb4-a1ea-441f-8f17-7d92a26452fe	BD64D89E	Refactored Product Engineering Initiative 2 core modules	1.451551539414906	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.272
+4f1d6ec7-8f71-4bb1-baff-c2f115d2d270	3B56C2CF	Refactored Product Engineering Initiative 2 core modules	0.999743406414531	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.274
+d97c7b5d-73ed-4fae-9097-05fd00759f13	6B4712B5	Refactored Product Engineering Initiative 2 core modules	1.199484558402984	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.276
+0349d902-ea2b-40ff-ab75-d1125a2fda34	59A4CA07	Refactored Product Engineering Initiative 2 core modules	1.567462344924048	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.279
+bc8502dd-30b6-43fc-9c5a-78250c83ec5e	96DCBA92	Refactored Product Engineering Initiative 2 core modules	1.411412842440997	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.282
+22a2ad0b-0442-4741-bbcb-bf50c1144a06	E49EAAC4	Refactored Product Engineering Initiative 2 core modules	0.5242663950299793	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.286
+f5cae807-93ac-4913-8dba-9eece053c45b	B5C6F2F7	Refactored Product Engineering Initiative 2 core modules	1.546252825552205	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.288
+567b15e6-811d-42fa-9cf9-2f35dbaa3152	27BD2E64	Refactored Product Engineering Initiative 2 core modules	1.067708660401722	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.29
+f738fd61-59a4-40a4-b758-3dcddb4155e4	9ECA42EE	Refactored Product Engineering Initiative 2 core modules	1.873601432197978	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.293
+8a943256-93ee-49f4-b2e9-c4c9438e18e3	DA075306	Refactored Product Engineering Initiative 2 core modules	1.640571460307685	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.296
+839b47e1-7ed4-4065-982e-33e069367e8d	406FD845	Optimization: Refactor core logic	1.489080747407364	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-03-31 01:44:06.547
+c901046c-756c-44ae-a748-1d1577ec6cab	BF5793FD	Refactored Product Engineering Initiative 2 core modules	1.779115056702789	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.299
+1926cec4-68e7-40b5-b5b5-b301030382cd	11CB2954	Refactored Product Engineering Initiative 2 core modules	1.995241699166401	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.303
+77eecd03-cecf-47a0-aeb5-e8cb8106f617	1481F4DA	Refactored Product Engineering Initiative 2 core modules	0.6827198845387594	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.306
+c3f6b67d-c917-457f-85f2-a970d76a8678	FE7A98D9	Refactored Product Engineering Initiative 2 core modules	1.098729879050431	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	2026-04-15 18:36:05.309
+793c2165-6a9f-45f0-bf79-9d32fc75850e	4A42345C	Refactored DevOps Initiative 1 core modules	0.7739640058659618	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.399
+359cf160-db9e-48fd-8164-2ae3559edc9c	BA861A9F	Refactored DevOps Initiative 1 core modules	0.5200349237828592	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.4
+de6877ac-b5d1-4f64-b2c0-2274e6ebd5b1	8B6338AB	Refactored DevOps Initiative 1 core modules	1.01650515018762	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.402
+febbb58b-4345-49c7-b0b7-fc1181a27b20	CF15FCEF	Refactored DevOps Initiative 1 core modules	1.929742814247846	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.404
+fee8daac-ac2c-4894-9753-d3f49a8f2ea2	9F4D8798	Refactored DevOps Initiative 1 core modules	1.264912707739336	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.406
+5b650b0a-655d-4467-843b-2e6cbc0bcea0	5D942CBB	Refactored DevOps Initiative 1 core modules	1.345099255328002	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.408
+3716f1b6-1c0b-44c5-8999-3023a6015863	75FEA68A	Refactored DevOps Initiative 1 core modules	1.231326968471849	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.41
+c473cad1-267a-4e08-928a-43abfb07154b	0F68C501	Refactored DevOps Initiative 1 core modules	1.251403281453991	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.412
+04b16b8d-a6e8-4b21-9562-b171db2cba41	3C04C0C0	Refactored DevOps Initiative 1 core modules	0.9334605355379799	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.414
+47aed006-59fc-4188-b260-777e34e41844	D8170EF1	Refactored DevOps Initiative 1 core modules	1.267761698188556	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.416
+da4e37b7-5594-4a5a-8a49-07260c1bca4c	0776DE9C	Refactored DevOps Initiative 1 core modules	1.800428332588407	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.418
+7a3cf226-4fe5-4e7c-84fa-03a98d2a19a9	706FE1BE	Refactored DevOps Initiative 1 core modules	1.336754256053317	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.42
+30bbc5ce-6777-4fe7-9583-aa8690f82137	15E9D9C1	Refactored DevOps Initiative 1 core modules	1.37925198775916	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.421
+8319efb1-d2ca-4799-86ea-6388e6b571f0	4AD38E39	Refactored DevOps Initiative 1 core modules	1.51637017633482	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.423
+fa1d6c3b-67c1-42cf-ad75-1061d11a8a58	C1E5626D	Refactored DevOps Initiative 1 core modules	1.178228302371093	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.425
+7882e8ba-bc10-4c8a-a63a-f2b732afa61f	53BC598D	Refactored DevOps Initiative 1 core modules	1.616729348243703	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.427
+6e58cb95-8194-4ddf-99b6-209a0e620248	117A2271	Refactored DevOps Initiative 1 core modules	1.177372879074824	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:05.428
+24a9ee6f-3a08-421f-8ea2-095098a8b40e	6A02D3F5	Refactored Hardware Initiative 1 core modules	1.527922108534551	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.51
+38eb1081-151f-4153-95d6-1cb4d4496151	3B536B55	Refactored Hardware Initiative 1 core modules	0.8246739355714041	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.512
+ba71c282-9490-4a6a-b102-a122bb95c5e0	AF05889B	Refactored Hardware Initiative 1 core modules	1.281297654333827	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.514
+42af1802-1a80-4673-a254-71ba4d56ed2e	31A72D2D	Refactored Hardware Initiative 1 core modules	1.370332639862003	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.516
+7eb6551d-a928-46f3-a34d-ddecd90514a8	AD4D3AE2	Refactored Hardware Initiative 1 core modules	0.6915203279781232	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.518
+70398dbe-f53c-4670-b144-02547807199c	B61A62BF	Refactored Hardware Initiative 1 core modules	1.520395384198555	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.519
+44870419-2a97-42c4-8fc2-981047cfcb9a	4DD8A3D2	Refactored Hardware Initiative 1 core modules	1.024169128838575	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.521
+cfbce3d3-088e-4684-851f-e5b661d1e79c	E2E7B8CA	Refactored Hardware Initiative 1 core modules	1.812109645321722	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.523
+0c0a9f11-d0d0-4440-aae1-bc4321088a17	33233DF7	Refactored Hardware Initiative 1 core modules	1.183215636435565	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.525
+3b6dfe12-920c-4892-a11d-8db1d44eda77	5F169D9A	Refactored Hardware Initiative 1 core modules	1.321531138651121	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.526
+e721f26c-a70d-4d4d-97d0-9d8e0fe20455	D10B8E48	Refactored Hardware Initiative 1 core modules	0.8627016515868735	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.528
+5ff9c9e8-09c4-4216-b794-888f1e4e88cc	E14A38EF	Refactored Hardware Initiative 1 core modules	1.973917341474106	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.53
+53b8d130-5980-49a5-8a23-788280aa74d3	CEAAE310	Refactored Hardware Initiative 1 core modules	1.188755987034915	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.531
+6e9c529a-48b1-419d-a572-2dd844447201	0689BED1	Refactored Hardware Initiative 1 core modules	0.6691495471041395	bd6f42c0-60c5-4b7e-894a-524c311d026f	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:05.533
+215ffc5e-9dce-4a57-919f-976030a04a6f	61BA44EE	Refactored Quality Assurance Initiative 2 core modules	1.394799512218879	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.589
+af84af7b-d8fd-4b42-a5b6-a84e2dd82cdb	8B45D44D	Optimization: Refactor core logic	1.687318444137485	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-09 01:44:06.553
+0f54bb80-7273-42d6-9fd4-cbf30e7e3e0c	F1337B8F	Refactored Quality Assurance Initiative 2 core modules	0.9258179251996007	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.591
+e0e928bd-4dc6-422a-ad24-e7e6a23e7297	D99861C0	Refactored Quality Assurance Initiative 2 core modules	1.483072220440094	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.592
+9ffdff59-4f00-4882-af60-de800424d59b	AE1A4E52	Refactored Quality Assurance Initiative 2 core modules	1.57753318093135	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.595
+ff1b495f-c4d9-4b75-ae4d-2a5e9e7c3f4a	53529678	Refactored Quality Assurance Initiative 2 core modules	1.478401692785941	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.596
+4c13e4ef-7c92-4a1e-890e-d5703dea1479	7B11862A	Refactored Quality Assurance Initiative 2 core modules	1.509505727547039	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.598
+fad041e1-b995-44fb-a14f-56d62cb9a487	AB8BDFD9	Refactored Quality Assurance Initiative 2 core modules	1.321487487735037	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.6
+689b9980-066e-440b-a685-69e36e3ad1f9	4BFCAB83	Refactored Quality Assurance Initiative 2 core modules	1.882671828322862	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.601
+0821a466-9b20-43de-bb39-325a1f8cdb7f	1409C476	Refactored Quality Assurance Initiative 2 core modules	0.8620633835918279	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.603
+54cbac7d-55b2-4cfb-86d7-79ce93e750cd	0EE81A41	Refactored Quality Assurance Initiative 2 core modules	0.7487410331518358	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.605
+76b0317a-ff7d-45ab-b3af-bc84d17f39a3	3E007B34	Refactored Quality Assurance Initiative 2 core modules	1.479548289566061	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.607
+c1098a3a-4465-4e1d-b8a9-f9e8a8f747c5	2B5F4C9F	Refactored Quality Assurance Initiative 2 core modules	0.6280345857372254	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.609
+bf753c79-f052-405f-89c0-ed8e3ada3e5e	FA59704C	Refactored Quality Assurance Initiative 2 core modules	0.9269722213748226	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.611
+80860e43-1447-4925-86a2-eac090b5cfa4	F19C1052	Refactored Quality Assurance Initiative 2 core modules	0.7875771194804688	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.613
+b206fc3f-9e9a-47af-afc0-3bcb3ea46852	A43E1307	Refactored Quality Assurance Initiative 2 core modules	1.148011438655263	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.614
+a843d325-8afb-465a-9b72-1ab2a9288bac	3353F8FF	Refactored Quality Assurance Initiative 2 core modules	1.350086784085025	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.616
+08029f5d-9d79-43ef-878b-756f4a12c5a9	2B13C497	Refactored Quality Assurance Initiative 2 core modules	0.7586175152981782	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.618
+203b2600-7457-4c3b-b69c-6e623f6eb8dc	C8BBB059	Refactored Quality Assurance Initiative 2 core modules	1.130947082593013	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:05.619
+01333112-b074-461a-b1bc-4b83ba42e5b0	4D682D19	Refactored Security Operations Initiative 1 core modules	1.381002386266783	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.686
+cd666f44-bfbc-4fcc-9f1c-6ae3f95f25de	604FA252	Refactored Security Operations Initiative 1 core modules	1.740638769914796	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.689
+449dfc21-fd79-469d-91a3-4bb104216fc4	EFF7C368	Refactored Security Operations Initiative 1 core modules	1.093392490703843	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.692
+bfd1d961-4a78-4dd4-8124-e3680d87a553	EC26E885	Refactored Security Operations Initiative 1 core modules	0.786239950481574	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.694
+acfc8926-cbc8-4534-867b-0a0318a9c2b8	240B9CA5	Refactored Security Operations Initiative 1 core modules	1.77126175171928	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.697
+a7dba463-4fc7-4fa1-9f6d-da74161000c7	882B34BF	Refactored Security Operations Initiative 1 core modules	1.142125392757578	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.699
+6e6a5eda-b19b-42ab-a2c3-5ac1c33dc7f4	88EB4EB0	Refactored Security Operations Initiative 1 core modules	1.982645950201698	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.702
+a55737af-390e-4567-92a3-857565ed1608	DFFD9838	Refactored Security Operations Initiative 1 core modules	1.733513937792899	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.704
+34eb3ea6-f57c-4e4b-ba89-556d95328847	2F2E6EC0	Refactored Security Operations Initiative 1 core modules	1.373222929976461	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.707
+880ff330-8ee7-40b5-9cd5-d582e861fafd	1A10EA1C	Refactored Security Operations Initiative 1 core modules	0.5396674114763356	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.709
+6f427637-e7b8-43c7-a283-63b46f9209b5	A0904EFD	Refactored Security Operations Initiative 1 core modules	1.755602895189224	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.711
+e605ea3d-0568-4e85-a3e4-120203668a2d	9D7D27D2	Refactored Security Operations Initiative 1 core modules	0.625276786896896	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.713
+12b0ec98-b835-4d98-9874-043d2f65d2ee	AB9DCD26	Refactored Security Operations Initiative 1 core modules	1.623606830360754	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.716
+55a83f5c-c094-4913-b6cd-4af86d0e8125	73B17DFA	Refactored Security Operations Initiative 1 core modules	1.426901550374928	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.718
+326af2ff-f9e1-4f53-b07d-7808d658743e	0A8B75D6	Refactored Security Operations Initiative 1 core modules	0.9143313935459485	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.72
+d8c1c41a-6ab7-4ed9-bcaf-8870680641c3	63B303F5	Refactored Security Operations Initiative 1 core modules	1.285126338229928	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.722
+b2cca815-853d-4e60-8766-6a1bd5375ea2	D8F4E2CE	Refactored Security Operations Initiative 1 core modules	0.9382425204530446	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.724
+6c15bae8-ad10-404c-a1b7-8fd7a5bfb5ed	9C3BF9A5	Refactored Security Operations Initiative 1 core modules	0.9838753283091913	f563015a-2a62-4e5d-b494-e76712c3fc00	e38149de-145b-4edb-9dae-f8b887cf1292	2026-04-15 18:36:05.726
+eff5ce4b-de93-4cf1-b7e9-0540e3298dd5	5D478520	Optimization: Refactor core logic	1.3216743126059	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-01 01:44:06.56
+b626fa7b-342e-4584-8598-855e247c615a	BAEBF766	Refactored Infrastructure Initiative 1 core modules	1.136926440105898	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.791
+21a8f17b-6876-4ed5-b354-ecdf534402e8	711C17CB	Refactored Infrastructure Initiative 1 core modules	1.244283901379593	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.793
+512e7fa4-92ac-434b-b81a-ee786ac3fa9a	0D824953	Refactored Infrastructure Initiative 1 core modules	1.660982607453031	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.795
+89013a98-19f4-488c-8006-d81b4362414b	C8045457	Refactored Infrastructure Initiative 1 core modules	0.9145088271983464	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.797
+70d7dc64-2de0-422e-9f83-3e085ab54863	A3A2C9C4	Refactored Infrastructure Initiative 1 core modules	1.040578380185616	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.798
+94c12e7d-50e2-4b28-a35c-5a712f989929	82B29A9D	Refactored Infrastructure Initiative 1 core modules	0.7710841448634095	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.8
+918f80aa-d512-4677-8654-bcfbcb897cea	9291166F	Refactored Infrastructure Initiative 1 core modules	0.7483407480367864	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.801
+7c052c76-eb91-484e-bd92-94d4b195ab98	2293346F	Refactored Infrastructure Initiative 1 core modules	0.6144777821893386	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.803
+7e2b9dc5-acff-455e-90b1-d7f683e62cd9	B1EB367F	Refactored Infrastructure Initiative 1 core modules	0.8242668900803526	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.805
+f2d2cfb6-73b7-4458-9aef-87617ce96eb0	DB2FC364	Refactored Infrastructure Initiative 1 core modules	1.499833545790604	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.807
+bf02691d-e919-4fa9-ae04-5cf9674e2dd8	8F78BFB6	Refactored Infrastructure Initiative 1 core modules	1.154687995240825	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.808
+15faa572-d040-434f-9b68-4e43a7f6da8f	CCB805D2	Refactored Infrastructure Initiative 1 core modules	0.9974429817128361	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.81
+3debac14-d874-4cb0-9e0a-0eac2c230651	8219F0A2	Refactored Infrastructure Initiative 1 core modules	1.806953022331474	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.812
+98fe1ab9-dfa9-457d-9c87-345f2e420e88	9ADDFD52	Refactored Infrastructure Initiative 1 core modules	1.400064081195384	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.814
+ebffa148-2106-4d65-81cc-690368426280	8354D193	Refactored Infrastructure Initiative 1 core modules	1.194041545981505	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.815
+fed15c97-f2e4-4886-921d-6e8bba2afceb	DC825A17	Refactored Infrastructure Initiative 1 core modules	1.570476039016052	0b0f005d-3943-4384-8f1b-b6210e5071e5	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:05.817
+180d0a21-fe6f-41d7-910d-dea9d9de0a2e	ECE69F57	Refactored Data Science Initiative 2 core modules	1.047561798006009	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.866
+6d4e753d-ced7-48fb-81e5-7e12c5f243d1	C3CA676F	Refactored Data Science Initiative 2 core modules	0.8956097605533543	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.868
+ceadb795-35c8-4e47-89da-3ebaa6282655	EC9FFEBD	Refactored Data Science Initiative 2 core modules	1.074111622922577	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.869
+fc83476f-b89b-45e2-93c7-673870347944	50BCE874	Refactored Data Science Initiative 2 core modules	0.5914001943523772	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.871
+7e75220f-e7c2-4518-9834-2c9a0f6e0ce7	7273D178	Refactored Data Science Initiative 2 core modules	1.238164536037085	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.873
+0ec7ead7-bd40-49ce-99df-1fac52da8407	882D6CD6	Refactored Data Science Initiative 2 core modules	0.5852641909279453	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.876
+072afa72-e0e2-4c98-8de8-85e74bd820b0	F0F0F259	Refactored Data Science Initiative 2 core modules	0.5769161800131211	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.877
+78637491-afac-4333-8893-338409a03f1d	012B7750	Refactored Data Science Initiative 2 core modules	0.5664177332568268	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.879
+fd726386-4201-409d-b4a4-72b161e60559	99362512	Refactored Data Science Initiative 2 core modules	1.273196435178828	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.881
+c322f2e1-a0fe-448c-8dd5-a2328a57d259	262E1132	Refactored Data Science Initiative 2 core modules	1.285692522884232	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.882
+ca13b28b-74f4-4d6e-805e-f2d911ee7cb3	53BD742E	Refactored Data Science Initiative 2 core modules	0.5324159871704044	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.884
+fcb07974-c0ac-4976-a70d-581834cde197	27C661D1	Refactored Data Science Initiative 2 core modules	1.920081168513027	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.886
+58d7b285-6750-4984-bfa6-70f331850273	459887E4	Refactored Data Science Initiative 2 core modules	0.9461988095538265	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.887
+bf99e0a4-8f7c-43c9-a430-3dabb028bc61	45016047	Refactored Data Science Initiative 2 core modules	0.8201548283340353	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.889
+d9d9f8d9-2a35-43ec-8cf2-461e42cd877c	6D85D0B7	Refactored Data Science Initiative 2 core modules	1.882219678264466	895f4fc3-59f8-4aea-870f-b20abc918ffe	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:05.891
+b9858a73-eee5-46db-9a5d-3e310c74dfd6	42270378	Refactored Mobile Development Initiative 2 core modules	1.408055522660727	e7d09ede-899c-4b1d-a224-98865fd411bd	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:05.949
+5b0cf46a-7329-441c-91da-640746395882	E1850FF1	Refactored Mobile Development Initiative 2 core modules	0.9959572379724387	e7d09ede-899c-4b1d-a224-98865fd411bd	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:05.951
+4c943d11-feb9-452a-ac0d-8fa59c6b7033	2791FA6A	Refactored Mobile Development Initiative 2 core modules	0.5095354118518007	e7d09ede-899c-4b1d-a224-98865fd411bd	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:05.953
+8ced0ee9-25f0-4fe7-8c23-e4895c3da98f	118FAB58	Refactored Mobile Development Initiative 2 core modules	1.52186274815332	e7d09ede-899c-4b1d-a224-98865fd411bd	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:05.955
+18fec8c1-ba0a-42cb-839b-7f5cc2613aae	46EE6775	Refactored Mobile Development Initiative 2 core modules	1.009305444451372	e7d09ede-899c-4b1d-a224-98865fd411bd	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:05.957
+48272b86-4d71-47bb-9b31-215042a4ca63	401BDE7B	Refactored Mobile Development Initiative 2 core modules	0.7062419084969178	e7d09ede-899c-4b1d-a224-98865fd411bd	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:05.959
+66549f77-0414-414c-9ae2-bf1bb97c4259	33354EDA	Refactored Mobile Development Initiative 2 core modules	1.970309998179091	e7d09ede-899c-4b1d-a224-98865fd411bd	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:05.961
+d161f87b-7ca2-46c7-94c1-cd49aa40268a	0351A9E6	Refactored Mobile Development Initiative 2 core modules	1.499766909858562	e7d09ede-899c-4b1d-a224-98865fd411bd	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:05.962
+0e97ff12-b7d8-4090-aa1c-86fe1b1e86ca	5888FCE2	Refactored Mobile Development Initiative 2 core modules	1.652718063814536	e7d09ede-899c-4b1d-a224-98865fd411bd	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:05.964
+023003ea-87a5-47b4-95d6-085bd2f9e645	B28A9FFD	Refactored Mobile Development Initiative 2 core modules	1.585025192215066	e7d09ede-899c-4b1d-a224-98865fd411bd	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:05.966
+5a44d105-4bc8-4048-bf46-94882095ba0d	435B2695	Refactored Mobile Development Initiative 2 core modules	0.8197333138659629	e7d09ede-899c-4b1d-a224-98865fd411bd	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:05.968
+8eb5a3c9-f129-4e39-9ac8-d76892721ea9	3B223637	Refactored Mobile Development Initiative 2 core modules	1.330047684131136	e7d09ede-899c-4b1d-a224-98865fd411bd	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	2026-04-15 18:36:05.971
+1909ec7f-54fe-4685-a0dc-6948e642d02c	469D8E0F	Refactored Site Reliability Initiative 1 core modules	0.5222103110890617	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.052
+2d78a0fe-814e-4c8f-8731-678b4bbd0783	2C3A9CA5	Refactored Site Reliability Initiative 1 core modules	0.8500830554905139	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.055
+c64f7d87-be92-451b-bf3c-4a8cb18ac4ab	E5D01656	Refactored Site Reliability Initiative 1 core modules	1.377167985800286	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.058
+ccf04fd3-0399-4dc4-a4c8-97a736d18c91	46EDA9F9	Refactored Site Reliability Initiative 1 core modules	1.507884157149927	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.06
+7520dee1-496f-4023-8a0b-f3dc0089bce5	D4A3D9EF	Refactored Site Reliability Initiative 1 core modules	1.418615732703759	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.062
+d29d74b9-7e09-4018-bf74-dd0932c6126e	F782114E	Refactored Site Reliability Initiative 1 core modules	1.235259706156381	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.064
+625381cf-8b80-415b-aa1e-b6c0ffcb3299	70D9C33F	Refactored Site Reliability Initiative 1 core modules	1.753981964453264	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.066
+e4d3c414-ac96-4e46-b901-8c560894f732	5D87A83B	Refactored Site Reliability Initiative 1 core modules	1.442243362010181	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.068
+0e3db812-f46c-4be1-9e15-9b14022c2a9e	9476A99E	Refactored Site Reliability Initiative 1 core modules	1.39614885956199	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.07
+9fed578c-e2f4-49ac-93b8-20f3c3b21100	E901873D	Refactored Site Reliability Initiative 1 core modules	0.9118064081729992	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.072
+1c71a80b-78a6-4b2f-b395-0f52eea7300b	A8E8D6D4	Refactored Site Reliability Initiative 1 core modules	1.723155812515196	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.073
+655a3135-1fa5-4f14-a906-7dec5f64723a	C5E612C2	Refactored Site Reliability Initiative 1 core modules	0.5431195833537049	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.075
+aa209dc2-6838-4468-8048-6a53e2968a3e	CCB68199	Refactored Site Reliability Initiative 1 core modules	1.028043479596904	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.077
+f3f1ce41-e5ee-4765-939e-0b9ffbf1043e	31FFB42A	Refactored Site Reliability Initiative 1 core modules	0.5473074940059655	2dcdf168-3b3c-4839-93b1-f18a1d089d02	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:06.079
+f2258ba4-1bd4-45cd-bbb5-d4535266ffbb	CB7CD028	Refactored Product Design Initiative 2 core modules	1.625360188588721	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.137
+3ca6c29d-40fc-49f4-b272-999932c68b8d	FC0BB6A7	Refactored Product Design Initiative 2 core modules	0.8942428372570939	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.139
+3ee43222-e13f-4ba4-94df-67915dceda0b	856D2F4F	Refactored Product Design Initiative 2 core modules	0.5569008296007089	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.141
+4930232e-0c9f-4598-be77-47726b871d16	ECDD0363	Refactored Product Design Initiative 2 core modules	1.877590713303618	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.143
+6b483119-dd6a-4b5e-aee7-902ac7d8cf8f	F972D51E	Refactored Product Design Initiative 2 core modules	1.649779603890753	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.145
+04e29eac-c557-4231-baa1-1aa0fa0a003d	0DEB8493	Refactored Product Design Initiative 2 core modules	1.009759181662111	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.146
+00e1fc8e-2a29-4e36-83a6-5337cd027cd0	6B264F55	Refactored Product Design Initiative 2 core modules	1.61380116877307	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.148
+ad76b2d9-d496-48d0-b376-540499d0af90	87B048EC	Refactored Product Design Initiative 2 core modules	1.639158322339579	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.15
+1d03b964-0cf3-4fe4-83c2-37ef78e9fecd	467E0F23	Refactored Product Design Initiative 2 core modules	1.047544712336083	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.153
+d4130c9c-9135-472e-a70c-e77a9133771d	4C4B1D36	Refactored Product Design Initiative 2 core modules	1.125498837203353	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.155
+71a2e129-ae1d-47fd-9b54-d9f1546177bc	777B3E6B	Refactored Product Design Initiative 2 core modules	0.8966006422823427	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.157
+28ecec0d-3a84-4b93-a641-285d253193b6	DCE976AF	Refactored Product Design Initiative 2 core modules	1.774184288147523	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.16
+2cca90b2-a60e-4274-83de-d3513558e9a7	EAF6D69F	Refactored Product Design Initiative 2 core modules	0.535789221358683	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.162
+0eae0a3e-cda8-4235-b8d3-7f5ab4b23c8a	7074327E	Refactored Product Design Initiative 2 core modules	1.682929424302373	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.164
+88f08dbf-6577-4fe0-99f2-1e9bb15b032a	F388C2D8	Optimization: Refactor core logic	1.535972823544868	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-03-27 01:44:06.569
+a3639346-9d8b-4e82-8920-3a8c1902d2c3	5456C498	Refactored Product Design Initiative 2 core modules	1.111517509130507	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.166
+a4f43d01-afb0-44b2-a678-d8551a45c109	B93D82DA	Refactored Product Design Initiative 2 core modules	0.615356744734378	7788fc3c-93f4-469b-879b-243d7f9623ec	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:06.17
+33e7e934-1e9d-4470-9bcb-50fc93dc0703	036AD2F1	Refactored Product Engineering Initiative 1 core modules	1.148656778443032	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.244
+206533b7-3d31-4f6b-ab2e-879a53555a7d	DC4404AF	Refactored Product Engineering Initiative 1 core modules	0.9067584717762178	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.247
+713b0e2a-5190-405e-8e65-b4106c88d165	2567DAE4	Refactored Product Engineering Initiative 1 core modules	0.5913099479894615	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.25
+18887c98-100f-4b40-8e63-583304083737	ADEDFAE6	Refactored Product Engineering Initiative 1 core modules	0.8010451274647549	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.252
+5f5aaed3-bef4-4ded-9da2-d52752016423	34D6E5EA	Refactored Product Engineering Initiative 1 core modules	0.7529915963879675	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.254
+092a98ee-8a63-46ae-8b62-dfb4c73a3b2c	3F3F3441	Refactored Product Engineering Initiative 1 core modules	1.597100048912786	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.257
+304cba18-50c6-4e04-8d13-21dd4f1e351a	37FF2832	Refactored Product Engineering Initiative 1 core modules	0.8616523044130082	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.26
+d9983db5-aac7-429d-b42e-b0a505f123cb	066B5C79	Refactored Product Engineering Initiative 1 core modules	1.945260634191588	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.263
+82aba8a5-1332-46f5-ba90-d7200219dd78	A0F7A078	Refactored Product Engineering Initiative 1 core modules	0.7097034928657004	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.265
+d7bf4748-6434-421c-b05e-1dee79ff9cff	BDC2FF9F	Refactored Product Engineering Initiative 1 core modules	1.717088712080721	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.268
+f491a72f-7784-4f1e-81d8-87728c8adcc8	3F820C77	Refactored Product Engineering Initiative 1 core modules	1.562479999916025	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.27
+5fb5f9f1-4e07-4897-91f5-b50d86c1d057	71776B59	Refactored Product Engineering Initiative 1 core modules	0.9330340521168694	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.272
+66825320-b5fa-4782-a681-3868c3535778	2E3FF01C	Refactored Product Engineering Initiative 1 core modules	1.08548799980912	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.275
+8517cde2-ca81-490c-a0a9-dcff135697f4	FE6058C0	Refactored Product Engineering Initiative 1 core modules	1.413132889769768	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.277
+80681486-7283-416e-a697-90002e2c01df	D3D9CB3A	Refactored Product Engineering Initiative 1 core modules	1.327265826867404	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.28
+7db06925-af2f-4259-9f92-e91c6248dc5c	83352C09	Refactored Product Engineering Initiative 1 core modules	1.926244231244764	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.282
+9469c551-1706-4328-bd34-fe8a0489a705	47B118FF	Refactored Product Engineering Initiative 1 core modules	1.429926297617208	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.285
+2565f0df-cdcd-4a22-906f-6d850ca77013	DC6DD17B	Refactored Product Engineering Initiative 1 core modules	1.973814912247614	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:06.287
+a60cdec1-e740-47fd-8661-db6a961de7d7	9228F443	Refactored DevOps Initiative 2 core modules	1.656541933573874	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:06.347
+5d2e331d-0d39-4e15-929d-32b76c249f60	5FC86A52	Refactored DevOps Initiative 2 core modules	1.014968661089363	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:06.349
+aad956bc-f819-476c-a3fb-310d9f74bc77	D466B582	Refactored DevOps Initiative 2 core modules	1.003163428235703	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:06.351
+bdaa8284-e484-41d6-be92-d180bca1d78c	02B80A0A	Refactored DevOps Initiative 2 core modules	1.497022449659858	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:06.353
+cecfa550-2d8d-435d-b58f-d45b5fc8c0b2	4F7C0855	Refactored DevOps Initiative 2 core modules	1.651840978395459	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:06.355
+41802a17-0810-41dc-bc58-faf0b5a1a46f	990D83FA	Refactored DevOps Initiative 2 core modules	1.237298602433782	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:06.357
+f27df162-eaa5-424d-805b-4da0a5defe03	50258058	Refactored DevOps Initiative 2 core modules	0.8260478315115145	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:06.359
+a9c39c4b-2dd7-4f3b-9106-b2aa40369655	225B8D1B	Refactored DevOps Initiative 2 core modules	0.60182117996048	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:06.361
+bcfb4962-0fbe-4d95-b23a-99e09591b776	C061D2F6	Refactored DevOps Initiative 2 core modules	1.635938543095088	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:06.363
+ca967d8f-d3c9-47e8-a97a-fed8bad04945	87B84F0F	Refactored DevOps Initiative 2 core modules	1.646814571176931	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:06.365
+36e27f2c-c57d-40ca-aa4c-7e1445fc93ae	38CD8495	Refactored DevOps Initiative 2 core modules	0.5241686849562028	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:06.366
+2d8ee859-6479-4ad8-a1c3-456b0725d7ec	449F952F	Refactored DevOps Initiative 2 core modules	1.138539693272698	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:06.368
+03e0773e-be6e-4e4f-9d0e-8bb928d9d417	3AB80985	Refactored DevOps Initiative 2 core modules	1.664272529502507	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:06.371
+ba53159c-78ac-47b9-a3d3-e8ed8eeaf71f	6D728A76	Refactored Hardware Initiative 1 core modules	1.458011928388042	6a4ada48-0604-4d1f-abef-a3e921a9acb3	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:06.432
+c5500002-d99c-44de-9bb0-1fc92215339c	CDC01445	Refactored Hardware Initiative 1 core modules	0.943077423092091	6a4ada48-0604-4d1f-abef-a3e921a9acb3	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:06.434
+0e6f5e9e-6062-4545-bd13-d61e301b561d	E7718D1E	Refactored Hardware Initiative 1 core modules	1.260389980132793	6a4ada48-0604-4d1f-abef-a3e921a9acb3	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:06.436
+84af5170-5323-4d35-a4ca-06a902f21223	CFC21E6C	Refactored Hardware Initiative 1 core modules	1.82167137038189	6a4ada48-0604-4d1f-abef-a3e921a9acb3	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:06.439
+158b7247-3916-48c5-bdcb-6aa52f08d55f	A8BC2578	Refactored Hardware Initiative 1 core modules	1.82175666902348	6a4ada48-0604-4d1f-abef-a3e921a9acb3	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:06.441
+e4f9ddf1-ef54-46f7-a2cb-5b93df9de14e	732E2F27	Refactored Hardware Initiative 1 core modules	0.9505858614209601	6a4ada48-0604-4d1f-abef-a3e921a9acb3	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:06.444
+dea9d90f-6ca3-4dfc-90ad-8e4e05164cf9	EBE6A5BF	Refactored Hardware Initiative 1 core modules	0.8064184934109104	6a4ada48-0604-4d1f-abef-a3e921a9acb3	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:06.446
+26f9c280-bcdd-4bf7-a1e7-eb29abb29a43	4A7128B0	Refactored Hardware Initiative 1 core modules	0.5377805209177077	6a4ada48-0604-4d1f-abef-a3e921a9acb3	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:06.449
+91f01123-2141-4bbd-8a67-359d6168c9b2	D837B6C0	Refactored Hardware Initiative 1 core modules	1.278290192450626	6a4ada48-0604-4d1f-abef-a3e921a9acb3	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:06.452
+e579c465-934e-47f1-8356-e961eed11c91	A448EA79	Refactored Hardware Initiative 1 core modules	0.7267611962560276	6a4ada48-0604-4d1f-abef-a3e921a9acb3	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:06.455
+0c862f4c-87f7-4601-9f00-71c11b606dc0	1D226630	Refactored Hardware Initiative 1 core modules	1.427918515214424	6a4ada48-0604-4d1f-abef-a3e921a9acb3	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:06.457
+68abfc79-29e9-4686-b72c-49ec474d5072	D272F86B	Refactored Quality Assurance Initiative 2 core modules	0.6382855832775176	714c5335-de73-4dd7-87bb-e59cfd464af1	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:06.54
+fb5f3a13-33b3-400e-a7ff-b4e5b5202047	16EC3248	Refactored Quality Assurance Initiative 2 core modules	1.775522943412787	714c5335-de73-4dd7-87bb-e59cfd464af1	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:06.543
+a19cfc7c-68d5-4f27-a634-bd9685e3250e	1181ACD0	Refactored Quality Assurance Initiative 2 core modules	1.310353548636068	714c5335-de73-4dd7-87bb-e59cfd464af1	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:06.546
+23255d1d-1261-4472-a141-d7413ed64690	B304BEAE	Refactored Quality Assurance Initiative 2 core modules	1.139127141329909	714c5335-de73-4dd7-87bb-e59cfd464af1	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:06.548
+39d9167b-6b16-4a54-8ae7-1842e6cabdea	6915B508	Refactored Quality Assurance Initiative 2 core modules	1.746329968850785	714c5335-de73-4dd7-87bb-e59cfd464af1	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:06.55
+8f7af868-a0fa-4ce1-bac4-eb94920aaae7	E83508E1	Refactored Quality Assurance Initiative 2 core modules	0.5867918296930572	714c5335-de73-4dd7-87bb-e59cfd464af1	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:06.553
+e9fb2104-8ff7-4478-ae4e-bfc461cd3ca9	7A2C4E40	Refactored Quality Assurance Initiative 2 core modules	1.550131097051389	714c5335-de73-4dd7-87bb-e59cfd464af1	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:06.555
+8717112d-b246-4fb7-bdac-98658971da45	24D72897	Refactored Quality Assurance Initiative 2 core modules	1.994470053687011	714c5335-de73-4dd7-87bb-e59cfd464af1	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:06.559
+e9dcda3c-a137-4d5b-b213-e0c5f5ba8396	618A6A51	Refactored Quality Assurance Initiative 2 core modules	1.957584402779726	714c5335-de73-4dd7-87bb-e59cfd464af1	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:06.561
+dfe9b117-16a1-4edc-92cf-a52e43fc3258	C2A6678B	Refactored Quality Assurance Initiative 2 core modules	1.660263834841642	714c5335-de73-4dd7-87bb-e59cfd464af1	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:06.563
+9bae2195-c372-467a-9b38-490084f21e25	EF97EA10	Refactored Quality Assurance Initiative 2 core modules	0.7193145561408345	714c5335-de73-4dd7-87bb-e59cfd464af1	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:06.565
+abf87620-125b-45e2-8c86-269c329db04c	CA882C99	Refactored Quality Assurance Initiative 2 core modules	1.483488090473068	714c5335-de73-4dd7-87bb-e59cfd464af1	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:06.567
+5b7058d6-63d2-4f84-805a-90cedf3f8217	49027F3B	Refactored Security Operations Initiative 2 core modules	0.5687112469725887	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.626
+a39e3605-b56a-421d-a0ec-6f88b7a5dc51	6A92B8F6	Refactored Security Operations Initiative 2 core modules	1.790952989877713	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.629
+b7f69d8b-cfcc-4bc2-8f13-399a2f69a270	9FDB0CE1	Refactored Security Operations Initiative 2 core modules	1.374716761431079	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.631
+6a5f20f8-06e7-457f-bdfb-2c8453bc9697	69196AAC	Refactored Security Operations Initiative 2 core modules	1.076749924099818	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.633
+b603f0eb-7ee8-4fb6-ad2d-840dc45d3bc2	68EB7BD1	Refactored Security Operations Initiative 2 core modules	1.401065596055592	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.635
+e959b8ee-46ed-47fc-82b6-bc9476e35069	2393EF78	Refactored Security Operations Initiative 2 core modules	1.361346916595143	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.638
+2543dcb0-a33e-4bcb-a008-dd48a47df051	8348B7E1	Refactored Security Operations Initiative 2 core modules	1.19237007505399	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.641
+879a13ff-1fd4-489e-bf70-a9349949fafc	312AEF0C	Refactored Security Operations Initiative 2 core modules	0.613455949301465	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.644
+878c1deb-163f-4e39-8307-b4d14b014b30	B4949322	Refactored Security Operations Initiative 2 core modules	1.50830540549535	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.646
+a9019ab4-c91a-4531-b8af-7123e4f58b89	D5DFF6F3	Refactored Security Operations Initiative 2 core modules	1.598849707752639	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.649
+43b843cd-6625-4c37-84bb-4c7d0d985d11	F93F13ED	Refactored Security Operations Initiative 2 core modules	1.985380773599023	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.651
+08fcad57-058f-47a9-987a-1f2a82df8d2c	6D27B660	Refactored Security Operations Initiative 2 core modules	1.698180987825138	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.655
+34b26e49-fc5a-4818-b101-311071ef5f80	ABD369A3	Refactored Security Operations Initiative 2 core modules	0.8247992887450346	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.657
+40e3f0c2-14bd-4f8b-9f27-6e6fcf07ee0b	ACAAC6A5	Refactored Security Operations Initiative 2 core modules	0.78304891476286	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.66
+f42ad079-b19f-4886-a139-6744a1f024da	1F3D2AB7	Refactored Security Operations Initiative 2 core modules	1.073434223718578	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.663
+a06ef382-52e8-42c2-a454-85ea92d26b7c	E195C221	Refactored Security Operations Initiative 2 core modules	0.7597729354245784	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.665
+540387be-3b45-4716-bd3f-1c2810fba729	B1F18E19	Refactored Security Operations Initiative 2 core modules	1.939241214534324	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.668
+448232b6-c002-4591-b0eb-bbcc3007443f	8A752471	Refactored Security Operations Initiative 2 core modules	1.965685990125069	17527b7e-8e00-4412-8e70-1bfcafde77bb	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:06.672
+14c17d23-8056-46fa-a24c-4c334d56818c	7B7642CA	Refactored Infrastructure Initiative 2 core modules	1.387814713762827	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.757
+304a9242-167c-4080-96f0-1b1ff2603ab1	3A074FC6	Refactored Infrastructure Initiative 2 core modules	1.219452577502149	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.759
+c3377b26-67bb-411d-9a21-9f4e282dc5a3	DD5BF7B8	Refactored Infrastructure Initiative 2 core modules	1.618784393368085	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.762
+0ed6d8eb-236b-40eb-8bd2-e648cecbf189	E99F9085	Refactored Infrastructure Initiative 2 core modules	1.061032917608273	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.764
+f5d17d6f-fe16-4ecb-b680-25fd66808e89	0FFEF5FF	Refactored Infrastructure Initiative 2 core modules	1.021836720436158	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.767
+04c3d5e3-3de3-4db2-8f87-44c2736a4b7a	0686C95B	Refactored Infrastructure Initiative 2 core modules	1.047563721609054	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.769
+8cd4c91c-029b-4c1a-aa9e-4293648d54b5	6F1F9829	Refactored Infrastructure Initiative 2 core modules	0.977080105300043	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.771
+11f47e49-7d7e-4677-8ca0-99b0d541cda0	E34B6E37	Refactored Infrastructure Initiative 2 core modules	0.8120712378402171	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.773
+fa1021bc-f1ab-4e36-9a25-8b87fd81e02e	3A6198D1	Refactored Infrastructure Initiative 2 core modules	0.9079696727544917	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.774
+6f7a46e1-5a6c-49e5-86e8-5f3de8612782	23552AE4	Refactored Infrastructure Initiative 2 core modules	1.806874023179933	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.776
+0a3c7332-df96-408d-b8eb-896d4af33b7a	91DF8109	Refactored Infrastructure Initiative 2 core modules	1.601872537056109	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.779
+21382340-9988-436d-b105-30616ea0f7a3	1306EE3B	Refactored Infrastructure Initiative 2 core modules	0.9514646080709477	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.781
+25cd8510-9d7e-4aac-bb6a-10c8ac86fce4	5125FBD6	Refactored Infrastructure Initiative 2 core modules	1.379232478038533	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.783
+a54eb8cb-5fc1-4c1e-927e-2f0a49c3cf47	91759E1C	Refactored Infrastructure Initiative 2 core modules	1.45140340075029	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.786
+7be330e6-71aa-4243-a335-11b5afb40a0f	B6E03EF2	Refactored Infrastructure Initiative 2 core modules	0.8089748504848009	3d4681a2-47e9-4e57-902e-2c16de8e378e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	2026-04-15 18:36:06.788
+65fc0966-f41c-4470-8685-03a16fe7b2ad	4283D8BD	Refactored Data Science Initiative 1 core modules	1.960866548464939	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.86
+968ea45b-eaac-4503-bb8a-1dd2cca23998	FF50DC20	Refactored Data Science Initiative 1 core modules	1.207396961739974	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.862
+79072dfd-dc4c-43d4-9c07-20e0efdc24cc	1E2522E6	Refactored Data Science Initiative 1 core modules	0.9303193105902636	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.863
+49e60af0-fcd6-49df-a537-d02ca4bbdf08	F5E5BD75	Refactored Data Science Initiative 1 core modules	1.510330795643435	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.865
+69f61ae1-7737-4b51-a873-09b584380875	A5BC4184	Refactored Data Science Initiative 1 core modules	1.669789775690121	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.867
+f90745b3-ba8d-4a5b-81b4-df29bac790c5	83B56303	Refactored Data Science Initiative 1 core modules	1.286854729293264	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.869
+ec450fc9-ccea-4c6e-a46d-f8143a5b8ddb	4C535B92	Refactored Data Science Initiative 1 core modules	1.940987747489394	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.871
+82b0ddc8-2dcb-4589-9339-a8f0a745e14e	A0935105	Refactored Data Science Initiative 1 core modules	0.7748859597032085	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.873
+9f3db60a-b4c1-484d-a98d-1618fa5a660c	091A19AE	Refactored Data Science Initiative 1 core modules	0.9849171699905228	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.876
+d0b5a245-d18a-49f5-8058-5637b4cf8083	866197A2	Refactored Data Science Initiative 1 core modules	1.265692243539403	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.878
+913cdb0b-b1c3-4f38-b92b-2ae68c3ada4c	C72C3D0B	Refactored Data Science Initiative 1 core modules	1.393935007777119	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.879
+97427d20-3bc9-432f-8b67-7ed41b9eb8c9	D41D04F4	Refactored Data Science Initiative 1 core modules	1.64497709980646	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.881
+8468fd5b-fcc6-4ed8-8d60-b1fed98500e9	801B30F7	Refactored Data Science Initiative 1 core modules	1.378868562988236	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.883
+d91897f3-9736-4e5c-8e71-a8920bbb618e	A653568D	Refactored Data Science Initiative 1 core modules	1.487465534358957	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.885
+4022c22d-88d9-428e-8cb2-3415839dd441	CB25724D	Refactored Data Science Initiative 1 core modules	1.527140158124151	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.888
+750dff81-8114-47a6-b945-44865f4900b6	DD81E85D	Refactored Data Science Initiative 1 core modules	1.202087398097777	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.89
+a09ce2fd-0f44-4988-9d40-1cc85d0208d3	14F36AAA	Refactored Data Science Initiative 1 core modules	1.482625893905901	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.891
+5b70209c-577d-45c8-b0ef-1b1262aabc38	90FAC4B6	Refactored Data Science Initiative 1 core modules	1.636768980767998	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.893
+7e11cdd4-2563-4d8e-b529-b7d00def6cb3	648A0932	Refactored Data Science Initiative 1 core modules	1.606909967755159	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.895
+81c9ee5e-db96-4eb3-b772-6ac9b17d51fa	723AB688	Refactored Data Science Initiative 1 core modules	1.170322791685674	f04a02a3-d5f1-407c-b530-9e36d9970c64	f28f4b1c-9962-4b17-9082-5c058424872b	2026-04-15 18:36:06.896
+97869538-8b17-4043-9ade-32b8aafba6e3	225A7A7A	Refactored Mobile Development Initiative 1 core modules	0.5742121750825775	6054f413-2fa0-4af4-8784-2a0697ce75b8	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:06.953
+5daba763-ae29-48b8-8603-912bf55244be	A09B70F9	Refactored Mobile Development Initiative 1 core modules	0.9891827254083008	6054f413-2fa0-4af4-8784-2a0697ce75b8	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:06.955
+0de42d59-63a3-4310-8724-cf5c4081464a	AC6D35B8	Refactored Mobile Development Initiative 1 core modules	1.298894179631342	6054f413-2fa0-4af4-8784-2a0697ce75b8	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:06.957
+95ddd205-d6c1-4cfe-94bb-35a6a9954956	692BC760	Refactored Mobile Development Initiative 1 core modules	1.699072332388944	6054f413-2fa0-4af4-8784-2a0697ce75b8	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:06.959
+87642a07-671b-41a4-98c2-2f28787ab77e	5CF28472	Refactored Mobile Development Initiative 1 core modules	1.811396648760828	6054f413-2fa0-4af4-8784-2a0697ce75b8	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:06.961
+e96ac7b6-e146-445a-bc61-983fffe0e273	BFF93140	Refactored Mobile Development Initiative 1 core modules	1.588024089189602	6054f413-2fa0-4af4-8784-2a0697ce75b8	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:06.963
+79685826-c9fd-4efa-a61d-3f6f3f05c65a	EFF430E1	Refactored Mobile Development Initiative 1 core modules	1.379749704566214	6054f413-2fa0-4af4-8784-2a0697ce75b8	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:06.965
+e2774246-9e6c-4058-bd7f-11681dee7c7d	1B653213	Refactored Mobile Development Initiative 1 core modules	1.998184601500622	6054f413-2fa0-4af4-8784-2a0697ce75b8	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:06.967
+e3d4d076-b1da-4f01-9010-05f36c416e7f	3D69F26B	Refactored Mobile Development Initiative 1 core modules	1.056069068668154	6054f413-2fa0-4af4-8784-2a0697ce75b8	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:06.969
+fce267cf-0f82-4673-bd74-12876eecf136	12CF37C7	Refactored Mobile Development Initiative 1 core modules	0.5373731580656089	6054f413-2fa0-4af4-8784-2a0697ce75b8	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:06.97
+7ce3cc28-ba38-4606-97fe-0375285c45f3	A5466B5B	Refactored Mobile Development Initiative 1 core modules	1.396733396004382	6054f413-2fa0-4af4-8784-2a0697ce75b8	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:06.972
+319c5e31-1b07-4215-a289-9f763c460b44	404AF71C	Refactored Mobile Development Initiative 1 core modules	1.999390153721248	6054f413-2fa0-4af4-8784-2a0697ce75b8	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:06.974
+3a3975ce-f5be-457d-973e-a770024949e7	297EE452	Refactored Mobile Development Initiative 1 core modules	0.7927922672914532	6054f413-2fa0-4af4-8784-2a0697ce75b8	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:06.976
+ae007ac8-f797-4179-8af3-7a178f1d56c8	F51765A3	Refactored Site Reliability Initiative 1 core modules	0.9347838294180031	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.077
+d59471ce-df93-4581-92cf-a997a0e30c79	77DCA8DA	Refactored Site Reliability Initiative 1 core modules	0.710949738771905	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.081
+fe1d6d1d-9ae4-439d-820a-8fe1b4c707d1	B67D60DE	Refactored Site Reliability Initiative 1 core modules	1.077165687476493	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.085
+fec7470e-f297-415e-88db-c3c3925f3524	6F0FCBD3	Refactored Site Reliability Initiative 1 core modules	1.133712312212317	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.089
+1ae62687-f214-4d80-af7a-2e4448f851c3	AD3B0374	Refactored Site Reliability Initiative 1 core modules	0.6615901610570272	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.092
+46c6011b-61ea-42a2-bfe5-de8dfedd8110	D9BF1E62	Refactored Site Reliability Initiative 1 core modules	0.7854663331288892	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.096
+ada7827a-ad85-4d05-b9c8-dfd5a8afcca8	FB250FAE	Refactored Site Reliability Initiative 1 core modules	1.359788063545189	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.099
+d1cbe986-18e5-411f-9819-4942f0dcfef4	8CB74D23	Refactored Site Reliability Initiative 1 core modules	1.03583418673719	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.103
+fff5fd53-cd6f-4945-bc52-76d119392d13	5ED4F717	Refactored Site Reliability Initiative 1 core modules	1.647051018632218	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.106
+facd02be-e7b4-41d7-8dd3-459a055543b8	A5AFD8A1	Refactored Site Reliability Initiative 1 core modules	1.567888484430906	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.11
+81af30b3-0cda-4e8a-b86f-878ddd9519aa	52530780	Refactored Site Reliability Initiative 1 core modules	1.438963382567692	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.114
+ca0cd966-50e9-4dad-aa6e-ee21e59aeb41	C77A2A30	Refactored Site Reliability Initiative 1 core modules	1.49468656807194	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.117
+408510b9-9bd8-4c10-9706-9edd03bd4a4e	5356C38B	Refactored Site Reliability Initiative 1 core modules	0.7819120327570044	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.12
+34915ba4-d35b-4597-9292-7dbc37617b05	64C00311	Refactored Site Reliability Initiative 1 core modules	1.723042899390911	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.124
+02f8d86c-e63e-4cda-81d2-81afd41ed8e3	9E1CDB6F	Refactored Site Reliability Initiative 1 core modules	0.747271717428289	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.127
+4017ec8c-f524-4a3b-8f3a-cac92f9b315e	CEC8FAC6	Refactored Site Reliability Initiative 1 core modules	0.9575973370095443	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.131
+5a4e8e93-ddd9-4a28-8adf-8a3faa6115e7	805388A5	Refactored Site Reliability Initiative 1 core modules	1.253881978052856	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.137
+2f117cc3-9fff-4e49-adc6-a33e39cff060	EF591CF2	Refactored Site Reliability Initiative 1 core modules	1.147002589243717	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.142
+9c27c17b-2d2d-49a7-9357-13a66f4c1937	19CEACDB	Refactored Site Reliability Initiative 1 core modules	1.544986118638641	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:07.147
+4ec78081-8815-4e27-8a0b-ad0ecf0f9f2e	72666D14	Refactored Product Design Initiative 2 core modules	1.535290377495014	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.236
+9ccb9051-257d-4f1f-ae9f-3b8a00967dc6	63AD803D	Refactored Product Design Initiative 2 core modules	1.912107555873689	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.238
+d276e2a9-d76c-4268-8da5-0809071d8df5	7BA84396	Optimization: Refactor core logic	2.492200972751593	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-12 01:44:06.577
+147dc92c-aa09-41d3-872a-364200b7edfd	4BB5AA94	Refactored Product Design Initiative 2 core modules	1.633472741604091	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.24
+00661bc0-0ac7-4277-8f55-10dff150fafb	5B688A32	Refactored Product Design Initiative 2 core modules	0.8112357904125538	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.242
+f45c0968-b65b-46a5-bd56-454114e7dc47	EB93C7EC	Refactored Product Design Initiative 2 core modules	1.727363262012405	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.244
+87e7850b-ea6e-4574-9b83-46856dacecd3	749F8982	Refactored Product Design Initiative 2 core modules	0.9603126714149433	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.246
+931507d8-b599-471a-af38-ee38d33f5225	A8CBC183	Refactored Product Design Initiative 2 core modules	0.6283485473591894	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.248
+0257cd1a-35fd-4ca1-bd68-2a79d8f51054	5FF69629	Refactored Product Design Initiative 2 core modules	0.5570957207259541	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.25
+75da7b8b-aa7a-4e4b-8ea7-74e17a665454	C40275E0	Refactored Product Design Initiative 2 core modules	1.054526897293432	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.252
+0899d0fc-8072-40cd-a981-21ae34e1eb1a	E5E3C651	Refactored Product Design Initiative 2 core modules	1.502739038507999	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.253
+f822b256-0aac-4322-9095-c688f6765614	0B7E8214	Refactored Product Design Initiative 2 core modules	0.6853117130296321	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.255
+3095fdb2-0d9c-407d-90e2-12a76a1cc969	48D61888	Refactored Product Design Initiative 2 core modules	1.484927752669564	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.257
+5f2faf9d-5e6b-4e7c-9113-11e4f6c371da	17582E74	Refactored Product Design Initiative 2 core modules	0.7540554699248343	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.259
+2c27c0b7-30c7-4159-b96e-951b929bca01	50DD2606	Refactored Product Design Initiative 2 core modules	1.447188579112074	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.261
+ca266b7d-43e5-4ee1-a207-a5cd1764e200	DB1FA5FD	Refactored Product Design Initiative 2 core modules	1.44638023216824	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.263
+857d61dd-a664-4200-9b31-12221f019fc5	D5E8B413	Refactored Product Design Initiative 2 core modules	1.551327013199036	c0ed9381-c09e-436c-ab26-952b1b31b854	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:07.265
+ab9dcc07-de16-46a4-80af-357e122be39d	73C6F16B	Refactored Product Engineering Initiative 1 core modules	1.148364801783736	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.324
+32e5c7a0-9e29-4419-a26c-049feb065041	CAC21F2E	Refactored Product Engineering Initiative 1 core modules	1.85839655775596	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.326
+8df6d6ec-f425-4f07-b54e-a8aff8a2b6ec	3DCA9B66	Refactored Product Engineering Initiative 1 core modules	1.638994668793135	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.328
+0ebb80f0-b9dd-4746-aa95-b35e001e47c3	328F2339	Refactored Product Engineering Initiative 1 core modules	1.590511538388078	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.33
+e2b39836-4159-4c62-b728-a1c3d5974afa	C52C6FDE	Refactored Product Engineering Initiative 1 core modules	1.138020978434318	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.331
+1dfec797-4cac-41ff-8e0e-498fd3a9f087	F52C73A6	Refactored Product Engineering Initiative 1 core modules	1.721473073442861	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.333
+165022af-ffc7-4ca8-9b1b-eb600f01afc3	756AF50A	Refactored Product Engineering Initiative 1 core modules	0.862174715142534	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.335
+72af495e-45be-43da-8bbb-ab5239fa5447	FD17A318	Refactored Product Engineering Initiative 1 core modules	1.671010116226214	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.336
+fc7d1aa1-1aa9-4067-b103-8fe78e708e52	D4925A90	Refactored Product Engineering Initiative 1 core modules	1.528551744980747	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.338
+9dbc05f2-8f46-415b-b268-c5f41bc89261	6CA3D7AF	Refactored Product Engineering Initiative 1 core modules	1.280779800266863	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.34
+69948538-557f-48a6-8d18-ea98aedadceb	ED82C2B8	Refactored Product Engineering Initiative 1 core modules	1.803239457352503	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.342
+43f89da3-b759-4b54-99c2-43314fcf4fe0	37EBDA60	Refactored Product Engineering Initiative 1 core modules	0.5226335721188033	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.344
+f639c2a0-2051-483e-b853-178ec6f58002	57E76F3A	Refactored Product Engineering Initiative 1 core modules	0.6318634859688084	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.346
+f3cf2b74-0b01-4548-80ac-5fb9c4d3aa37	0842D550	Refactored Product Engineering Initiative 1 core modules	1.73325268261341	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:07.347
+41f313e7-3315-467a-922f-6e1ec1d72c4f	606148B9	Refactored DevOps Initiative 2 core modules	1.65128549996703	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:07.412
+70b27399-7959-4a22-865e-8dc36abdb15c	72419096	Refactored DevOps Initiative 2 core modules	1.850123394026415	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:07.417
+dd4da352-84c8-49e0-85c6-88a186b8993e	B7C5CE06	Refactored DevOps Initiative 2 core modules	1.373176567208238	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:07.421
+a4cb3951-bcf3-4b77-9c1d-0873be97f437	0727D788	Refactored DevOps Initiative 2 core modules	0.8796266337582499	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:07.425
+9c4e4214-caaf-4c22-ba4d-73017d5c85ab	5EEE3B58	Refactored DevOps Initiative 2 core modules	1.92701939736608	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:07.429
+ce9ebdda-53a5-4fa8-b273-f999a76bd815	DDF57465	Refactored DevOps Initiative 2 core modules	0.6443474326097918	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:07.433
+cda77553-4905-40df-ac91-c227e09d4abd	64CEA3EC	Refactored DevOps Initiative 2 core modules	1.61532053250775	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:07.437
+59874c06-f769-4871-b976-72b4f646b38e	25000890	Refactored DevOps Initiative 2 core modules	0.770233205163322	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:07.44
+5fafc113-72db-4cc8-beae-5e279b754e44	53BF99BB	Refactored DevOps Initiative 2 core modules	1.707789461581559	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:07.445
+c4111038-c6cf-4c0a-8318-86d6714fec1a	DBDC0DD1	Refactored DevOps Initiative 2 core modules	1.999550072208277	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	2026-04-15 18:36:07.449
+9e284565-0e4d-437d-9087-09a7ad98fc5d	2D449CE7	Refactored Hardware Initiative 2 core modules	1.382294155271809	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.551
+d927f1aa-44cf-4b25-8140-423aaccc5e4a	BACD7EDE	Refactored Hardware Initiative 2 core modules	0.9347810797720901	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.556
+9bea6bfb-93f8-4455-a986-15fb400040cd	FC829D69	Refactored Hardware Initiative 2 core modules	0.9719535146898017	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.559
+d71ffdf8-0864-46cf-9d13-a04904facde2	DBF50971	Refactored Hardware Initiative 2 core modules	1.528959629597495	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.562
+ca79afff-9aa4-4a0b-a692-f5a558744097	BD250892	Refactored Hardware Initiative 2 core modules	0.5159827919687859	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.565
+9e23f970-69a7-44a8-8bf9-eb360f807bbc	84296769	Refactored Hardware Initiative 2 core modules	0.8766951921851518	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.567
+9cb5ab56-3b6d-4f4d-a3ab-8685efdb8cae	247F5CC3	Refactored Hardware Initiative 2 core modules	0.6219746493626869	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.57
+6cf02a2f-e03b-4a06-88fc-c2b86760672d	32FE80C7	Refactored Hardware Initiative 2 core modules	1.48392255717241	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.573
+ca07599e-0592-43a6-ab60-9a76562ee4f3	54992895	Refactored Hardware Initiative 2 core modules	1.471549985243872	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.575
+33894e57-1745-4f05-99e5-adcd3e45e605	2A68EF22	Refactored Hardware Initiative 2 core modules	1.346330925842006	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.577
+8a3e4c47-b6c6-4735-88c9-0530f6b85973	F184530D	Refactored Hardware Initiative 2 core modules	0.9111472148405189	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.58
+7e2e18fb-9ffb-4507-b726-5af76847070e	EE5B9A9C	Refactored Hardware Initiative 2 core modules	1.750719737619837	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.582
+b696514f-ae75-4b48-9df0-996d73d21f40	BF0F65C3	Refactored Hardware Initiative 2 core modules	1.765219894805069	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.585
+29363160-8848-4ec6-b5f3-c7d6fd2b397e	2A6E77B0	Refactored Hardware Initiative 2 core modules	1.030198186771778	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.587
+359bbf19-20b5-4e41-9d7d-e4f140833fad	A67C7A91	Refactored Hardware Initiative 2 core modules	1.573459202147717	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.59
+f903692b-6da5-4b80-93ae-983e0bb3a264	6F5320AB	Refactored Hardware Initiative 2 core modules	1.315446078302701	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.592
+ee77714c-e4ba-4f26-9d00-fc964824f1f1	815392CA	Refactored Hardware Initiative 2 core modules	0.6128335700805598	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.594
+77563c8c-3d22-444b-a426-d84cc553916a	869FA142	Refactored Hardware Initiative 2 core modules	1.676147247246529	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.596
+6635a73e-bd10-4e2a-bd54-2d12c2aef373	A34542EB	Refactored Hardware Initiative 2 core modules	1.266113096417237	b19cfec7-d521-4444-a0ab-481c6ea05158	6559b773-f734-4a70-b3c6-e1ad97ddc242	2026-04-15 18:36:07.598
+7f8368f3-1c18-4c5d-98c6-8a9f1bb5695f	5126B6F5	Refactored Quality Assurance Initiative 1 core modules	0.5974404169948272	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.681
+372bbca7-6313-4648-a650-8da7b5f9d167	91929271	Refactored Quality Assurance Initiative 1 core modules	1.552642249183584	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.683
+a3ed2bfe-7cb4-419d-a06c-e5b45d4071bc	D8DDA76A	Refactored Quality Assurance Initiative 1 core modules	1.926031784860868	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.686
+9bcbdedf-7163-435d-a0a6-b89a13d90d3a	1699C795	Refactored Quality Assurance Initiative 1 core modules	0.9352523687191394	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.688
+4f646dda-bddc-4568-92bc-ffad11fff115	D57786B5	Refactored Quality Assurance Initiative 1 core modules	1.160548428023491	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.69
+7184db5d-6d8f-4236-86e0-d50143d137a8	7151E5B0	Refactored Quality Assurance Initiative 1 core modules	1.075083354026715	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.693
+199fe466-b2d0-42c4-bf70-4f9724578bfd	6DB2B923	Refactored Quality Assurance Initiative 1 core modules	1.052109029443877	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.696
+245425ea-5f60-41e4-a655-9fc675d7c83b	38227FA4	Refactored Quality Assurance Initiative 1 core modules	0.6048497917846476	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.699
+6c9b764d-70ad-4f45-82ca-3c1253cd076b	419727B3	Refactored Quality Assurance Initiative 1 core modules	1.287915270049435	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.701
+034ca102-a9e0-469f-a75d-9c3fdb5d74ac	D5388D58	Refactored Quality Assurance Initiative 1 core modules	1.470075556367521	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.703
+f7a05cdf-5cb0-488e-9123-59c30eb6115a	23C0EBE4	Refactored Quality Assurance Initiative 1 core modules	1.660830994108307	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.706
+8a2c0ce5-8a9f-4b29-8db2-2368fd7c55e8	8B031EB9	Refactored Quality Assurance Initiative 1 core modules	1.829183704480158	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.708
+84603c35-8bb1-47b1-9e18-b3f5b45344c8	ACA23DF9	Refactored Quality Assurance Initiative 1 core modules	1.954564684920605	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.712
+c98d8e53-da42-43d9-adf1-cd8250f2e4cd	45185D86	Refactored Quality Assurance Initiative 1 core modules	1.472984123442147	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.716
+ebf81cbe-912a-4e84-ad74-4abd3be93328	A5F3FA95	Refactored Quality Assurance Initiative 1 core modules	1.032166141484192	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.719
+b35a10a3-ee3e-44eb-8680-086a0f760f57	6037B46C	Refactored Quality Assurance Initiative 1 core modules	1.501203635448264	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.723
+98dc897c-9cf8-4484-aea2-5753c03f0abf	45ACB661	Refactored Quality Assurance Initiative 1 core modules	0.8079634167839003	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.726
+6652e5cd-b538-4b1a-98e0-eeddb9799033	03622D56	Refactored Quality Assurance Initiative 1 core modules	0.5537275813111635	1e287884-c4dc-4ecf-b418-e8e42ff75627	bb8fec06-89cc-4a76-8065-e5f87a51ffac	2026-04-15 18:36:07.729
+6fb7fa72-bc05-41bf-8132-32d944e70c1d	B25A09CB	Refactored Security Operations Initiative 2 core modules	0.7145451299684389	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.786
+00ae80bf-d139-46a0-a9ae-a051da3c14c5	E438FBFF	Refactored Security Operations Initiative 2 core modules	1.953604481662029	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.787
+a2ce7305-6b64-4994-8051-40ff75c118d6	008633F6	Refactored Security Operations Initiative 2 core modules	0.8219377830280801	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.789
+74e268df-e789-4176-a665-43062fa625a7	91ABDA1F	Refactored Security Operations Initiative 2 core modules	1.463227884032085	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.791
+1c865303-883b-4c40-b21f-6de902e16fe0	C282A866	Refactored Security Operations Initiative 2 core modules	0.6771563228189516	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.793
+8c0e148e-9c7c-4ea1-a302-3836c0871589	AD681670	Refactored Security Operations Initiative 2 core modules	0.7181159557781547	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.794
+3a606275-c8c5-47e8-add8-ec6244d9c1de	08591EE8	Refactored Security Operations Initiative 2 core modules	1.738080152748982	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.796
+3bd68c48-9800-4079-94c6-9a5b350f0d1b	0262FAFC	Refactored Security Operations Initiative 2 core modules	0.6929351025382413	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.798
+128f977c-1862-4458-a9ba-a352edaaa2dc	E9B6AD85	Refactored Security Operations Initiative 2 core modules	1.940184917423891	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.799
+00f66477-0fad-4891-9b9f-ddd4fec0014b	220F218D	Refactored Security Operations Initiative 2 core modules	1.743901730713593	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.801
+2a429220-5cc4-4616-8df8-3636393f0b7a	FA5CCEF2	Refactored Security Operations Initiative 2 core modules	0.5820082699784521	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.803
+bd2c98e8-d43f-4136-b344-950e88160647	FE9F0081	Refactored Security Operations Initiative 2 core modules	1.071977988748821	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.805
+3cf5455d-6da2-4e57-9f00-0796f6bd9e31	73079522	Refactored Security Operations Initiative 2 core modules	1.38809067535881	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.806
+86c2a016-4294-4d13-8158-c370b4c94e77	90B13740	Refactored Security Operations Initiative 2 core modules	0.8227917011054672	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.808
+47c2f319-b2e6-4624-a1b7-67a32d34184d	143D5F94	Refactored Security Operations Initiative 2 core modules	1.503087374554771	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.81
+a664c3af-b1ec-4649-b6a3-2484c42b0df9	6BAD12FF	Refactored Security Operations Initiative 2 core modules	1.157013172377955	86afda8b-8abf-4611-80d7-90d5b18e0695	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:07.811
+1bed246e-ff21-478c-8bfb-b521e77db196	535B3380	Refactored Infrastructure Initiative 1 core modules	1.694547263212648	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.876
+0f0eb347-4b35-42db-8f3a-a6806da83b86	3B6BF442	Refactored Infrastructure Initiative 1 core modules	1.315805557291218	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.878
+f660bd4d-cc4e-40db-900e-8151eece1e39	C291B781	Refactored Infrastructure Initiative 1 core modules	1.667811873219576	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.88
+1bd8aa26-1e39-4b5b-bb58-ff8d461e1710	161E564B	Refactored Infrastructure Initiative 1 core modules	0.5655643786152522	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.882
+5d330fcf-d8b7-4098-a588-9d40f4b1887a	56DE60D2	Refactored Infrastructure Initiative 1 core modules	1.696800251708584	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.883
+c546bb00-a96a-4b83-919a-31726b2984ac	3140D6D7	Refactored Infrastructure Initiative 1 core modules	1.444478766381422	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.885
+93bf9a4b-54eb-435a-8326-f492cc460397	AAD83A08	Refactored Infrastructure Initiative 1 core modules	1.606702483280891	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.887
+bfdd63e4-344b-4918-930f-bcaa8a78900e	9BFAE32F	Refactored Infrastructure Initiative 1 core modules	1.05307347912198	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.888
+3618c93c-93ca-4663-bc62-c309a6171cfd	8074D21A	Refactored Infrastructure Initiative 1 core modules	1.710327706353248	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.89
+9ac0f4c2-00db-4876-a20a-47c3a8c90f7a	6F8FF02A	Refactored Infrastructure Initiative 1 core modules	0.5041696400766286	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.892
+5de1ee94-02f0-44d4-b030-a5c2be9a5296	FE1A47C0	Refactored Infrastructure Initiative 1 core modules	0.9504998533597514	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.894
+73d876ac-84ad-4934-b226-1683a4acbd40	387694B9	Refactored Infrastructure Initiative 1 core modules	1.175143562179675	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.896
+ffc4f1ed-2954-4873-bb5d-e9d2c80c85dd	EAD8A33F	Refactored Infrastructure Initiative 1 core modules	1.103883719850925	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.899
+16938a8c-7898-4eeb-ad1d-eada6a652912	C981DB4E	Refactored Infrastructure Initiative 1 core modules	1.468158955109054	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.901
+5c0d376c-7c63-4598-b550-c9e580d2f19e	D210491E	Refactored Infrastructure Initiative 1 core modules	1.088963507842926	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.903
+837a4228-2d93-4ec6-a0fd-a7927634b1fb	BAC8F5B6	Refactored Infrastructure Initiative 1 core modules	1.548215042468878	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.905
+db413663-2d53-4582-88e5-fd94b69071d6	90E41505	Optimization: Refactor core logic	2.308986536802946	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-03-31 01:44:06.585
+e680897b-af85-4c5c-8bbe-3b0d72d6ec77	05A06159	Refactored Infrastructure Initiative 1 core modules	1.378151139514141	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.907
+f8d156c2-f4f9-4d72-a991-2867d383e06b	B0670206	Refactored Infrastructure Initiative 1 core modules	1.054486992829024	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.909
+45fb836c-0c58-4ec9-a25d-356535695090	13FB5C1F	Refactored Infrastructure Initiative 1 core modules	1.935272251238629	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.911
+752a35b4-a01f-4354-b8ee-e654fcce689e	44586CF0	Refactored Infrastructure Initiative 1 core modules	1.908347656249753	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:07.913
+e162d2e7-c2c9-4ec2-8f35-a6f756dff33b	A898E083	Refactored Data Science Initiative 2 core modules	1.061180176692094	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.965
+e252a25f-61f4-4b9c-83fd-7135aaea3931	E6B27E75	Refactored Data Science Initiative 2 core modules	1.370512163127052	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.967
+eeef408f-33ae-4d56-94ed-49c29ad2f9de	EA296234	Refactored Data Science Initiative 2 core modules	1.254807239469804	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.969
+cf0c180b-c04f-4f78-8c0b-63b10447ea7f	2C5FD591	Refactored Data Science Initiative 2 core modules	1.607200291109684	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.97
+ee4b79ae-e237-4da8-a631-70d3013624ae	67228D67	Refactored Data Science Initiative 2 core modules	0.7038418102782815	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.972
+7cf5d42e-f912-4729-957b-1b2278d44590	AD226B94	Refactored Data Science Initiative 2 core modules	1.353684278084839	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.974
+a23a0647-f79c-4e83-bf65-4220de3f99d8	AA58D9F9	Refactored Data Science Initiative 2 core modules	0.6426059147014246	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.977
+d8b2eb45-a311-4ea7-b853-8cf677fb3f0b	D42F4CE6	Refactored Data Science Initiative 2 core modules	0.7330034552674405	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.98
+01b77fe0-7a8f-4fc4-9696-c6d67ade3083	D308BE71	Refactored Data Science Initiative 2 core modules	1.260278575180876	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.983
+8ee706a8-7660-47e6-aa88-ec4f4992a2e8	2E1ABC0F	Refactored Data Science Initiative 2 core modules	1.251289940915846	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.985
+5b9fd7ba-1fa9-4058-9747-13dc5c4b9fca	562ED516	Refactored Data Science Initiative 2 core modules	1.497232159389866	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.988
+28259c09-4395-4d87-9951-1d1d4a982628	5251352F	Refactored Data Science Initiative 2 core modules	0.8310482238456431	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.99
+e0e69ec5-d26a-48d3-b12d-424c50179ca7	D9C176FE	Refactored Data Science Initiative 2 core modules	1.001019403922115	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.994
+591effb8-3954-48b7-b6d3-b0db58d3e3ff	C43F72CE	Refactored Data Science Initiative 2 core modules	1.093057951292286	a135b85e-cf22-44be-a014-cc6116529fc9	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:07.997
+92793da6-80ca-4a31-b8a2-3f7920f96fc8	4D732428	Refactored Mobile Development Initiative 1 core modules	0.8317905508964555	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.076
+e3c47c9d-5ca8-4a7f-a0f4-66319ea42de4	1C2A4894	Refactored Mobile Development Initiative 1 core modules	1.81572628726661	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.078
+aefe3c48-9bf1-4839-907f-944b6b125cca	9EF4BF7C	Refactored Mobile Development Initiative 1 core modules	1.859719434119514	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.08
+4237f383-209a-44f9-9c62-90bd966352a2	60F35AC9	Refactored Mobile Development Initiative 1 core modules	1.452091416421226	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.082
+b82e18f7-9188-4931-abf1-5111e6101695	D202AB50	Refactored Mobile Development Initiative 1 core modules	0.7219064353030906	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.084
+b35580f6-84c5-47a8-a9e7-af93682a2658	B1A254DC	Refactored Mobile Development Initiative 1 core modules	0.8397612269468231	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.086
+2a1539b1-6c0f-4971-a51a-549c2ed9ec28	36F56709	Refactored Mobile Development Initiative 1 core modules	1.747178789869035	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.088
+7c045e2e-ed8d-456a-a3b0-9aa54169196d	1833097C	Refactored Mobile Development Initiative 1 core modules	1.559071558571149	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.09
+a460c899-f72e-4702-9ae4-a9aada030e49	FC278B3A	Refactored Mobile Development Initiative 1 core modules	0.8111334228682567	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.091
+72a904b0-1ecd-47be-ac0e-eec8e83ce25d	1F55D09F	Refactored Mobile Development Initiative 1 core modules	0.9093155737918752	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.093
+0acabff6-e8b3-4bd0-b38f-a42f94e5a264	992DD0FF	Refactored Mobile Development Initiative 1 core modules	1.287340088273608	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.095
+cc1045db-42a2-46b6-a787-6bb3102ab5e0	0C7605E4	Refactored Mobile Development Initiative 1 core modules	1.787337585377327	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.096
+2eeacf8d-b8c6-44b1-84ff-13c56a125411	10DBD0CC	Refactored Mobile Development Initiative 1 core modules	1.106233968671106	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.099
+cae86c19-23a3-49fe-92b4-479a51c5d336	26CB3E55	Refactored Mobile Development Initiative 1 core modules	0.7024183853735763	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.101
+4eb42380-c54c-4a9b-9ca7-b876fae1d486	4708E528	Refactored Mobile Development Initiative 1 core modules	1.330950813941827	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.103
+c4a6b219-2d55-4085-a98c-ccba1a514bd1	3629B9E6	Refactored Mobile Development Initiative 1 core modules	1.669507453219643	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.104
+6ddce4f8-5ead-4373-bc4d-33f0c01c771a	40A81A72	Refactored Mobile Development Initiative 1 core modules	0.6203411132692787	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.106
+2d5fd377-039b-46cf-96a4-6149f69e987c	4C1819E5	Refactored Mobile Development Initiative 1 core modules	1.327448698831354	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.108
+ccf91903-8180-4c5c-b595-d7d76a59b8a5	8E16BD4D	Refactored Mobile Development Initiative 1 core modules	0.7456273503179649	7ae07d1f-d90d-413e-b1cb-790033f947ce	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:08.11
+7387e3eb-669f-44fa-83c9-510a5190f4f9	78ACD5CF	Refactored Site Reliability Initiative 1 core modules	1.760673194128296	48aecaf6-373f-4012-9f9b-fae916047cc4	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:08.164
+6a9433e4-2b5b-45f6-87ef-4ace6e3d3905	CA745A46	Refactored Site Reliability Initiative 1 core modules	1.888476549696306	48aecaf6-373f-4012-9f9b-fae916047cc4	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:08.165
+e16a5c92-a00f-4107-a6db-d41783f76be7	F2A88D67	Refactored Site Reliability Initiative 1 core modules	0.8225782690071296	48aecaf6-373f-4012-9f9b-fae916047cc4	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:08.168
+09924dce-3fb9-42ab-be21-417010622c2f	DA7DF416	Refactored Site Reliability Initiative 1 core modules	0.6459163093439018	48aecaf6-373f-4012-9f9b-fae916047cc4	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:08.169
+5bdcd7ae-3b38-48f6-8687-c6fedf00cb69	C2CED5BA	Refactored Site Reliability Initiative 1 core modules	1.472297915593383	48aecaf6-373f-4012-9f9b-fae916047cc4	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:08.171
+c89e80a8-de0d-4589-8a49-ba85709cf4c8	8849C46E	Refactored Site Reliability Initiative 1 core modules	1.067747538772704	48aecaf6-373f-4012-9f9b-fae916047cc4	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:08.173
+9ed61eed-e590-4fc6-9367-87e21ffa7ae7	131CB4D1	Refactored Site Reliability Initiative 1 core modules	1.90464724807038	48aecaf6-373f-4012-9f9b-fae916047cc4	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:08.175
+b10af921-8b9a-463e-a56b-c97eb88289f8	BEACF5A1	Refactored Site Reliability Initiative 1 core modules	0.832491975879958	48aecaf6-373f-4012-9f9b-fae916047cc4	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:08.177
+5c3511ef-602b-4456-9f0d-c1e49f73be08	CC771479	Refactored Site Reliability Initiative 1 core modules	0.7214859545285519	48aecaf6-373f-4012-9f9b-fae916047cc4	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:08.179
+614c9a3b-fcf0-468d-a73c-4f72f14e46d9	BC5A21E6	Refactored Site Reliability Initiative 1 core modules	1.896685596095375	48aecaf6-373f-4012-9f9b-fae916047cc4	551a836f-c2c2-4418-a73c-76dbfafd8442	2026-04-15 18:36:08.181
+e1bec19f-a6c1-4de8-871a-209b9e721563	015F86CA	Refactored Product Design Initiative 2 core modules	1.434345897227935	100173fc-a655-4859-8bdb-33e695033fbf	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:08.249
+f2308ea0-01ec-4222-93a5-5d4459a8101e	E1646645	Refactored Product Design Initiative 2 core modules	1.561761998247357	100173fc-a655-4859-8bdb-33e695033fbf	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:08.251
+2076e1ce-2f8c-4b8c-919c-2e093c4cd392	13D50FD2	Refactored Product Design Initiative 2 core modules	1.762261681233506	100173fc-a655-4859-8bdb-33e695033fbf	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:08.252
+02261cc3-2499-4522-ab3b-fd88225330ac	EA460E85	Refactored Product Design Initiative 2 core modules	0.9155366321864109	100173fc-a655-4859-8bdb-33e695033fbf	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:08.254
+94ba0205-91bc-44a8-9206-7775b4c9a1e1	A293F249	Refactored Product Design Initiative 2 core modules	0.9483175041841461	100173fc-a655-4859-8bdb-33e695033fbf	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:08.256
+addac44a-aea5-490a-a9f0-c61194615d0f	E7D9B3A1	Refactored Product Design Initiative 2 core modules	0.8989077976622603	100173fc-a655-4859-8bdb-33e695033fbf	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:08.259
+1138b98b-46a3-4e62-b13e-d5d1efef4788	E21D7730	Refactored Product Design Initiative 2 core modules	1.024891243740224	100173fc-a655-4859-8bdb-33e695033fbf	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:08.26
+47de7a44-7622-4a3d-b931-b067cdb9f687	601ACC56	Refactored Product Design Initiative 2 core modules	1.459922049716948	100173fc-a655-4859-8bdb-33e695033fbf	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:08.262
+2f1ed084-6431-4774-84f3-f0cb66203deb	D1288D3B	Refactored Product Design Initiative 2 core modules	1.379362120351888	100173fc-a655-4859-8bdb-33e695033fbf	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:08.264
+1e49ee7e-8293-449f-ab34-96bdb6edce29	0CCC6BCD	Refactored Product Design Initiative 2 core modules	1.798160452664909	100173fc-a655-4859-8bdb-33e695033fbf	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:08.266
+be3a5a40-2281-4901-8f97-e2aa4ea7a02f	3868ECB3	Refactored Product Design Initiative 2 core modules	1.973564069824228	100173fc-a655-4859-8bdb-33e695033fbf	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:08.268
+be652567-a95d-481f-aad0-8149e942957f	75FE91B0	Refactored Product Design Initiative 2 core modules	1.391669760061125	100173fc-a655-4859-8bdb-33e695033fbf	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:08.27
+36c9b60b-422a-484a-aaa4-e6cd0fe7306a	5654EF9A	Refactored Product Design Initiative 2 core modules	1.332044365672878	100173fc-a655-4859-8bdb-33e695033fbf	176cf575-1e8f-4447-93d3-2999415d2173	2026-04-15 18:36:08.273
+85e24bca-aeae-4733-b98e-8c0e9f31698a	24A9A2C9	Refactored Product Engineering Initiative 1 core modules	0.7254364442320247	4638bdfb-2236-4901-8642-fc22bb4b936d	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:08.347
+46ba1f26-a83b-4567-b58b-657a271e39a0	12E8CFC7	Refactored Product Engineering Initiative 1 core modules	1.07038588457222	4638bdfb-2236-4901-8642-fc22bb4b936d	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:08.349
+ba9ca904-3688-4850-946c-e712cb53c3b6	E99618E4	Refactored Product Engineering Initiative 1 core modules	0.9572305456736517	4638bdfb-2236-4901-8642-fc22bb4b936d	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:08.351
+18f37ddc-82f7-4a48-9686-4a0e6944f056	84BA30C9	Refactored Product Engineering Initiative 1 core modules	1.443790897448448	4638bdfb-2236-4901-8642-fc22bb4b936d	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:08.353
+300ea586-c83c-4f66-b48a-49781b5282de	53DD87CB	Refactored Product Engineering Initiative 1 core modules	1.330293709835501	4638bdfb-2236-4901-8642-fc22bb4b936d	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:08.356
+51ac4908-f24e-4cf8-bad0-611f8d01e85a	F36EC89D	Refactored Product Engineering Initiative 1 core modules	0.5746043087116397	4638bdfb-2236-4901-8642-fc22bb4b936d	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:08.358
+da299b55-2eda-43e9-9dc9-e5792a339c69	80AD7389	Refactored Product Engineering Initiative 1 core modules	1.589579728979597	4638bdfb-2236-4901-8642-fc22bb4b936d	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:08.36
+74e8f485-ca2b-4a0e-bab5-72c2d544593b	96521C41	Refactored Product Engineering Initiative 1 core modules	0.5685588874262174	4638bdfb-2236-4901-8642-fc22bb4b936d	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:08.363
+73bd380d-8963-4ef1-8090-a4be3cd90637	CC1BE021	Refactored Product Engineering Initiative 1 core modules	1.044396786857061	4638bdfb-2236-4901-8642-fc22bb4b936d	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:08.366
+02456f45-df23-45d1-92fd-c3a1a5ed8d3a	8A0ECEBF	Refactored Product Engineering Initiative 1 core modules	1.166531253882562	4638bdfb-2236-4901-8642-fc22bb4b936d	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:08.368
+22753259-a175-4f59-b1f4-eeb2c51de360	2B952D86	Refactored Product Engineering Initiative 1 core modules	1.848346025647722	4638bdfb-2236-4901-8642-fc22bb4b936d	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:08.371
+fe8802da-fefd-44a7-89f7-b96364a971d8	789F5604	Optimization: Refactor core logic	1.755930464411525	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-03-22 01:44:06.594
+2422cdb8-ddb6-44c9-8b11-e38d695ed5e2	5AE354E2	Refactored Product Engineering Initiative 1 core modules	0.5267950780926264	4638bdfb-2236-4901-8642-fc22bb4b936d	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 18:36:08.373
+5bfbc60e-e737-4ce0-9cce-c33d6a1ec574	A4676429	Refactored DevOps Initiative 1 core modules	0.6511646737612076	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.445
+e1a6fdfb-3738-4808-bd1a-3b14eb6212f6	61B89706	Refactored DevOps Initiative 1 core modules	1.548656051379863	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.447
+40b87433-1d11-4e24-89bb-5bcf5e5b7003	EC93DC0E	Refactored DevOps Initiative 1 core modules	1.761680581735268	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.449
+92c256f8-d70d-4f17-9771-13330cdfad29	340BD13E	Refactored DevOps Initiative 1 core modules	0.7413790637767979	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.451
+6694ffa6-4e7b-4722-84ae-492666003324	2EA1E011	Refactored DevOps Initiative 1 core modules	1.489216861239714	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.454
+3b693d53-d62a-4279-be2f-a54225fcdace	6321C8F5	Refactored DevOps Initiative 1 core modules	0.8641678112039979	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.457
+46f6f03d-18ba-447e-99a8-8cd84bea8d48	CA2AB761	Refactored DevOps Initiative 1 core modules	1.053989285913459	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.462
+d318bb8e-3f6e-4a84-bcfb-8a7a6cdf1991	A5A2E720	Refactored DevOps Initiative 1 core modules	1.519740600309634	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.467
+82c231ec-e80b-4b8e-8bcc-2efc668c99d6	FA1B8AF8	Refactored DevOps Initiative 1 core modules	1.761098700750734	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.471
+37853e9b-1f03-4b00-af8b-b2a5e03131ac	215DC588	Refactored DevOps Initiative 1 core modules	1.782888778624207	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.476
+1a8a7e80-8612-4d5b-bdcc-abb4047b259b	C5833EDF	Refactored DevOps Initiative 1 core modules	1.247511752919596	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.48
+4d434a79-492d-4173-b4b5-c0d386c17e19	6FE500E2	Refactored DevOps Initiative 1 core modules	1.671530837100982	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.483
+9b919463-30a3-4bed-b577-b4da10763a5b	339F0F2B	Refactored DevOps Initiative 1 core modules	1.541446419581918	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.486
+527d9724-4b96-4304-b306-2ffc9a9dc6f6	329C63F9	Refactored DevOps Initiative 1 core modules	1.170198463317444	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.49
+2714c567-f25f-4451-b691-f2900615d8ba	A970384D	Refactored DevOps Initiative 1 core modules	0.799807648949544	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	2026-04-15 18:36:08.493
+4453c603-ad1a-4b12-924d-79bd16c1ffff	7E2A6A66	Refactored Hardware Initiative 1 core modules	1.440218200140974	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.565
+42faed19-9434-42d9-948a-8b284c8a9aa6	815D7127	Refactored Hardware Initiative 1 core modules	1.656890033983658	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.567
+67b98835-ccdc-4919-a877-00595e2e6228	E3683841	Refactored Hardware Initiative 1 core modules	1.405816569953396	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.57
+187d5884-68da-4124-8b92-93beb3e38c0d	0378AF91	Refactored Hardware Initiative 1 core modules	1.674300728612138	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.572
+9466324d-3a5d-4000-8457-429de724e337	00CE8193	Refactored Hardware Initiative 1 core modules	1.25655363314058	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.574
+562690b0-5973-4d17-be58-211c6cb24367	68B1E8DC	Refactored Hardware Initiative 1 core modules	1.475958001557515	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.577
+22c0d6ee-6ffc-435c-90f0-b43921bff2bb	41F2BF19	Refactored Hardware Initiative 1 core modules	1.795447632228429	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.579
+37d56a8f-1987-45c9-b35b-f2b7f0573305	3026B0B1	Refactored Hardware Initiative 1 core modules	1.190830473546774	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.58
+850f0c13-b181-426d-9c31-a3a68422725d	FA217FC0	Refactored Hardware Initiative 1 core modules	0.545696992984464	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.583
+b1fbc683-013b-4b39-9475-9512da8a29d7	0D01563D	Refactored Hardware Initiative 1 core modules	1.103744607242011	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.586
+6744d999-b014-4a13-8841-86e7fae2edd5	AF78DD78	Refactored Hardware Initiative 1 core modules	1.568071010923517	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.587
+eeb85236-3e55-4d28-bc57-ce7919a2b7b7	5B6DA990	Refactored Hardware Initiative 1 core modules	0.9076793329730117	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.589
+08a612f3-5b7b-46e0-b2db-8f1884625900	7CF0350A	Refactored Hardware Initiative 1 core modules	1.897246074621247	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.591
+abacb201-9be5-4148-9bfb-74c0c85a6a5d	57DF091E	Refactored Hardware Initiative 1 core modules	0.723999450466914	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.593
+f1391ab1-9c3b-4f92-8468-73d1da696831	966C924C	Refactored Hardware Initiative 1 core modules	0.8595807190116608	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.596
+0ccf256f-9df6-42b1-a48d-0c658b395d61	63949321	Refactored Hardware Initiative 1 core modules	1.378297189653892	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.598
+f5656204-04cd-4ace-974b-37cfa2f720f4	22EBABBA	Refactored Hardware Initiative 1 core modules	1.386010617713337	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.601
+984d0523-4495-467c-8c64-f1e130b18dd3	AB992200	Refactored Hardware Initiative 1 core modules	1.825055468774334	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.604
+f7b8469e-b19f-4b43-96b0-314306846027	4CA72572	Refactored Hardware Initiative 1 core modules	0.9872490742477444	39312998-cf88-478d-a27a-a9a75787b9fe	dd9b845e-7538-4306-b480-e9fbcd48b6f4	2026-04-15 18:36:08.606
+431c0ecc-408b-49d1-b115-0866f5543f7f	9176C437	Refactored Quality Assurance Initiative 2 core modules	1.944804015547925	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.714
+c356c014-9c80-4a2a-821b-88e258e9ed57	1573BF50	Refactored Quality Assurance Initiative 2 core modules	1.044048822515338	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.718
+e311cb3f-793b-4ac0-8aeb-0bb2906b0447	FBA0C655	Refactored Quality Assurance Initiative 2 core modules	1.301802309462256	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.723
+97ee35ff-cc49-4f5b-bce0-f8975ba04180	074DBC86	Refactored Quality Assurance Initiative 2 core modules	0.9673677969325585	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.726
+38becc3b-1ef2-48c7-bf16-0362e16fc701	38F1CBED	Refactored Quality Assurance Initiative 2 core modules	1.230094613084967	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.73
+23a7039b-9b79-46fa-987a-a469f95b7f69	AFF5F276	Refactored Quality Assurance Initiative 2 core modules	1.219494418953215	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.733
+ada45492-698d-4d8d-9bd8-17547f504137	4882781E	Refactored Quality Assurance Initiative 2 core modules	1.688103465110073	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.736
+013c4cd3-93f5-4c77-afc8-1bc7719b109b	D2BA406B	Refactored Quality Assurance Initiative 2 core modules	1.016505017640682	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.739
+6fb09ece-c253-4f95-9bda-ba0d0d53602a	70948222	Refactored Quality Assurance Initiative 2 core modules	1.906552346005048	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.742
+22176688-37ba-4070-ba8f-3b89c88457e9	75CFA3E5	Refactored Quality Assurance Initiative 2 core modules	1.589468930289298	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.744
+fb09ff00-b579-4ae7-9b45-42a2b8f359ac	7EF1EEE8	Refactored Quality Assurance Initiative 2 core modules	1.315466213326142	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.747
+22089659-16bb-406e-9d3c-07f6d9cf0cec	C96AA411	Refactored Quality Assurance Initiative 2 core modules	0.8665297280685345	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.749
+a23569e2-48ec-41a7-bc54-78850922976f	286F8922	Refactored Quality Assurance Initiative 2 core modules	0.980013553268051	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.752
+8fc7f887-32ca-451d-b3d0-7909df5ab69f	5782E90E	Refactored Quality Assurance Initiative 2 core modules	0.6433063807061894	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.755
+3c2db690-b097-4bb0-a7f4-e057e9485b4e	71088907	Refactored Quality Assurance Initiative 2 core modules	1.33847734051609	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.758
+3caa585b-e336-4e9e-848d-f3f72d7c5add	DAA1962D	Refactored Quality Assurance Initiative 2 core modules	1.182322021810577	06268a07-934e-41e5-9526-15687e490453	594e286f-cc69-49da-883b-7ff2fcc87061	2026-04-15 18:36:08.761
+55feb99a-dc34-4286-965c-262d8e7bd6e0	664EE165	Refactored Security Operations Initiative 2 core modules	1.833973310035227	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.826
+c2a1805d-9dce-4c2e-a804-8ae1b11c5aff	8C9B7A01	Refactored Security Operations Initiative 2 core modules	1.252792494886154	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.83
+25d4d8ae-d3c8-4573-ac34-a335e1aa0885	F88EACC4	Refactored Security Operations Initiative 2 core modules	1.33070547495385	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.834
+f2e146dd-8dc6-407d-9bd1-f710c877a09d	9B47EFE3	Refactored Security Operations Initiative 2 core modules	1.635528448640614	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.839
+6c36fb02-4a30-49bd-88f3-5c0af428ba1d	081C790A	Refactored Security Operations Initiative 2 core modules	1.961906655344494	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.845
+c9e2a20d-28a9-4254-9f47-023ee6149956	48076091	Refactored Security Operations Initiative 2 core modules	1.729629773852429	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.853
+c01f1e5e-0e52-4808-9c52-4d57fda3d001	065FCF95	Refactored Security Operations Initiative 2 core modules	0.9512367760197356	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.855
+2c55529c-cc52-419b-bea0-d7303f7de624	45E9400E	Refactored Security Operations Initiative 2 core modules	1.816346819866229	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.859
+8fb5a3d9-e664-499c-b7e6-35d50e9e49a8	6D8FA12A	Refactored Security Operations Initiative 2 core modules	0.8451742546796785	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.861
+8bbc2e4c-2570-4365-94ed-7c8007794e98	2AFC7560	Refactored Security Operations Initiative 2 core modules	1.752728696127772	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.863
+0ed24af9-b8cd-443d-8404-d053115c131c	E1A2A87C	Refactored Security Operations Initiative 2 core modules	1.44502130548155	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.865
+c99e166e-2156-4722-a3b6-a205002e8d89	2E95DC73	Refactored Security Operations Initiative 2 core modules	1.180652892442618	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.868
+4ecdab37-dfcc-49c8-8b1a-abc83fda13ab	DB480A74	Refactored Security Operations Initiative 2 core modules	0.5403766214373162	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.87
+799c8f63-127e-4ceb-97d3-3dd854036d74	F8C8C50A	Refactored Security Operations Initiative 2 core modules	1.634547793681087	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.873
+2862a180-08c1-47b8-a866-6b5b6557c384	C23B3BA0	Refactored Security Operations Initiative 2 core modules	0.6289836111142053	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.877
+d13d087d-403e-44ff-9615-6b683226ad14	7462D755	Refactored Security Operations Initiative 2 core modules	0.9861671525888482	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.88
+7b883c7b-a5b2-4fd0-bc92-2c2488e07d68	160200C9	Refactored Security Operations Initiative 2 core modules	1.396516780025729	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.882
+09de8a4d-bc75-4924-aab7-a00d4403c149	0BA02B0E	Refactored Security Operations Initiative 2 core modules	1.281203106520775	5229418e-accc-47a3-aa8e-e630ecb2df9d	6e156838-4c84-457f-a32a-06e9f55602b9	2026-04-15 18:36:08.884
+0021e7d8-a58b-494a-a323-2af1d39a9ae4	F087641A	Refactored Infrastructure Initiative 1 core modules	1.229197096765564	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.959
+3f53cd22-5ac3-4e7d-8f08-bb5e648f2728	0C6CBA42	Refactored Infrastructure Initiative 1 core modules	1.216352992716546	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.962
+c5a7a6bd-6d6f-4396-a927-0a03b4a7d8a4	BF1165D3	Refactored Infrastructure Initiative 1 core modules	1.482460483688115	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.965
+0a589de8-bcd8-4992-86c5-8bdf6c5439e7	34AB0F8A	Optimization: Refactor core logic	2.260992224190438	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-03-23 01:44:06.605
+e3420a7d-dca1-4913-8883-0c1bd656ebcf	986CFC48	Refactored Infrastructure Initiative 1 core modules	0.6182092814272631	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.968
+c4b328f5-380b-462a-91e7-3990ab29f289	1A6542B7	Refactored Infrastructure Initiative 1 core modules	1.233362703265839	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.971
+4fffd4cb-111c-4ccf-b029-a3e6b8fdb9a9	B0C8E3E0	Refactored Infrastructure Initiative 1 core modules	1.417877231963854	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.974
+4903a7b7-947f-437d-af80-70881a7b6a6c	F6442557	Refactored Infrastructure Initiative 1 core modules	0.7843190010204388	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.976
+c682734f-59a4-4f29-ac5e-73005a834a81	5F7DC752	Refactored Infrastructure Initiative 1 core modules	1.218400050938001	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.979
+cdba96d1-5da8-41fe-a445-2347424b53fc	85E729BA	Refactored Infrastructure Initiative 1 core modules	0.8904086711190667	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.982
+c0ce42fb-fb8d-4b16-8c18-deca5314cce7	962C95DE	Refactored Infrastructure Initiative 1 core modules	1.61650699953561	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.985
+14257886-d82f-44ff-8638-bce0be8a6c54	AA673449	Refactored Infrastructure Initiative 1 core modules	1.405307875068768	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.988
+930fd02c-7e36-475e-9da3-b142c99d2e10	873F055B	Refactored Infrastructure Initiative 1 core modules	1.094525492308036	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.991
+4ee86e27-d155-456d-a75d-d11597014d79	503892F5	Refactored Infrastructure Initiative 1 core modules	0.9991218609943481	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.994
+357af177-9a36-4415-adbf-8c5b030f220c	384D5D0A	Refactored Infrastructure Initiative 1 core modules	1.734967996489841	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:08.997
+243c38ee-0961-47c1-b3f3-d85ef947cc44	1AEFFA0D	Refactored Infrastructure Initiative 1 core modules	0.8659942324343729	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:09
+4fcd20bb-e0ab-40f2-b0a6-1cc5db096278	D361AE76	Refactored Infrastructure Initiative 1 core modules	0.8926220898706938	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:09.003
+0808f23d-2f2d-4186-a3f0-28befb7524b4	51953F8D	Refactored Infrastructure Initiative 1 core modules	1.109280985801376	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	2026-04-15 18:36:09.007
+b7de389e-9d97-4789-b3d4-cf2e70565317	35212282	Refactored Data Science Initiative 2 core modules	1.275222181588734	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.08
+37cb5456-f69b-4443-a4eb-ddd81c2894d4	BC065C89	Refactored Data Science Initiative 2 core modules	0.733257931155472	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.082
+4d1ece87-9909-4f35-937b-d0fac9524a34	4EBDA916	Refactored Data Science Initiative 2 core modules	1.562839835521213	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.085
+19e4061d-52b1-429d-9171-9c61fb4876f2	4DC5339B	Refactored Data Science Initiative 2 core modules	1.608010691730631	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.087
+79581ee3-93de-4d54-86ba-95611c8c0fcf	E67617B5	Refactored Data Science Initiative 2 core modules	1.703161232050888	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.089
+27a570dd-de55-45fa-aa5c-0fdc64d6f1ab	80E85F10	Refactored Data Science Initiative 2 core modules	0.5991021416149154	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.092
+837b96c6-e9ab-4c38-b000-6a919562a4a9	90001E4A	Refactored Data Science Initiative 2 core modules	1.179177202170421	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.094
+0138baab-a149-4b7d-84ec-b3346ad88098	0AFE7397	Refactored Data Science Initiative 2 core modules	1.432556656099663	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.096
+67e80353-8469-43c2-99bb-107c0f8e484c	9BA88EA8	Refactored Data Science Initiative 2 core modules	1.846797190894041	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.098
+564763e2-4f4d-46f8-b8ac-82b3f124f4ae	BB0C98D5	Refactored Data Science Initiative 2 core modules	1.598704095511124	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.1
+6feb628f-0d06-498e-ac95-16f61b670408	6CAA844F	Refactored Data Science Initiative 2 core modules	1.23057423077395	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.102
+636c1490-c081-4362-94de-be623b2b58b4	EDD8860D	Refactored Data Science Initiative 2 core modules	1.059766019016869	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.103
+45c26b4d-2488-43ef-bb3b-9efe5a323be1	5B921001	Refactored Data Science Initiative 2 core modules	1.576779706321703	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.105
+cf52eed7-b3f8-46e4-8a7b-e166a2623342	79388ADC	Refactored Data Science Initiative 2 core modules	1.473580505941368	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.108
+a4fa5900-0337-40f6-9c79-f15b2414409c	1163456F	Refactored Data Science Initiative 2 core modules	0.7523522966816283	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.11
+76ea54e2-bea3-4576-9611-3c1048b22928	48B4B4C8	Refactored Data Science Initiative 2 core modules	1.004663938519728	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.113
+696d763a-58e8-489a-b923-29f23a8ff784	C12672B7	Refactored Data Science Initiative 2 core modules	0.9564184072674069	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.115
+e6a9d354-cc58-430f-b27a-257de8aa42cf	C7A43E5F	Refactored Data Science Initiative 2 core modules	1.966698603114463	d5afc715-6859-4fb4-a128-b535547d272e	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	2026-04-15 18:36:09.117
+66b28917-4d2d-4941-beb2-922fb3ce70ce	B77096F3	Refactored Mobile Development Initiative 1 core modules	1.469840181847302	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:09.192
+41d6d9a9-7470-441b-89b7-1d9b11d4796d	246582DB	Refactored Mobile Development Initiative 1 core modules	0.7053739937876149	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:09.195
+fb82694e-ea9f-4f7b-9ac0-fe9d2c7c5f05	2B324F24	Refactored Mobile Development Initiative 1 core modules	1.425387668956128	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:09.197
+f131b091-88b2-4f42-96e5-fe93b6fdcdfe	8DC1EA80	Refactored Mobile Development Initiative 1 core modules	1.482620779445974	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:09.2
+f6224e5d-7f21-4bae-b332-aa1c3791eeda	28EBE3C4	Refactored Mobile Development Initiative 1 core modules	1.42927946589057	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:09.204
+6586d8af-d29f-4257-a740-86a53da54444	008A6D7A	Refactored Mobile Development Initiative 1 core modules	1.852761397103528	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:09.207
+83eaa16f-eab7-43ef-a204-9099bfc80304	51A822B3	Refactored Mobile Development Initiative 1 core modules	1.774191399850934	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:09.21
+d9131048-938e-4588-bae5-b63c6accf29a	7B293E83	Refactored Mobile Development Initiative 1 core modules	1.067692004948819	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:09.212
+07116c81-e609-4bc2-8220-77f581b7272e	26E3C5CD	Refactored Mobile Development Initiative 1 core modules	1.983574346286594	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:09.215
+7f86a13c-94a0-4099-9826-0320c9f29789	1B2FDCA8	Refactored Mobile Development Initiative 1 core modules	1.413963209181073	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	e7029756-37b0-4692-bb55-7339e3b9a0bf	2026-04-15 18:36:09.219
+b5315275-ef4e-400c-a477-985aeb1ba8a8	2B768AA5	Refactored Site Reliability Initiative 2 core modules	1.582417163421478	c6b5fe02-5974-4c38-8eee-62fec0916b76	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:09.281
+a65f3a03-6f0e-4b1a-aa7e-2bb75aab7d7e	62200D8C	Refactored Site Reliability Initiative 2 core modules	1.465974143122002	c6b5fe02-5974-4c38-8eee-62fec0916b76	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:09.282
+c09d83a3-952b-4beb-a72f-6606658c3662	E6569192	Refactored Site Reliability Initiative 2 core modules	1.796899690056394	c6b5fe02-5974-4c38-8eee-62fec0916b76	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:09.285
+3ed5a20c-e7cc-4082-99dc-94e592fbd921	FB034CC0	Refactored Site Reliability Initiative 2 core modules	0.8770855321248415	c6b5fe02-5974-4c38-8eee-62fec0916b76	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:09.287
+a9ce41f6-dd04-4e87-bdfb-5633cf73e254	035EB7CA	Refactored Site Reliability Initiative 2 core modules	0.6061392013435476	c6b5fe02-5974-4c38-8eee-62fec0916b76	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:09.289
+fee14ca5-20fe-41a9-8136-8b655e5f0eec	FCB2DE66	Refactored Site Reliability Initiative 2 core modules	1.391089651297287	c6b5fe02-5974-4c38-8eee-62fec0916b76	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:09.291
+d26a64b3-bca8-4d05-a547-e7e45bf0ece2	A5C58CBF	Refactored Site Reliability Initiative 2 core modules	0.6994499518359958	c6b5fe02-5974-4c38-8eee-62fec0916b76	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:09.293
+93b4744e-d4de-467e-8595-69f4c513df87	5E9E012D	Refactored Site Reliability Initiative 2 core modules	1.333772689963793	c6b5fe02-5974-4c38-8eee-62fec0916b76	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:09.296
+7778fd6e-6a7e-4a2b-b436-f8f247026b49	057C79D4	Refactored Site Reliability Initiative 2 core modules	1.511155940687147	c6b5fe02-5974-4c38-8eee-62fec0916b76	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:09.298
+8caed799-aa31-4250-8d46-0ea542388668	F75E92F6	Refactored Site Reliability Initiative 2 core modules	1.619948643804706	c6b5fe02-5974-4c38-8eee-62fec0916b76	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:09.3
+a6519250-e33b-4f76-9716-e5c76b491ccf	6128D578	Refactored Site Reliability Initiative 2 core modules	1.850120892997595	c6b5fe02-5974-4c38-8eee-62fec0916b76	28f462ff-0757-44ce-92c2-b0864a8f4500	2026-04-15 18:36:09.302
+991dc306-b270-4932-97f3-4a73ffbdb994	F033C393	Refactored Product Design Initiative 1 core modules	0.8263198002106374	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.367
+c79ceb72-e7b9-4ee3-8dfb-7cf7a9d241ad	454B65A9	Refactored Product Design Initiative 1 core modules	1.408509909806949	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.368
+faf63ba7-a718-49be-a49f-506742b14dca	68E90CFF	Refactored Product Design Initiative 1 core modules	1.312773128011347	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.37
+42025532-c7b5-49ae-926a-ffe69d9f0cc1	B20BB977	Refactored Product Design Initiative 1 core modules	1.388641781174054	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.372
+01b72b0d-59f0-44dd-8350-37dcdb8c5f68	CE437FA1	Refactored Product Design Initiative 1 core modules	1.824344666691291	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.375
+e9542e23-c5b6-4005-aca9-096275268c28	2053DC2E	Refactored Product Design Initiative 1 core modules	0.8119468683057256	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.376
+554f4d6b-83e2-473b-859b-0cac864e7ac8	4F8DE7C1	Refactored Product Design Initiative 1 core modules	1.624897609631147	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.378
+d51163c6-8f88-4fff-935d-51697edcba00	FEDDDB43	Refactored Product Design Initiative 1 core modules	1.668104024931442	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.38
+caa51034-eb90-4ac1-822c-cf415627ab67	2EC36C2B	Refactored Product Design Initiative 1 core modules	0.6540933715604431	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.382
+8a5f38eb-1cbf-4e9a-8f8a-6f8cbe48f537	4BAF738B	Refactored Product Design Initiative 1 core modules	0.9759372897182418	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.384
+b42b2478-cab6-4d87-bf0b-81fa23a38b9a	AB1BDAEA	Refactored Product Design Initiative 1 core modules	1.175245161104121	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.385
+48dc34ff-818b-4f15-968f-b74dd08da171	0FD1226B	Refactored Product Design Initiative 1 core modules	0.8508287987078949	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.388
+cb8e5062-1517-450f-8ae4-074234ee1cbe	60705B29	Refactored Product Design Initiative 1 core modules	1.130504433821051	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.389
+44642e62-8dee-44bd-b0aa-2f8675fffd7f	0ECF3E8D	Refactored Product Design Initiative 1 core modules	1.588498863349852	ace90216-fa2c-4ac5-ad89-645cb71736d0	13d1dadd-cbab-4aa6-873c-824524126cdd	2026-04-15 18:36:09.391
+d0c31ce6-8303-4e66-9170-a0798c4fc2e8	1F12AE86	Optimization: Refactor core logic	2.341821806017768	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-03-31 01:44:06.443
+2b4d53b5-1648-4a7a-bf7b-998e7287f920	C8461D03	Optimization: Refactor core logic	1.605673565147673	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-01 01:44:06.517
+664e14f5-66ff-4b2f-a659-7e6379d74d5e	39E4DCFD	Optimization: Refactor core logic	1.175148967460585	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-10 01:44:06.521
+4f34a97b-08b8-4f48-8ea6-b51033caed84	D742BED1	Optimization: Refactor core logic	1.428087322066624	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-11 01:44:06.527
+bb1fff7c-1e69-4cd4-9e0d-65a048912031	E1217E90	Optimization: Refactor core logic	1.292495266899271	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-03-23 01:44:06.533
+c9235db8-8fe7-4379-b7ed-8199e5e3aad2	198C5290	Optimization: Refactor core logic	1.071289520977996	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-01 01:44:06.539
+d7d63dc1-7649-4653-bdf7-665cb8d1156f	2743B0D3	Optimization: Refactor core logic	1.304212059737136	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-10 01:44:06.611
+92209dd2-4540-424d-b859-34eeeadfa365	B0344484	Optimization: Refactor core logic	1.694282419405196	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-14 01:44:06.616
+16fc2721-2cba-4e0e-aa2a-2f27fa2a1af7	87EC3E3B	Optimization: Refactor core logic	2.272179760697324	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-03-31 01:44:06.62
+2e184da1-2821-4d65-a22f-605febe103ca	43FA2569	Optimization: Refactor core logic	1.928368788680788	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-15 01:44:06.624
+8744cfea-5e1e-4619-9e9a-fb9e92ab2694	49395C41	Optimization: Refactor core logic	2.029438269142418	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-03-27 01:44:06.629
+4545050e-1738-46ec-bb11-a2d04b2c965b	75F3C005	Optimization: Refactor core logic	1.212355341194382	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-03-28 01:44:06.637
+1c85323f-cb66-4573-a923-ed75d330a288	0D5AC4AA	Optimization: Refactor core logic	2.01589847918349	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-03-28 01:44:06.836
+4d1a7090-9511-49ca-9796-a6f9b0ff6608	0D1F3133	Optimization: Refactor core logic	2.158444802555761	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-03-29 01:44:06.843
+7b34efd1-2523-4749-971d-048b5f01dd62	0AE52606	Optimization: Refactor core logic	1.608805003842895	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-03-24 01:44:06.851
+c472ad7e-90a4-40b9-a5af-106816f34067	0E13C5BD	Optimization: Refactor core logic	2.367135467708668	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-15 01:44:06.857
+5870ea74-a180-44a7-b79c-d75aa9f3dc52	770E823B	Optimization: Refactor core logic	1.784596993140724	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-03 01:44:06.866
+ee984c56-5cc4-4faf-aa45-3fdb716a4f38	E0539E81	Optimization: Refactor core logic	1.202549690285243	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-03-24 01:44:06.876
+31ee704e-8025-46af-b697-8935be48422e	4E3C7DFC	Optimization: Refactor core logic	1.446934225956394	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-02 01:44:06.886
+98f73bc2-4cd2-49bb-aa1f-eab85af1aa57	60E5D349	Optimization: Refactor core logic	1.653400392145797	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-13 01:44:06.899
+fdcd7732-ec49-4526-8c96-20affaeffc8e	E6F134D0	Optimization: Refactor core logic	1.288043023938963	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-03-19 01:44:06.907
+0c28bd21-2b34-473f-aafe-476b98dc082d	F9CC2209	Optimization: Refactor core logic	1.544192537983306	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-03-27 01:44:06.917
+613d9ef0-4e96-48cd-9f49-9bbd720aa2f0	DEF370CE	Optimization: Refactor core logic	1.582173582979762	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-15 01:44:06.93
+0dd6ed5f-2a47-44c2-8aaf-2ed3d16a774f	AACEF2BB	Optimization: Refactor core logic	1.002623660025354	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-03-18 01:44:06.938
+7fc74364-f303-4edd-a65f-dc16c115ff83	6D305C16	Optimization: Refactor core logic	1.036206389320428	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-03-31 01:44:06.945
+03185903-25ec-4206-9378-5dd736714f9b	F9EE8C57	Optimization: Refactor core logic	1.876147671328627	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-01 01:44:06.952
+9c74c789-88fb-4ff3-8a8b-b3806b3124c1	C1DA9810	Optimization: Refactor core logic	1.649882835180657	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-01 01:44:06.958
+c1db83c1-e600-4f7e-8dbe-22e89343a182	05B2CF74	Optimization: Refactor core logic	1.108405057805788	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-08 01:44:06.965
+2d7bba45-b5b6-476b-8881-721acd020e01	A14AD367	Optimization: Refactor core logic	2.383788229402205	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-10 01:44:06.974
+c7329c01-dea5-406b-9644-37fc87ab02c9	E0C0D881	Optimization: Refactor core logic	1.722422576690136	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-03 01:44:06.982
+5d5c7759-faae-41f4-9d62-8991a227cd51	F54B12BB	Optimization: Refactor core logic	1.815669557488299	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-03-24 01:44:06.986
+dba1d2ab-266f-4dff-bbf4-f13ebdbf0c94	EBF8CF2D	Optimization: Refactor core logic	2.138765905781353	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-11 01:44:06.992
+17e2a4b1-54ae-4c31-847f-023403236fa7	63E60585	Optimization: Refactor core logic	1.179182355331653	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-03-22 01:44:07.115
+3fd648ed-9bd9-4095-980d-aa865a06d031	FDD56D5F	Optimization: Refactor core logic	1.292848911142686	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-03-25 01:44:07.124
+9437f97f-3633-4500-a3aa-1662929723c6	D9423B81	Optimization: Refactor core logic	1.683269395210209	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-03 01:44:07.131
+9504b591-3072-44e2-a197-34028e7963b6	EDDDFDB1	Optimization: Refactor core logic	1.042553574791973	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-08 01:44:07.14
+1008d790-c43e-4c96-ad02-0342eb4596cc	D9B99D77	Optimization: Refactor core logic	1.154361735404284	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-15 01:44:07.148
+f1d74714-e186-4ee6-a74a-6312b57d1498	E966149C	Optimization: Refactor core logic	1.452869321144167	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-13 01:44:07.154
+278b11f8-815c-40cd-aee1-4c418aa5f7a0	606D2F39	Optimization: Refactor core logic	2.027260522209454	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-03-17 01:44:07.163
+f7a5b535-9402-430b-b4e0-f5e7e786e5f3	219CCEDA	Optimization: Refactor core logic	1.914573766662595	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-03-20 01:44:07.171
+fe099812-ad97-432a-9f54-9813d33f1cb5	851E03BC	Optimization: Refactor core logic	1.472750435690607	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-11 01:44:07.181
+bd7c6c94-6f6b-4e77-9692-27ffd442e3c7	5636A915	Optimization: Refactor core logic	1.031257762734539	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-03-25 01:44:07.191
+297d47ab-84d7-46f3-ba1b-1330d7e09ca0	5B50F3BA	Optimization: Refactor core logic	2.175417518838294	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-09 01:44:07.197
+8edcc3bc-be94-40d6-8bab-cbf21a6739bf	11510455	Optimization: Refactor core logic	2.355235933815014	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-15 01:44:07.204
+0964ce44-d966-4c87-bba9-f2b3d6b29a23	02BAD647	Optimization: Refactor core logic	2.228924415616359	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-03-21 01:44:07.208
+363c9d1f-5aab-4b41-b2db-abda703a999b	091E7601	Optimization: Refactor core logic	2.397461480628229	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-03-31 01:44:07.212
+1623dec3-35a3-4f1e-97fd-d382cb991370	5E2BC4D7	Optimization: Refactor core logic	1.763185080280883	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-15 01:44:07.217
+381e2b0e-04b5-4ac9-9623-5ec2b8efa20e	DF7CD6C3	Optimization: Refactor core logic	1.606644741613962	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-07 01:44:07.223
+6dc18de3-87d1-479a-af78-76d2380ec59d	6589D4ED	Optimization: Refactor core logic	1.409294554962991	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-02 01:44:07.227
+5cae1a0d-6630-4c16-b971-1fcfbb891e83	649D5D9E	Optimization: Refactor core logic	2.20860601306275	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-03-24 01:44:07.232
+fb07b555-9ea2-4f12-ad48-4d7a53c51fad	578DEBFD	Optimization: Refactor core logic	1.329258887386954	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-03-18 01:44:07.239
+80211746-3779-4b38-9ac6-648eb49e049a	C1317A14	Optimization: Refactor core logic	1.375255726562179	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-13 01:44:07.244
+ec3b03d2-8a11-48e4-910b-1bc80f4e0aec	8187E336	Optimization: Refactor core logic	1.647850808312247	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-04-13 01:44:07.537
+0a73327a-784e-49a4-b2ae-047816a81c34	C0FDF625	Optimization: Refactor core logic	1.032451762465151	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-03-24 01:44:07.541
+783d2d34-1a76-4e0f-85d1-94af715db227	5DC5AF70	Optimization: Refactor core logic	1.235432564896916	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-03-20 01:44:07.545
+8989cc1a-6314-4366-afbc-516303cba188	4F29B340	Optimization: Refactor core logic	1.80474498413401	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-03-24 01:44:07.554
+f5e47715-4a85-4493-8eb4-447d6e7f910f	FF27B3FB	Optimization: Refactor core logic	1.021792159269083	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-04-14 01:44:07.559
+a18bdf64-c282-4dca-b8cf-bca99168451a	96293D4A	Optimization: Refactor core logic	1.597262552932932	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-03-24 01:44:07.563
+fb7b842f-74ac-4ff1-ad6c-5f037027d143	8BB7EBE8	Optimization: Refactor core logic	1.834270904716256	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-03-26 01:44:07.568
+db18f83a-b5b9-4ff9-92cd-dbff57b838fc	A3915D97	Optimization: Refactor core logic	2.22969695984528	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-04-11 01:44:07.575
+fc363717-74b6-4930-b342-2cd20e4556c1	C857370F	Optimization: Refactor core logic	1.936572765605647	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-04-10 01:44:07.579
+00096e39-be50-4104-9478-dabd88795112	C9056053	Optimization: Refactor core logic	2.352420827573706	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-03-31 01:44:07.582
+bcf5b429-b371-4d33-a79e-4f9147292ee7	40A3098A	Optimization: Refactor core logic	1.080859790483215	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-03-21 01:44:07.586
+0f0afd9d-1737-4873-a41b-2e08e3a9e4f7	3F76D68B	Optimization: Refactor core logic	1.345032729995527	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-04-09 01:44:07.588
+7e1aab90-ecab-49f6-a38c-a928f8de1c32	C51D765C	Optimization: Refactor core logic	1.044389904565761	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-03-18 01:44:07.593
+a63ba8dc-a880-4682-bd8d-4046bb963fb5	D6A2AA13	Optimization: Refactor core logic	1.684385107492514	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-03-25 01:44:07.596
+f214b150-2219-4df0-bca0-469bcd2f841a	C6B205B2	Optimization: Refactor core logic	1.744204444223937	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-04-05 01:44:07.601
+f927131b-a4a9-4095-9323-4b895d36c41b	D0C3E98A	Optimization: Refactor core logic	1.107074262448916	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-04-07 01:44:07.605
+4143a06b-897b-4707-88bf-8becd73375ed	4905CF2C	Optimization: Refactor core logic	1.208083514502702	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-03-23 01:44:07.608
+93c5ca0e-8ce9-4ef4-a0e5-1c4ef9c94321	8B59722F	Optimization: Refactor core logic	1.143707181684781	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-03-18 01:44:07.611
+38eab71a-a468-4fef-9c00-d301f34fd9c5	27373A07	Optimization: Refactor core logic	2.439956602824265	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-04-07 01:44:07.615
+e52fc7a8-d4d5-4a5e-8082-7f61554a8d79	4F78D1A1	Optimization: Refactor core logic	1.591575036978391	bd6f42c0-60c5-4b7e-894a-524c311d026f	\N	2026-04-08 01:44:07.618
+449e22ca-5677-4fc1-b5bc-944c660af2bf	D34C5B15	Optimization: Refactor core logic	2.101672156243648	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-11 01:44:07.768
+9bd0186b-6b21-43d1-952f-ff8051263548	6886E9FC	Optimization: Refactor core logic	1.523494532929058	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-15 01:44:07.772
+66fa5578-28fe-4144-9e1b-ffe5195fddc8	F9430AE4	Optimization: Refactor core logic	1.57769142835657	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-09 01:44:07.775
+2211761f-f876-494d-bd52-9fffb56ccd41	A497FC7F	Optimization: Refactor core logic	1.356257041764085	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-09 01:44:07.779
+01f457ee-a733-4852-a3e4-a2218a7c2583	3516E837	Optimization: Refactor core logic	2.046567920548593	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-09 01:44:07.782
+f188dca4-5ae5-4ae6-a558-2031f9784119	4E7F8FDD	Optimization: Refactor core logic	1.700740821466813	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-03-22 01:44:07.786
+d97e369f-3ff6-403d-90a4-5af263d7dfb8	E97C6C16	Optimization: Refactor core logic	1.920794747719499	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-03-28 01:44:07.79
+ece9997d-adfb-47cd-90b9-a23f3a396b42	3938952A	Optimization: Refactor core logic	2.148626592267351	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-03-30 01:44:07.793
+090749dc-ff25-427a-b5d0-01b5b78c9e37	59D7A6CA	Optimization: Refactor core logic	2.398290652773783	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-15 01:44:07.797
+a2a88225-04a2-472c-8037-1f80cc43db8c	E1761812	Optimization: Refactor core logic	1.561119313266027	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-02 01:44:07.804
+945ff228-e955-4e18-b0c4-e869d2c57904	40B2C8E8	Optimization: Refactor core logic	1.647605047132122	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-03-26 01:44:07.811
+1ea042b8-b532-450e-bf53-549a296bdc52	2C3ECEA3	Optimization: Refactor core logic	1.541793940673965	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-03-29 01:44:07.818
+ef60e475-ac27-4d7e-b559-dd91a0f6fa91	FE62E3BE	Optimization: Refactor core logic	1.203369042789471	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-03-17 01:44:07.825
+8f270b0b-e82c-4f45-a5ef-8206ce6cd3c4	365283F4	Optimization: Refactor core logic	2.485801192699632	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-02 01:44:07.831
+0f25f8a1-44cf-4bde-b3a7-6affe918a85a	C62E84DA	Optimization: Refactor core logic	2.499873487612112	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-03-31 01:44:07.835
+652f638d-f5ed-491b-8af4-e2e1b78df613	DA72CB61	Optimization: Refactor core logic	1.520590376513345	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-03-31 01:44:07.839
+459ef50e-bfb6-4090-96ba-813bf6d8d2f8	36D4A413	Optimization: Refactor core logic	2.220721104561866	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-03-27 01:44:07.846
+0b1c02d5-901e-44e2-8145-9555b5166ed7	ABDB9B72	Optimization: Refactor core logic	1.24256722662269	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-13 01:44:07.854
+fe3cb580-286f-46ce-8c39-0d4f1eb38994	BE2E0CC0	Optimization: Refactor core logic	2.247873227530247	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-03-29 01:44:07.86
+47501682-b9b5-4cad-bf45-876d48823334	28DB0E8D	Optimization: Refactor core logic	2.287237364618453	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-06 01:44:07.868
+695ff746-0884-4fb1-9d4f-a3b0cdd9b0df	03A771CA	Optimization: Refactor core logic	2.116592132696725	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-04-14 01:44:07.985
+c8f51ba7-04a8-456f-9fef-bb494c31f6bc	18E1817A	Optimization: Refactor core logic	2.380641615292477	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-03-22 01:44:07.993
+47197de0-0e06-4360-86be-8b26e22d1310	5C38AA2A	Optimization: Refactor core logic	1.109976129469232	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-04-14 01:44:08
+21a9a139-377f-4eab-8ea7-87b96a2a2aab	6B7BF81D	Optimization: Refactor core logic	1.989502896939815	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-03-30 01:44:08.007
+cfc554eb-433f-405e-8cbc-4104e844571e	9FEC9499	Optimization: Refactor core logic	1.362363066348567	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-03-27 01:44:08.016
+aadb5c7a-2ff6-4d40-8b18-cc0918bb3107	845C90E8	Optimization: Refactor core logic	1.217060038680222	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-04-03 01:44:08.025
+cf5cfd6f-8104-4476-8e7c-e9e5421f27f3	FA0B0A45	Optimization: Refactor core logic	1.183546701421812	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-04-10 01:44:08.032
+79846b8a-ffb5-4414-8912-623cf205a5b9	31F61CBE	Optimization: Refactor core logic	2.026952676615466	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-04-14 01:44:08.039
+83246149-97c2-420c-a9d9-7a9972797636	45489042	Optimization: Refactor core logic	1.33696761975092	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-04-07 01:44:08.044
+71691c7b-b647-4a5b-978d-7723f4b9df24	05497F03	Optimization: Refactor core logic	2.398557756988808	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-03-22 01:44:08.05
+a9332219-ed97-4bbe-8426-4d232cede8c5	958A3FA9	Optimization: Refactor core logic	2.235930604555614	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-03-31 01:44:08.06
+0637c117-a3ff-4080-9084-8881254cd3be	3620B6A1	Optimization: Refactor core logic	1.292204723329627	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-03-26 01:44:08.066
+f9274621-3f18-4f31-ae53-ea90e5d7afef	75A60625	Optimization: Refactor core logic	1.234218486513779	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-04-02 01:44:08.077
+9a7c9fc3-f378-4682-868e-71a75d0dab43	45B6C43A	Optimization: Refactor core logic	1.435876000996237	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-03-30 01:44:08.085
+29585ca9-a35b-4dec-9a5e-b2a6a26660a3	386509F2	Optimization: Refactor core logic	1.817860585497773	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-03-29 01:44:08.089
+a7035814-f6ab-4693-b0bc-90652ad85b98	CB3B1C7B	Optimization: Refactor core logic	1.275154534847146	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-04-02 01:44:08.096
+6139213f-c605-45fc-b2ef-e40e4348e5a8	B6662145	Optimization: Refactor core logic	1.035006179485015	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-03-18 01:44:08.104
+7f8099e7-c793-4f31-90ec-b95dbfa238f6	280E708D	Optimization: Refactor core logic	2.12114448810756	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-03-23 01:44:08.11
+4e0abfbe-1127-4f34-83a7-d74823d9f4b5	1CA27EDD	Optimization: Refactor core logic	1.658530444411185	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-04-08 01:44:08.115
+8073c2c4-da77-4dea-bbdd-2af38b7ce5fc	9FB190F3	Optimization: Refactor core logic	2.063185832251288	2dcdf168-3b3c-4839-93b1-f18a1d089d02	\N	2026-03-29 01:44:08.122
+ea097a8b-a359-4383-ae34-4db09b16e78a	C3018DB7	Optimization: Refactor core logic	1.385927841704918	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-04-15 01:44:08.347
+052de9e7-337e-460e-9aa2-00d67131324b	DBBB0FC4	Optimization: Refactor core logic	1.941778266789936	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-04-01 01:44:08.354
+676f6fc9-d06f-4a44-83ce-0eb5173f21d0	DF4A2F2C	Optimization: Refactor core logic	1.99004338394639	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-03-20 01:44:08.361
+8f37773b-016b-42ac-89e6-0579c240c9b5	D602819D	Optimization: Refactor core logic	1.593051265146407	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-03-25 01:44:08.369
+e52835b0-f459-4d91-8909-b4caf5d39a30	FC5A9036	Optimization: Refactor core logic	1.329540860506619	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-03-24 01:44:08.376
+efa6cae6-7245-471e-a6c9-2681629039ad	F84A4D66	Optimization: Refactor core logic	2.18885445214746	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-04-01 01:44:08.384
+4abccb93-bdd4-4dc1-9dbb-9064eeab4e45	C064D415	Optimization: Refactor core logic	1.288688974428385	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-03-25 01:44:08.395
+147daf78-fb75-4d3c-9262-dd7420031c5a	1E9AF7D6	Optimization: Refactor core logic	1.589506662326935	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-04-09 01:44:08.402
+d2100b4a-3489-4080-9463-d9d0ea7051d2	3C05F8F8	Optimization: Refactor core logic	1.75987069315933	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-04-10 01:44:08.411
+06960693-6f5b-486d-b8a1-59b5f9d0e943	6A4CD83B	Optimization: Refactor core logic	1.523109910455041	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-03-22 01:44:08.418
+03de62d4-efe4-4941-8b64-b47557578ee8	4B5B5C47	Optimization: Refactor core logic	1.32660779601584	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-04-13 01:44:08.426
+c3d363a3-3ffd-45ff-b283-1a8788b337f8	62226AD0	Optimization: Refactor core logic	1.105580906709913	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-03-24 01:44:08.436
+e87ae721-fa3f-4fcf-8b8b-1bf233e7f9d5	961C2B0E	Optimization: Refactor core logic	1.535596370492271	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-04-14 01:44:08.443
+6249c960-89f5-43b3-a14b-cde27e1e279d	F95A5231	Optimization: Refactor core logic	1.586497195244476	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-04-10 01:44:08.449
+9cef8c75-43b7-4b8b-8717-91d7382891f8	02F3E392	Optimization: Refactor core logic	1.218371673194182	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-04-02 01:44:08.457
+1ef9186c-048a-4a2b-8319-2ea488e44e39	020B3B3F	Optimization: Refactor core logic	1.770252024045835	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-03-23 01:44:08.464
+f4ceae6e-cfb2-4164-a6c2-5bd925940f96	B4E275B8	Optimization: Refactor core logic	1.692686984719597	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-03-21 01:44:08.475
+06fcb0f4-34fd-40fb-be32-545d506b56cc	9C420303	Optimization: Refactor core logic	2.00839226701626	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-04-06 01:44:08.481
+1a335ba2-fc93-4a15-a0b7-fc01d661702c	69606C58	Optimization: Refactor core logic	1.549327669637524	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-03-29 01:44:08.489
+d3a7e813-aa54-4a73-9465-2faaae2dbf28	1BC1698A	Optimization: Refactor core logic	2.102328789301162	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	\N	2026-03-31 01:44:08.497
+93a89ad4-6b8b-48ea-bf4f-2de866eba696	4C8C1FFB	Optimization: Refactor core logic	2.463233323600326	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-03-30 01:44:08.532
+10092270-6ccd-4c38-92cb-5d93afff5611	4052B184	Optimization: Refactor core logic	1.30494939564603	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-07 01:44:08.539
+b16bc33f-4f56-4189-ade9-08ffc35cc290	7039FA6B	Optimization: Refactor core logic	1.714669373068652	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-03-23 01:44:08.545
+d0ee787c-2f67-414c-bee1-f5db1894408b	9CDEB006	Optimization: Refactor core logic	1.134504277704705	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-14 01:44:08.555
+22018423-31f6-43f9-83dd-b9518cddaf34	D8702F3E	Optimization: Refactor core logic	1.658799131100041	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-03-24 01:44:08.568
+9d69370a-7a82-40c4-b1c1-c01f5812b664	87DBD7BE	Optimization: Refactor core logic	1.050913965996059	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-12 01:44:08.579
+31874429-c41e-4f23-9107-485a0488dd05	56BA06D3	Optimization: Refactor core logic	1.423416160188006	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-13 01:44:08.588
+8408d6ca-0b0f-4d1c-b69c-e6cad3da1f0a	6E24C243	Optimization: Refactor core logic	1.081003657810768	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-03-21 01:44:08.596
+4b77f5c4-9f34-41e9-8d9a-9c6bf85d0d7a	FB87FEE0	Optimization: Refactor core logic	1.897041297293953	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-03-26 01:44:08.604
+8539fb7e-004f-426e-8966-d4f8fe6fe4d1	AB9CA5D0	Optimization: Refactor core logic	1.558646295473434	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-03-22 01:44:08.61
+6c186d98-88e6-4d4a-9ad5-377bf09e432f	2264B554	Optimization: Refactor core logic	1.546373842790457	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-03-27 01:44:08.616
+21e3b7a3-747b-4a73-8f2f-beed974fcda8	98BBE580	Optimization: Refactor core logic	2.196099097134679	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-03-25 01:44:08.622
+d02c04d8-fb90-415b-9c82-8c16ea59b595	5F4ABD9E	Optimization: Refactor core logic	2.473437926112224	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-03-24 01:44:08.628
+3b5bd896-0013-47ad-a4a3-085f986c7eaa	175097EA	Optimization: Refactor core logic	1.841559331454553	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-03-28 01:44:08.631
+5d3d18fb-519e-4335-bd57-cfddbe32c77c	207311D3	Optimization: Refactor core logic	1.550633803435405	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-05 01:44:08.637
+3e809d49-8f84-4d52-884a-18224edc6c39	3D326880	Optimization: Refactor core logic	2.442732580222337	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-03 01:44:08.643
+611d7798-050b-4ab9-acca-a1d0c7aa42be	872562BA	Optimization: Refactor core logic	1.410657261949834	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-11 01:44:08.648
+bbf14620-9e70-41f4-bb90-2fdf57ecd829	48EBA1A2	Optimization: Refactor core logic	1.323552311554491	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-03-24 01:44:08.653
+38e94bfb-05ae-4791-9398-6c643d622915	E59DA253	Optimization: Refactor core logic	2.062124200418622	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-03-19 01:44:08.657
+b0710e13-2799-45b7-916a-90993dc44b57	9FA83F5E	Optimization: Refactor core logic	2.377912933553818	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-14 01:44:08.662
+630318d2-a559-4abc-9ffb-94ebde1bd688	0CBE53A3	Optimization: Refactor core logic	2.202664360177197	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-04-09 01:44:08.737
+a1287102-1900-43d1-84bc-5abc52a13bf1	954442FC	Optimization: Refactor core logic	2.466516977925235	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-03-26 01:44:08.741
+dbcb4346-99d7-441d-85e0-57cb89c2f7ed	3D51E042	Optimization: Refactor core logic	2.41369900730848	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-04-05 01:44:08.747
+1bf3eeaf-6b1c-4253-addd-617c4093b0b2	660C15E2	Optimization: Refactor core logic	1.746431743477517	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-03-22 01:44:08.751
+c51551f8-83d8-47b0-903e-5b8de14e43aa	F1BBF14E	Optimization: Refactor core logic	1.880115813927527	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-03-24 01:44:08.755
+cd99aed4-9423-489b-ad87-d92be53d849a	1D2C8F87	Optimization: Refactor core logic	1.98248423854007	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-04-09 01:44:08.762
+f70e08e7-a409-44a0-b01c-04064d23ad9a	090065C1	Optimization: Refactor core logic	2.148822611203462	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-03-18 01:44:08.767
+2f3abf4e-e378-4868-bcaa-92cfd2b92a52	BC2A18ED	Optimization: Refactor core logic	2.177253676587	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-04-08 01:44:08.771
+310f4041-796e-4ac5-ae93-24044d9d4830	01B826DA	Optimization: Refactor core logic	1.325491613211491	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-03-24 01:44:08.775
+2e238b15-17aa-4599-91b8-9cbae2599ac4	BDCF4D06	Optimization: Refactor core logic	1.753000564212496	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-04-06 01:44:08.779
+a6880388-93b4-4a91-9590-3f102d9aa3cd	AC500100	Optimization: Refactor core logic	2.358697810515999	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-03-25 01:44:08.782
+e8cd1302-8312-42f8-8e6c-786af15c6987	2B06D54E	Optimization: Refactor core logic	1.106289755470139	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-04-12 01:44:08.787
+79fb28e0-79c8-46ec-bd95-1c9ddfef34ff	CEF9A4C1	Optimization: Refactor core logic	2.488408044505629	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-03-25 01:44:08.791
+5f2e8c47-5d6c-42fc-a4a2-4ed0be6aa595	EBCAB0CC	Optimization: Refactor core logic	2.335090287066747	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-04-14 01:44:08.794
+ffffd623-dddf-4c10-b023-fc2a92b5dd6f	71917A1D	Optimization: Refactor core logic	1.108884529533168	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-04-13 01:44:08.797
+b9fc44fd-e798-462e-a8e1-50da99733b33	EECAA5B8	Optimization: Refactor core logic	1.918180535663856	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-03-28 01:44:08.802
+30a31031-7c07-4eab-a23a-12d9bd3af980	F01FAB2F	Optimization: Refactor core logic	1.187592306713272	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-04-12 01:44:08.806
+7c5798b6-b92a-426c-a043-5140af78eb1b	09EA87E6	Optimization: Refactor core logic	1.660198556207731	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-03-25 01:44:08.811
+b02db544-977d-4ca3-b274-e771e6c9b959	7E6B5D71	Optimization: Refactor core logic	1.265236366032331	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-03-21 01:44:08.815
+e60cdfa5-29a8-49ce-bc1c-2e28ba80ddc1	23764F61	Optimization: Refactor core logic	2.089234390941223	714c5335-de73-4dd7-87bb-e59cfd464af1	\N	2026-03-21 01:44:08.818
+f2422d78-a486-4688-975e-2ceb925f51a1	0EB7C642	Optimization: Refactor core logic	2.367976171565036	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-03 01:44:09.071
+e78a6be8-0dfa-4c87-a6b4-2d5f46791532	741CFE03	Optimization: Refactor core logic	1.118479269470333	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-15 01:44:09.078
+91516f41-8c71-44d0-93b3-7c9236d6d5f2	A9430922	Optimization: Refactor core logic	2.025597107538407	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-03-21 01:44:09.083
+53a10e34-f4e0-44e7-bb8a-1cc18e4b3a0a	BC513BDD	Optimization: Refactor core logic	2.15964017214307	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-04 01:44:09.087
+259abd94-c995-40a8-a37f-985ccffe22ff	43BA430B	Optimization: Refactor core logic	2.451156792361084	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-03-19 01:44:09.091
+97861f30-09ac-4234-ac62-bead40e068e8	B047358F	Optimization: Refactor core logic	2.241879476111042	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-05 01:44:09.097
+12239ce6-207c-4da5-9bb8-4cdd12653ac1	6846BFAC	Optimization: Refactor core logic	1.191718150151199	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-03 01:44:09.104
+24a2bde2-988d-4a3d-b033-b7b445c04cd7	A03748FE	Optimization: Refactor core logic	1.460890652924123	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-03-21 01:44:09.109
+262eb38b-4c85-4ab8-b519-0b90d4197ff9	11A28BCE	Optimization: Refactor core logic	1.472580802446163	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-03-19 01:44:09.113
+1812f579-f9b9-4569-b426-d9b496b4f185	5F388002	Optimization: Refactor core logic	1.610024663375948	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-13 01:44:09.118
+8c583e8a-bca2-4cdd-a381-67a94a9fb439	04E7F88A	Optimization: Refactor core logic	1.808839471166283	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-03-28 01:44:09.123
+7e379db8-f735-4ef9-9198-280c60bbc88b	1C9B55A5	Optimization: Refactor core logic	1.484452400861126	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-03-29 01:44:09.127
+8fdea5b2-e95c-44a1-b932-8519d1dad6cc	C2D780B2	Optimization: Refactor core logic	1.99651854084748	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-14 01:44:09.132
+e6378a7a-31c0-4d9d-a86c-45087771aa24	CEC83DAD	Optimization: Refactor core logic	1.947257479405927	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-14 01:44:09.138
+00dc7ecb-0313-4ea7-821f-93c3a793cd85	7B7E0A6C	Optimization: Refactor core logic	1.619131028677447	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-13 01:44:09.145
+48a968f0-2841-4a39-b113-7a7441718fb3	9B978DCC	Optimization: Refactor core logic	2.380088391141863	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-09 01:44:09.151
+493eaa55-b0c6-4a42-8a09-1c94cf9884a9	D1BABFA6	Optimization: Refactor core logic	2.238672440243195	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-03-30 01:44:09.158
+a3374aad-9d16-4d21-8c4e-c82b5f800f47	EE5A8ABC	Optimization: Refactor core logic	2.364037355753786	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-04 01:44:09.164
+fd6e16c0-3d24-4a30-b244-f95be790ae4f	76E00D3B	Optimization: Refactor core logic	1.61293878999069	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-04 01:44:09.174
+44ac75fa-9fa4-44d9-b886-77372e4ffaa6	B5451A68	Optimization: Refactor core logic	1.750651830864125	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-01 01:44:09.182
+b6bcea7d-eb44-4664-8482-56a692226b0c	C0911C1E	Optimization: Refactor core logic	1.777992709969091	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-09 01:44:09.503
+cf5c74e3-a31c-4e44-89d0-5e2efab0e8b3	1202A124	Optimization: Refactor core logic	2.449582041820772	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-11 01:44:09.507
+3836a0fb-10f7-4e4d-b922-34c10a4a7057	09F3EFCB	Optimization: Refactor core logic	2.093305804431914	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-03 01:44:09.512
+48d33329-11e6-449c-9669-c687234c8e84	71402F8E	Optimization: Refactor core logic	2.38342437608302	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-13 01:44:09.518
+7a880c8f-c9d5-44de-8794-899b47ff5e31	922E304A	Optimization: Refactor core logic	2.423958651455314	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-03-23 01:44:09.523
+d51efc9b-4d75-409f-a7ef-c8b843a002e7	0847BA72	Optimization: Refactor core logic	2.199789351092165	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-03-29 01:44:09.527
+eff27fba-94f1-4224-9319-db605ccf2be3	189D8E9B	Optimization: Refactor core logic	1.714235483506306	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-04 01:44:09.53
+6e1750e8-cd84-4fc2-a392-8352d5cd8197	6ABBA837	Optimization: Refactor core logic	2.396185846895406	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-15 01:44:09.536
+bb0746cf-dfc3-4009-8f63-547dc17ef85d	65401E56	Optimization: Refactor core logic	2.128722796043298	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-02 01:44:09.539
+def393c9-cd60-4a23-9853-b980a6e38f2a	865CA626	Optimization: Refactor core logic	1.12620828405014	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-03-18 01:44:09.544
+93462747-31b4-4d6d-a047-97a5c7ac9be1	03F7CBB9	Optimization: Refactor core logic	1.191893935414732	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-08 01:44:09.548
+a4752a44-5b71-4566-ac2e-0cfa0bb15b99	B4773E38	Optimization: Refactor core logic	2.233510309173796	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-03 01:44:09.555
+ff306aa5-6ceb-4f41-8971-98c4fc7e12f2	6F7D54F0	Optimization: Refactor core logic	2.379318162707005	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-05 01:44:09.561
+caced5fd-5a7e-462f-b0eb-46b6b303ff00	3F90B92E	Optimization: Refactor core logic	1.614700243106064	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-03-25 01:44:09.567
+135cf9d3-31da-4e7e-ab75-a75876bb6a81	FB73D644	Optimization: Refactor core logic	2.117060452826478	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-03-26 01:44:09.571
+e3e3e2ac-6b16-49f0-b68e-32075534bb01	8FEEF403	Optimization: Refactor core logic	1.914819827635512	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-03-21 01:44:09.575
+5a61b518-1a4d-42c4-b0ba-8d8923c3a833	8C0896A0	Optimization: Refactor core logic	1.535450482872289	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-03-25 01:44:09.581
+d138cf88-cbd0-46f3-b8b1-9965e890bdbc	6CBDD6E4	Optimization: Refactor core logic	1.081169250776267	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-12 01:44:09.585
+be796b1c-874e-4504-91cf-20f5701163e6	1957A1B4	Optimization: Refactor core logic	2.16513474115501	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-03-27 01:44:09.592
+84ca23cf-3cd0-43c4-ac0b-70fe8a2931bf	0845CB3F	Optimization: Refactor core logic	1.978637810702975	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-15 01:44:09.597
+e0092dfb-909f-4ff6-b5e7-2658ec927762	0538B567	Optimization: Refactor core logic	1.289836354744708	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-07 01:44:09.707
+ec3042b6-b8ad-4b1c-91c7-44c2f5dc9167	FF69B70B	Optimization: Refactor core logic	2.306303398025227	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-03-27 01:44:09.715
+996185e8-29db-4bb7-9f51-3d5b605c6b95	32CA7FFD	Optimization: Refactor core logic	1.936542364545334	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-03 01:44:09.727
+1e0427ac-ea03-49e4-9eb5-b2157022c2b0	91B99CF2	Optimization: Refactor core logic	2.365406805238257	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-03-30 01:44:09.733
+90d53469-8647-40a1-a887-1aeb8d47c231	D4FD6AC2	Optimization: Refactor core logic	2.187194762019664	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-03-17 01:44:09.739
+4d4bc057-54c3-4fa9-93c3-7411e64d2006	2312AA93	Optimization: Refactor core logic	1.13484023146545	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-03-31 01:44:09.745
+b4f25738-8e2b-4253-9b2e-2e42261f5127	B01FD593	Optimization: Refactor core logic	2.274894813718074	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-03-30 01:44:09.75
+f9520607-c4b6-4aab-bd98-102ada49847d	5E81D303	Optimization: Refactor core logic	1.555672666955188	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-10 01:44:09.753
+b9e88dd4-d282-4cf3-8f90-7bf02b1a0eaf	8F2F548C	Optimization: Refactor core logic	2.43577894159895	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-03-17 01:44:09.757
+647552e0-a493-4e20-9a7e-e2d9fa1f61d5	B6DE2A65	Optimization: Refactor core logic	2.052109416791343	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-03 01:44:09.762
+e6f08800-46af-49ff-837a-ef24e1ffa2e6	F8468E7D	Optimization: Refactor core logic	1.915760039083371	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-14 01:44:09.766
+84c00f38-9675-42a4-b2ec-6ad295425ef4	10D83527	Optimization: Refactor core logic	2.288224671654208	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-03-31 01:44:09.772
+d6d3509f-865b-44f8-9deb-72a191cfaec1	1E062E73	Optimization: Refactor core logic	1.869808395532498	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-03-21 01:44:09.775
+60a56d5c-ceae-460a-8f4d-bc06ef6fc3cb	B8403C68	Optimization: Refactor core logic	2.201297851177133	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-03-31 01:44:09.779
+d5711bf1-ebca-477e-a20e-34bc338b5699	1835FE40	Optimization: Refactor core logic	1.899513590282317	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-03-24 01:44:09.784
+a75cb328-f9a3-4596-9b68-9f845e4f82ee	67B9B87B	Optimization: Refactor core logic	1.801388767157632	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-03-31 01:44:09.789
+ba812036-a550-4f09-bfc0-e20f7e617927	7890CCA9	Optimization: Refactor core logic	1.355575856919378	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-07 01:44:09.794
+f7b33947-61db-4e02-b61e-d798273f2005	B3B5B81D	Optimization: Refactor core logic	1.843914121542252	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-02 01:44:09.797
+73a7339f-76ae-4bfe-a3fa-4f17d4f225a9	5EA42730	Optimization: Refactor core logic	2.132313521420445	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-02 01:44:09.803
+ea87c2f8-7133-4a98-91f2-6fae8ee78122	2C72CEC3	Optimization: Refactor core logic	1.495171094904301	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-03-18 01:44:09.808
+732f2884-e812-4585-b4ba-149226ffe8a6	D8885E80	Optimization: Refactor core logic	1.601351629261638	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-04-13 01:44:10.228
+ed47f10d-bc4a-4c3f-ac96-aa7bcb485669	40909E43	Optimization: Refactor core logic	1.951305208542595	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-04-01 01:44:10.231
+9d01cfb5-8e2f-4cad-9464-b4053a38f27b	C739CA48	Optimization: Refactor core logic	1.417441363608351	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-03-20 01:44:10.236
+0f99c526-8037-40da-8df1-db4f8b1439df	556645A1	Optimization: Refactor core logic	1.445548537293491	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-03-20 01:44:10.238
+24d37eab-f80f-4301-9989-675f1490da1a	B062118C	Optimization: Refactor core logic	1.022186943098157	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-03-30 01:44:10.241
+6a37449c-b920-43ea-8d7c-e9a3075f67db	66DCC256	Optimization: Refactor core logic	1.089848188015385	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-03-21 01:44:10.245
+4bc05ea2-a664-4ef2-8902-a57f813a3e19	59A2446D	Optimization: Refactor core logic	1.263597102979268	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-03-25 01:44:10.25
+77333103-d7c2-44fd-b5ae-e60ec5bc13da	DFC87D73	Optimization: Refactor core logic	2.021223081103269	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-04-04 01:44:10.255
+01074c4e-63b6-421c-98a2-1808af447865	E5D044D4	Optimization: Refactor core logic	2.250646403872402	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-03-24 01:44:10.262
+35c89cc7-10bf-4afb-a21a-2d5c0c43c8ac	72BD444E	Optimization: Refactor core logic	2.207438411210858	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-03-17 01:44:10.268
+962f1c25-4a1f-4401-b07a-5dea71c2a668	A8966E1B	Optimization: Refactor core logic	2.439980112835925	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-04-05 01:44:10.273
+9f58dc91-0dc9-44da-ba5a-6df50c559987	A3A235BA	Optimization: Refactor core logic	1.853793673195949	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-04-13 01:44:10.279
+7d4955cb-6e2a-42d6-be9e-f23a37335c10	E5533BD7	Optimization: Refactor core logic	1.492442766238171	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-04-01 01:44:10.285
+ff574772-f8a3-4edd-960b-8c564086537f	79816B5A	Optimization: Refactor core logic	1.230832139226136	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-03-22 01:44:10.291
+cf053ea5-76ad-4d9e-886b-0ae36f380d41	8A63D4ED	Optimization: Refactor core logic	2.282553945882393	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-03-28 01:44:10.298
+ccbcb4f5-ca37-4c66-816b-0c71d7a12a36	ABDF2E18	Optimization: Refactor core logic	1.835591426574669	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-04-06 01:44:10.304
+dbe06769-b1ab-4898-a118-228c64ea1335	40CA0396	Optimization: Refactor core logic	1.271411723469521	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-04-06 01:44:10.312
+3606a9ea-f9a7-458e-ae81-3a3ec837de02	20CFBCDF	Optimization: Refactor core logic	1.127866776511888	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-04-10 01:44:10.32
+f8964b62-4da9-4b04-864b-dc8d1cace7f3	9BE60B4C	Optimization: Refactor core logic	1.23717364751801	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-03-23 01:44:10.327
+82ad362e-daa0-439c-a0ef-026c8fcdbd9f	3780AB3A	Optimization: Refactor core logic	2.131149734999453	a135b85e-cf22-44be-a014-cc6116529fc9	\N	2026-03-27 01:44:10.332
+0ae363b4-82ce-4ce9-8804-65418a035ee7	2F75D392	Optimization: Refactor core logic	1.031695547508481	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-03-18 01:44:10.436
+1e4f5e99-8f44-4c22-ab6a-8cfc381f6fdb	3BA50B13	Optimization: Refactor core logic	1.0804021398385	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-03-28 01:44:10.439
+b9c1fe37-b627-433f-b006-4641aacd58b5	A0164FBF	Optimization: Refactor core logic	2.386923881145155	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-04-15 01:44:10.443
+a707aefa-ccd3-486d-bda2-e8a850d4e165	BCC8BB32	Optimization: Refactor core logic	2.387945615700676	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-03-30 01:44:10.447
+9ffa5dd0-1b84-494a-9652-b1b6963849cd	FA348EF5	Optimization: Refactor core logic	1.013155320870902	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-03-25 01:44:10.451
+cc9222e3-e359-4b6b-9e9a-6956ac46ab86	AEABE713	Optimization: Refactor core logic	1.916235901847418	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-04-04 01:44:10.455
+24d9e4ec-f97f-45ab-b68d-633f22e4ffb5	85B18C36	Optimization: Refactor core logic	1.062786549854338	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-04-04 01:44:10.459
+e4b63715-80c5-41b0-889b-882f5f915f78	22FEEDBA	Optimization: Refactor core logic	1.499876815106927	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-03-31 01:44:10.462
+e5801f52-e8b0-4c37-bf07-471dca0959c6	F824EB2C	Optimization: Refactor core logic	2.407337325382916	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-04-07 01:44:10.469
+4b468bc2-cf9d-46ac-8146-35337b2903fa	471F4D0E	Optimization: Refactor core logic	1.86546887016633	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-03-24 01:44:10.475
+83df5af2-b74d-43ab-863e-81843e2d8e0f	243C53FC	Optimization: Refactor core logic	1.029416620145966	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-03-25 01:44:10.481
+874ca24d-1986-4f51-92ee-7ecae9b38856	5B48F71C	Optimization: Refactor core logic	1.667020345702316	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-03-28 01:44:10.486
+f00c30c1-7f34-4235-ae8e-ae882b42001c	A2E1D71F	Optimization: Refactor core logic	1.940368138017412	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-03-27 01:44:10.491
+c2ffc546-5be2-40f7-a4a8-7299bbf6781b	BA642AB6	Optimization: Refactor core logic	1.102503791609091	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-04-09 01:44:10.495
+be15cf25-86c1-427b-b65d-4a90b12fd1a0	C80043CB	Optimization: Refactor core logic	1.649590748219092	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-04-14 01:44:10.501
+71d770c9-ef38-4cfb-a057-b3183655ca0d	68565297	Optimization: Refactor core logic	1.990992363704593	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-03-25 01:44:10.504
+b17a0458-72d4-4871-a169-0f17d1eb4c33	69A4DF45	Optimization: Refactor core logic	2.413436565155175	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-04-10 01:44:10.509
+64977ae7-238f-4409-80f3-d7fa486c86b8	F53353F3	Optimization: Refactor core logic	2.02849714343069	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-04-04 01:44:10.514
+60ca9a87-15c3-44c5-a0c1-d8bedbd4affe	5B400429	Optimization: Refactor core logic	2.440951613794379	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-03-25 01:44:10.519
+ef55ca4a-070e-4588-99e0-b8ccd8908e4e	9743811A	Optimization: Refactor core logic	2.185913103327049	48aecaf6-373f-4012-9f9b-fae916047cc4	\N	2026-03-23 01:44:10.524
+793b54c4-5a8a-4476-8d59-0d4e30572698	B6427AB1	Optimization: Refactor core logic	2.32118363569785	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-11 01:44:10.544
+2a86ab32-1c38-442a-8250-559c146dfa94	41CFB536	Optimization: Refactor core logic	2.213332783630017	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-08 01:44:10.548
+63b6dea9-a196-48fd-a67d-ad5773a840a9	0B6C43B9	Optimization: Refactor core logic	1.506799179494282	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-15 01:44:10.554
+befa5b2e-72f6-4baf-b37b-ceb9e2621157	C649B658	Optimization: Refactor core logic	1.95885402577974	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-03-24 01:44:10.562
+a50d150a-ede7-4ed0-81f0-6457aa9e987f	6722BABD	Optimization: Refactor core logic	1.223029258979462	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-03-26 01:44:10.567
+4673a758-15e0-4897-b83c-3890180203fd	42FE5533	Optimization: Refactor core logic	1.569037850902212	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-11 01:44:10.573
+210af18c-5780-490a-9879-d6175da2142e	4A6E453A	Optimization: Refactor core logic	2.425610762441069	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-01 01:44:10.578
+df6f8296-81da-4e0e-b2c9-061490214284	6F923CCC	Optimization: Refactor core logic	1.924429653865072	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-11 01:44:10.584
+5414ac63-c0d0-42ef-b8be-df37bed520fc	782ABA00	Optimization: Refactor core logic	1.189304229252833	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-03-22 01:44:10.588
+e5796ac1-aebd-40ae-91d9-b747c646eab5	BDAFFDB4	Optimization: Refactor core logic	1.189494471867257	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-07 01:44:10.596
+0f2e1348-cb82-4f3b-8760-c6a6e5f263b8	A844ABAA	Optimization: Refactor core logic	1.03929915345456	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-03-29 01:44:10.601
+0d982f32-6dc7-4d44-8bcb-0d9940501f38	8B315E3B	Optimization: Refactor core logic	2.181324894106623	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-15 01:44:10.605
+b04d84f7-29db-43d9-aeab-59c4c15dd4dd	B9CFFFD6	Optimization: Refactor core logic	1.989281537714869	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-12 01:44:10.611
+7d78503b-1347-446e-9694-52fbb398ba66	DA947FEE	Optimization: Refactor core logic	2.339435205483254	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-03 01:44:10.617
+812fa095-e612-4975-ad1a-b0f09f5406a8	4CB3E005	Optimization: Refactor core logic	2.452285380220063	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-08 01:44:10.622
+9f44544f-340f-4229-b865-9ff6d7a503a6	ACF292EA	Optimization: Refactor core logic	2.222461868163908	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-03-31 01:44:10.628
+9d72b360-5eb2-48b1-b893-e3d71eb558bb	ECCFEA93	Optimization: Refactor core logic	2.278936371100619	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-03 01:44:10.633
+fbe691dc-035e-4c61-bab6-f6d3ee340d5f	ED263155	Optimization: Refactor core logic	1.972689541205221	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-09 01:44:10.639
+a3e001da-1c51-49f4-af3f-413bdb3ace7e	058FEAE9	Optimization: Refactor core logic	1.098389938961784	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-04-07 01:44:10.647
+e74d1ac9-fee3-493b-b053-ff9d7fde38d3	68ABBD85	Optimization: Refactor core logic	1.124078460123245	100173fc-a655-4859-8bdb-33e695033fbf	\N	2026-03-29 01:44:10.654
+94fef993-ecd6-4e2f-87b7-caf856c68477	F51F79CC	Optimization: Refactor core logic	1.978920940534327	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-03-26 01:44:10.683
+0ec0322a-d254-4a23-a428-69bd6e76f225	F937904F	Optimization: Refactor core logic	1.911984989598087	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-11 01:44:10.695
+24a772e2-44b1-4ed0-abfe-2c7d3e467dbe	699D1E4A	Optimization: Refactor core logic	1.129394482356982	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-03-23 01:44:10.706
+ed42666e-3ece-43e4-8d92-6a2939943350	105DFE3F	Optimization: Refactor core logic	2.100161239957208	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-03-23 01:44:10.714
+10877480-595f-484a-a2f6-c68bcecd2a2f	1F6B11BF	Optimization: Refactor core logic	2.084504254498786	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-10 01:44:10.723
+e5789a6d-874b-4133-b786-14234b616d2d	B7186E16	Optimization: Refactor core logic	1.386923901306173	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-03-24 01:44:10.732
+13112410-5e21-48ac-9ed9-bfc00286a6c9	2A8D9D1B	Optimization: Refactor core logic	2.420878105720028	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-03-26 01:44:10.739
+e7af6491-3287-4c38-9820-2de7f7816f64	FC0816E5	Optimization: Refactor core logic	1.858622219786783	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-02 01:44:10.747
+5d86eb93-6395-4b2b-bdf4-b53d5878cb03	6C9A8D87	Optimization: Refactor core logic	2.093762396225614	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-03 01:44:10.753
+abf04f00-f856-4963-bdc1-93eff97f7477	0C5CEFD4	Optimization: Refactor core logic	1.36898065763158	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-03-29 01:44:10.757
+d0d39aae-e508-4f81-a15a-7d701c3ef11b	5669DB18	Optimization: Refactor core logic	1.408446094272191	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-03-28 01:44:10.766
+d1d46ea7-a834-4a64-9f1e-b1e47425b979	BE0861DB	Optimization: Refactor core logic	1.15049871740588	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-03-20 01:44:10.771
+b1eac1c6-9a84-47c6-8f58-6a2b753722c5	BB6BD08B	Optimization: Refactor core logic	2.387629171390196	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-14 01:44:10.776
+5edea4b2-7aad-4fc3-9b09-53eef403dece	73D3E2B5	Optimization: Refactor core logic	1.127398153125864	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-09 01:44:10.779
+00057cf8-f49e-4875-8da6-0cc21b93b68f	7CCBF53F	Optimization: Refactor core logic	2.319293255906906	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-03-26 01:44:10.786
+c205496c-535b-43c1-bcdb-d44c8884f415	48FAEE23	Optimization: Refactor core logic	1.897490699871728	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-03-28 01:44:10.793
+23d87aaf-49b5-465b-ab63-a35de6debe98	88CD3DB2	Optimization: Refactor core logic	1.811687944640695	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-03-31 01:44:10.801
+356bb2bf-09ae-4d28-8fd1-0a778dca080c	B5DD240F	Optimization: Refactor core logic	1.714295952673067	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-03-24 01:44:10.813
+e80e99bd-7036-486e-b124-0498a5ddcd74	B35B3855	Optimization: Refactor core logic	1.119333339687486	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-03-26 01:44:10.82
+f140d2a2-f1dd-4929-be06-8b7509247c28	8156C4F2	Optimization: Refactor core logic	1.607628638724484	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-11 01:44:10.828
+138705fc-a282-4bba-8f87-ae109c9d344d	F71AA5DC	Optimization: Refactor core logic	2.240172758083145	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-06 01:44:11.347
+2fc91775-8a89-44c0-81ac-bd62f7e839a5	91F002B7	Optimization: Refactor core logic	1.874367377789872	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-03-27 01:44:11.351
+c7975eb4-c56b-4f65-9606-b27fd5a5fe27	A9E388AB	Optimization: Refactor core logic	1.969938134894577	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-03-21 01:44:11.355
+49ffa9c7-01c2-41f0-98b4-d20479fb6666	AE72F407	Optimization: Refactor core logic	1.287385306808216	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-02 01:44:11.358
+e55d5281-a6cd-4a60-89e9-ce34c8781698	4C21A6D1	Optimization: Refactor core logic	1.903619906930864	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-07 01:44:11.362
+59fe8ac5-678b-457a-a017-dbae47c7ac11	1F3F7313	Optimization: Refactor core logic	1.505844013054882	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-13 01:44:11.367
+b1c25e5e-a35c-4635-bff8-55cdcb26f7c8	5777DABC	Optimization: Refactor core logic	2.271461324939371	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-04 01:44:11.371
+966ed1f1-2140-4442-975d-4fe8dd251b57	CAD0E587	Optimization: Refactor core logic	2.436036296766801	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-09 01:44:11.376
+182c0eaa-b0e5-49c7-969b-5b0b49e1654d	A0CA8B68	Optimization: Refactor core logic	1.432147792098066	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-03-19 01:44:11.381
+4f491c1b-5884-49db-8ccd-84856435277e	EA0892AC	Optimization: Refactor core logic	1.635027394565025	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-03-28 01:44:11.387
+d1d2eecd-2dd1-4305-9200-e6a865c68ae8	4CF74A9D	Optimization: Refactor core logic	2.065037508348261	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-03-25 01:44:11.394
+c41bb155-8a6d-4305-9d09-ee116e52c6d3	1F94E14C	Optimization: Refactor core logic	1.566257898630469	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-06 01:44:11.398
+8c4d0a93-5e81-442b-83e8-65eae7d1b68f	112314B4	Optimization: Refactor core logic	1.394185523013089	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-03-22 01:44:11.402
+21291436-1f50-4220-b180-0459228a5cec	89E01E23	Optimization: Refactor core logic	2.295022880801989	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-02 01:44:11.407
+be69b514-60f2-4912-bdbf-3bc879125f13	2432CEEC	Optimization: Refactor core logic	1.504350828626876	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-01 01:44:11.411
+36be5a7a-5cd1-4d0b-8457-fd3edd3e0fae	BA657366	Optimization: Refactor core logic	1.44883912181757	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-06 01:44:11.415
+4e1b6f67-962a-444a-b995-7ec747b762de	227E8E63	Optimization: Refactor core logic	2.003286523469466	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-04 01:44:11.419
+e4b35d1e-d696-4e65-97e3-d6d69ad4333b	DC1EAEFA	Optimization: Refactor core logic	1.541747076633307	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-13 01:44:11.422
+9d8496fe-aebd-4d08-9e67-b9227d7f2740	6872964B	Optimization: Refactor core logic	1.420844557440038	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-03-21 01:44:11.428
+8724fb66-a5e5-4167-b3a3-9dbec08d1eb8	998CA1F0	Optimization: Refactor core logic	1.634991724925802	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-03-27 01:44:11.434
+767d2904-510e-4cd6-b7ea-2bd5e349b2e0	46460608	Optimization: Refactor core logic	2.247284365259083	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-01 01:44:11.503
+1e6dd10a-ef76-4d5f-bc45-62cf2984ff16	42DBDF8D	Optimization: Refactor core logic	2.454316334601998	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-09 01:44:11.506
+dd261fee-9db0-4680-86f5-032a48f44062	ED097817	Optimization: Refactor core logic	2.456955331071038	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-03-17 01:44:11.512
+b6f91108-4f1a-4589-82db-4004554fd09e	50A1ECBF	Optimization: Refactor core logic	1.509828887991294	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-11 01:44:11.516
+8511b38a-c615-439a-b643-bef7042fb1f3	B6C3C2A8	Optimization: Refactor core logic	2.337392322590364	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-03-26 01:44:11.521
+21810a41-9df8-428b-8a16-41b78314fc1a	71045776	Optimization: Refactor core logic	2.094615951708141	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-09 01:44:11.524
+31891205-f12f-463f-a396-eb54ea57242f	F0906C4D	Optimization: Refactor core logic	1.19571855576585	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-03-29 01:44:11.528
+6b0d4797-a634-4455-94bc-251cc3d30ad6	943BAEFB	Optimization: Refactor core logic	1.144725661821991	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-06 01:44:11.531
+ca5b3b5c-3f63-44d8-b7c8-50b51b1bc322	3FA3F800	Optimization: Refactor core logic	1.887255016181838	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-03-30 01:44:11.534
+533e276b-8161-4009-b360-504db22ed78f	8BC6154E	Optimization: Refactor core logic	2.376077046935613	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-03 01:44:11.538
+3c8c2ea6-6c8a-47e6-989c-e1833dace8ad	37ECBEC1	Optimization: Refactor core logic	1.60117501968521	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-03-19 01:44:11.543
+8df5c66c-fc1d-4d4c-9fdf-a07f1047ec41	FEA98D0D	Optimization: Refactor core logic	2.146838645557535	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-03-25 01:44:11.547
+0a255283-847f-4acc-8e37-2ab657a949ee	10736B1A	Optimization: Refactor core logic	2.077565211741081	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-03-31 01:44:11.551
+1c4adeee-32e3-4cd9-a12e-45079688b9ac	55A975D3	Optimization: Refactor core logic	1.561903509268165	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-03-28 01:44:11.556
+d3c2b5c4-3c2f-479f-8499-d2abe5ee2c51	368B8E47	Optimization: Refactor core logic	2.293071805906451	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-03-28 01:44:11.56
+73fe60c1-cce7-49f6-b04d-5274d513d2eb	67DAADBB	Optimization: Refactor core logic	1.335446444534897	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-02 01:44:11.564
+35ec648d-9399-4cd1-882e-004f2307c2c6	042F9F72	Optimization: Refactor core logic	1.518704173997028	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-15 01:44:11.567
+5d04236d-938a-471e-bcd3-f59ab351af12	7115C50E	Optimization: Refactor core logic	2.188031361924048	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-11 01:44:11.57
+51b95251-28d2-4e0e-b00b-76ca340349ee	191073EE	Optimization: Refactor core logic	1.803179908325807	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-03-31 01:44:11.576
+2b2d9ed4-a568-4dd7-9661-0899b49c837c	6B047BC3	Optimization: Refactor core logic	2.190278861666754	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-10 01:44:11.578
+8e933652-165d-4cb3-a379-e9859b37b941	6AD6794F	Optimization: Refactor core logic	1.684347109059012	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-08 01:44:11.644
+5b26db00-e32e-44bf-bf6d-15dacf4e9876	01110A60	Optimization: Refactor core logic	1.756984664940177	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-15 01:44:11.65
+25ca4eac-77f0-4224-942d-691a222e4e4a	0AFD46C6	Optimization: Refactor core logic	1.867544259900541	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-05 01:44:11.654
+12d9c59e-3db7-430e-b5e0-446c7892bba1	E30D703D	Optimization: Refactor core logic	1.162622998858424	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-03-23 01:44:11.659
+00ab686c-79cc-45f1-84ad-9c566aee54e6	C9C3FA7A	Optimization: Refactor core logic	1.089409366170081	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-03-29 01:44:11.664
+6655bbf9-f4fa-4bf6-93a1-02970d43acaa	E72CB901	Optimization: Refactor core logic	2.162095091166487	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-11 01:44:11.668
+1be7fc4d-555c-4cba-bcae-3852bf0b4783	E1A988AF	Optimization: Refactor core logic	2.037757252976819	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-03-27 01:44:11.672
+24769863-8f7f-414f-8cb0-50ee6c57c638	95824222	Optimization: Refactor core logic	2.001529750989179	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-04 01:44:11.676
+0534357a-887e-4533-af06-74d070e1d3d9	0C6C0B86	Optimization: Refactor core logic	1.274021502788579	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-08 01:44:11.682
+40bd9b22-aa69-472e-bc14-19f0092d9d64	A85DBC56	Optimization: Refactor core logic	2.413321311717326	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-03-18 01:44:11.687
+5775416c-8552-42cb-902a-07fbf75630f7	39205CDF	Optimization: Refactor core logic	1.201991521590012	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-03-22 01:44:11.693
+5d878be0-7feb-430e-a38e-ce0a57b249c4	32BA93A5	Optimization: Refactor core logic	1.403564320433956	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-02 01:44:11.696
+46fd8025-81f4-40aa-9b09-e0b95a501aa5	95FC2568	Optimization: Refactor core logic	2.066615356035651	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-03-21 01:44:11.699
+8cb5ff49-8742-4e30-a859-bcd2718609db	283DD466	Optimization: Refactor core logic	1.562455838460752	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-03 01:44:11.703
+9fc951d1-c1d6-4dd1-91c7-1c944c975458	5003C63E	Optimization: Refactor core logic	1.189763301090362	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-03-25 01:44:11.707
+6b49b2de-3050-463e-9304-41716ab84c07	4F64C18B	Optimization: Refactor core logic	1.297972653033816	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-03-19 01:44:11.711
+60093158-43b4-4a3c-b497-1340de6f49fb	8BB0F368	Optimization: Refactor core logic	2.103211037967025	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-14 01:44:11.716
+0757f139-2872-463b-86e1-231e05ce23f8	7A8A439A	Optimization: Refactor core logic	1.050106777689343	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-03-20 01:44:11.721
+07d9b9c3-43c3-4ff0-a16e-3cfd2969ae64	55CC7F54	Optimization: Refactor core logic	2.068743990035575	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-07 01:44:11.725
+751a21cf-d051-47c6-9da3-2f4fb859f4f7	92879D02	Optimization: Refactor core logic	2.147203312152891	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-04 01:44:11.728
+24b857b8-b87a-43d8-8b2e-2b864dab8fb9	567159C3	inplemented something	2.5	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 20:30:29.01
+4e9a5c89-5d95-4a1b-8dbb-f86eea37b076	2AC2BF00	doneeee	1.5	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	2026-04-15 20:30:45.048
+\.
+
+
+--
+-- Data for Name: EmployeeProfile; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."EmployeeProfile" (id, "userId", "teamId", "projectId", specialization, "joinedAt", "updatedAt", "performanceRating", "promotionReady", "attritionRisk") FROM stdin;
+7c293905-7d0d-4a38-b33a-1fec22ad0648	247df865-0802-450f-994b-a7c9581f7a87	a0ceb753-272e-451b-9038-c3142593ff2b	c7599686-6b3b-44e0-b391-ea15e2e2823b	Backend Engineer	2026-04-15 18:36:04.169	2026-04-15 18:36:04.169	4.3	f	LOW
+2bf78e26-c205-4642-b072-04b07fd66815	20e1523e-19b0-4103-b411-c65151555e82	e3d1fc44-bb7b-4f4c-9f8b-41d7beb0b9c0	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	Data Scientist	2026-04-15 18:36:04.323	2026-04-15 18:36:04.323	3.9	f	LOW
+3798cd4b-a3b6-4850-8660-c6975f58016a	b39ddc58-6212-46bb-9cab-e59568337275	3d990fec-154b-43a7-bd66-80a135ab1d5a	dd9b845e-7538-4306-b480-e9fbcd48b6f4	Frontend Engineer	2026-04-15 18:36:04.452	2026-04-15 18:36:04.452	4.5	t	LOW
+5f7207d8-9a69-45fe-a219-bf5a7e311fef	af0bbab8-3b33-4ff7-b88e-11c4699da50b	ff26b4c5-d014-4b71-8ab2-460684706127	594e286f-cc69-49da-883b-7ff2fcc87061	DevOps Engineer	2026-04-15 18:36:04.568	2026-04-15 18:36:04.568	2.9	f	HIGH
+aa5913ab-ad01-43ae-9ce6-36116edbae31	d674df84-6046-430c-9694-b2f7516f202c	b72c1672-ba9c-4326-95c0-70ab116bf435	6e156838-4c84-457f-a32a-06e9f55602b9	Frontend Engineer	2026-04-15 18:36:04.654	2026-04-15 18:36:04.654	4.8	t	LOW
+a0f0eeb0-2154-46cc-98de-613e4b1f63d5	da706c4a-8b92-4d33-8975-a97639743688	7ac82137-cbc9-4908-ac2b-66caecc3494e	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	Hardware Specialist	2026-04-15 18:36:04.745	2026-04-15 18:36:04.745	4	f	LOW
+f7645bd8-f888-4f9b-b747-e599bc9dd900	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	59a1b253-1257-47e9-b0ca-634aadbb82f8	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	Frontend Engineer	2026-04-15 18:36:04.836	2026-04-15 18:36:04.836	3.5	f	MEDIUM
+ddde01b8-09ee-4db5-81be-2506d58f4d49	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	d9536d0c-3882-40cb-8794-291981dce4b3	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	Backend Engineer	2026-04-15 18:36:04.913	2026-04-15 18:36:04.913	2.7	f	HIGH
+c79e9f6a-af3b-4ba4-a88a-9d7269a5d43d	2a023e98-8c19-4530-9921-69200099e4e9	f1cc7e35-a3a2-44e7-a8bb-c11fa06713e2	28f462ff-0757-44ce-92c2-b0864a8f4500	DevOps Engineer	2026-04-15 18:36:05.015	2026-04-15 18:36:05.015	3.3	f	MEDIUM
+ff04f1b9-0954-4ae3-bcc7-5a2cb61414e0	8929de17-01c9-4486-bde1-caec1ed32ef2	89e25fcd-4e24-40e4-bb8f-7633cb53f453	176cf575-1e8f-4447-93d3-2999415d2173	Backend Engineer	2026-04-15 18:36:05.107	2026-04-15 18:36:05.107	3.4	f	MEDIUM
+e788cb94-4247-43e1-999d-64bfb7e19223	85dea961-0141-4140-b9c6-f3dfd14e26a9	a0ceb753-272e-451b-9038-c3142593ff2b	8465e894-e6c3-4919-a3df-6f4d857f30d7	Frontend Engineer	2026-04-15 18:36:05.224	2026-04-15 18:36:05.224	4.5	t	LOW
+369af921-2d91-4166-8ccd-5fc89491cca0	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	e3d1fc44-bb7b-4f4c-9f8b-41d7beb0b9c0	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	Backend Engineer	2026-04-15 18:36:05.382	2026-04-15 18:36:05.382	3.7	f	MEDIUM
+58f0190f-517b-410a-97a6-ff3286b14ca4	bd6f42c0-60c5-4b7e-894a-524c311d026f	3d990fec-154b-43a7-bd66-80a135ab1d5a	dd9b845e-7538-4306-b480-e9fbcd48b6f4	Frontend Engineer	2026-04-15 18:36:05.485	2026-04-15 18:36:05.485	3.8	f	LOW
+8726ce76-c4d9-4f45-a80b-0000cddabc8c	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	ff26b4c5-d014-4b71-8ab2-460684706127	594e286f-cc69-49da-883b-7ff2fcc87061	Data Scientist	2026-04-15 18:36:05.574	2026-04-15 18:36:05.574	2.9	f	HIGH
+322a2d63-4941-4ba3-8741-1bf2e7d3c60f	f563015a-2a62-4e5d-b494-e76712c3fc00	b72c1672-ba9c-4326-95c0-70ab116bf435	e38149de-145b-4edb-9dae-f8b887cf1292	Hardware Specialist	2026-04-15 18:36:05.665	2026-04-15 18:36:05.665	4.1	f	LOW
+4da41c22-f766-47a4-9aa9-3de77928a436	0b0f005d-3943-4384-8f1b-b6210e5071e5	7ac82137-cbc9-4908-ac2b-66caecc3494e	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	Backend Engineer	2026-04-15 18:36:05.777	2026-04-15 18:36:05.777	2.8	f	HIGH
+6214c499-bcad-4b61-9697-557f8d3f32d7	895f4fc3-59f8-4aea-870f-b20abc918ffe	59a1b253-1257-47e9-b0ca-634aadbb82f8	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	Backend Engineer	2026-04-15 18:36:05.852	2026-04-15 18:36:05.852	4.6	t	LOW
+5983dac0-727b-496d-84ae-5456df4e8ad4	e7d09ede-899c-4b1d-a224-98865fd411bd	d9536d0c-3882-40cb-8794-291981dce4b3	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	Frontend Engineer	2026-04-15 18:36:05.931	2026-04-15 18:36:05.931	2.8	f	HIGH
+1624866b-50c5-41a0-b236-71548b31ba1c	2dcdf168-3b3c-4839-93b1-f18a1d089d02	f1cc7e35-a3a2-44e7-a8bb-c11fa06713e2	551a836f-c2c2-4418-a73c-76dbfafd8442	Hardware Specialist	2026-04-15 18:36:06.033	2026-04-15 18:36:06.033	4.6	t	LOW
+5bd51f37-d26d-4b8e-a98b-cc6987fb407f	7788fc3c-93f4-469b-879b-243d7f9623ec	89e25fcd-4e24-40e4-bb8f-7633cb53f453	176cf575-1e8f-4447-93d3-2999415d2173	Security Analyst	2026-04-15 18:36:06.123	2026-04-15 18:36:06.123	3.5	f	MEDIUM
+793c8954-6a0b-4324-b866-e647375a68e0	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	a0ceb753-272e-451b-9038-c3142593ff2b	c7599686-6b3b-44e0-b391-ea15e2e2823b	Data Scientist	2026-04-15 18:36:06.229	2026-04-15 18:36:06.229	2.8	f	HIGH
+567fa813-a9aa-4cd2-b237-79bdeafdb73b	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	e3d1fc44-bb7b-4f4c-9f8b-41d7beb0b9c0	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	Data Scientist	2026-04-15 18:36:06.337	2026-04-15 18:36:06.337	3.7	f	MEDIUM
+06723a29-b719-4d2b-9b70-965fc6b12c0b	6a4ada48-0604-4d1f-abef-a3e921a9acb3	3d990fec-154b-43a7-bd66-80a135ab1d5a	dd9b845e-7538-4306-b480-e9fbcd48b6f4	Backend Engineer	2026-04-15 18:36:06.412	2026-04-15 18:36:06.412	4.4	f	LOW
+35ae68f4-e23d-447a-a2bc-efa125edc80c	714c5335-de73-4dd7-87bb-e59cfd464af1	ff26b4c5-d014-4b71-8ab2-460684706127	594e286f-cc69-49da-883b-7ff2fcc87061	Hardware Specialist	2026-04-15 18:36:06.526	2026-04-15 18:36:06.526	3.1	f	MEDIUM
+ab57f6c1-4b51-4f8d-b8bd-9a488c2cd8d4	17527b7e-8e00-4412-8e70-1bfcafde77bb	b72c1672-ba9c-4326-95c0-70ab116bf435	6e156838-4c84-457f-a32a-06e9f55602b9	Data Scientist	2026-04-15 18:36:06.614	2026-04-15 18:36:06.614	2.6	f	HIGH
+a5e1a9b2-cc3f-4013-80ad-64ff5535c959	3d4681a2-47e9-4e57-902e-2c16de8e378e	7ac82137-cbc9-4908-ac2b-66caecc3494e	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	Frontend Engineer	2026-04-15 18:36:06.747	2026-04-15 18:36:06.747	4.7	t	LOW
+2a608cd4-0ad6-48e6-8e08-a228b9c6ed30	f04a02a3-d5f1-407c-b530-9e36d9970c64	59a1b253-1257-47e9-b0ca-634aadbb82f8	f28f4b1c-9962-4b17-9082-5c058424872b	Security Analyst	2026-04-15 18:36:06.844	2026-04-15 18:36:06.844	3.8	f	LOW
+ae4cff8d-74cc-43be-b57c-463017d8685e	6054f413-2fa0-4af4-8784-2a0697ce75b8	d9536d0c-3882-40cb-8794-291981dce4b3	e7029756-37b0-4692-bb55-7339e3b9a0bf	Hardware Specialist	2026-04-15 18:36:06.938	2026-04-15 18:36:06.938	3.3	f	MEDIUM
+c3a32ff4-6acd-4c6e-8e66-d822559126f5	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	f1cc7e35-a3a2-44e7-a8bb-c11fa06713e2	551a836f-c2c2-4418-a73c-76dbfafd8442	Hardware Specialist	2026-04-15 18:36:07.046	2026-04-15 18:36:07.046	4	f	LOW
+be2bc5e4-6e8f-4af4-a890-c5973be3973b	c0ed9381-c09e-436c-ab26-952b1b31b854	89e25fcd-4e24-40e4-bb8f-7633cb53f453	176cf575-1e8f-4447-93d3-2999415d2173	Hardware Specialist	2026-04-15 18:36:07.217	2026-04-15 18:36:07.217	4.4	f	LOW
+a5114256-11fb-4066-a2ce-bc85442d187f	84a1c259-5964-4570-95d9-1299bc8b8258	a0ceb753-272e-451b-9038-c3142593ff2b	c7599686-6b3b-44e0-b391-ea15e2e2823b	Data Scientist	2026-04-15 18:36:07.31	2026-04-15 18:36:07.31	3.3	f	MEDIUM
+85b855db-747f-40f7-a918-a5dd00684675	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	e3d1fc44-bb7b-4f4c-9f8b-41d7beb0b9c0	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	Security Analyst	2026-04-15 18:36:07.39	2026-04-15 18:36:07.39	2.5	f	HIGH
+61bd343d-3138-4c7a-bdf8-7bd0dc0b1247	b19cfec7-d521-4444-a0ab-481c6ea05158	3d990fec-154b-43a7-bd66-80a135ab1d5a	6559b773-f734-4a70-b3c6-e1ad97ddc242	DevOps Engineer	2026-04-15 18:36:07.527	2026-04-15 18:36:07.527	4.1	f	LOW
+7fb9b0e9-7ac7-45d0-9865-8d4332907ffe	1e287884-c4dc-4ecf-b418-e8e42ff75627	ff26b4c5-d014-4b71-8ab2-460684706127	bb8fec06-89cc-4a76-8065-e5f87a51ffac	Hardware Specialist	2026-04-15 18:36:07.659	2026-04-15 18:36:07.659	3.7	f	MEDIUM
+7905b888-cee1-40ed-8f05-dc3d2ddf3452	86afda8b-8abf-4611-80d7-90d5b18e0695	b72c1672-ba9c-4326-95c0-70ab116bf435	6e156838-4c84-457f-a32a-06e9f55602b9	Data Scientist	2026-04-15 18:36:07.771	2026-04-15 18:36:07.771	4.6	t	LOW
+23ded092-ad3f-428e-b21f-0feb64a1320f	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	7ac82137-cbc9-4908-ac2b-66caecc3494e	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	DevOps Engineer	2026-04-15 18:36:07.863	2026-04-15 18:36:07.863	3.5	f	MEDIUM
+5e78279f-175f-4f3f-8405-0aca6cb416e3	a135b85e-cf22-44be-a014-cc6116529fc9	59a1b253-1257-47e9-b0ca-634aadbb82f8	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	Frontend Engineer	2026-04-15 18:36:07.951	2026-04-15 18:36:07.951	4.1	f	LOW
+8efec597-b366-48cf-8c7d-7d0a8fda96b3	7ae07d1f-d90d-413e-b1cb-790033f947ce	d9536d0c-3882-40cb-8794-291981dce4b3	e7029756-37b0-4692-bb55-7339e3b9a0bf	Backend Engineer	2026-04-15 18:36:08.06	2026-04-15 18:36:08.06	4.2	f	LOW
+8b93eaa0-e1e5-4d30-9d34-a254924e73a2	48aecaf6-373f-4012-9f9b-fae916047cc4	f1cc7e35-a3a2-44e7-a8bb-c11fa06713e2	551a836f-c2c2-4418-a73c-76dbfafd8442	Backend Engineer	2026-04-15 18:36:08.153	2026-04-15 18:36:08.153	4.3	f	LOW
+a581cdb7-771f-490c-b2c8-2ec8bce366dc	100173fc-a655-4859-8bdb-33e695033fbf	89e25fcd-4e24-40e4-bb8f-7633cb53f453	176cf575-1e8f-4447-93d3-2999415d2173	Data Scientist	2026-04-15 18:36:08.236	2026-04-15 18:36:08.236	3	f	MEDIUM
+c61d5a4e-80b1-477c-8ce6-e6d07d070598	4638bdfb-2236-4901-8642-fc22bb4b936d	a0ceb753-272e-451b-9038-c3142593ff2b	c7599686-6b3b-44e0-b391-ea15e2e2823b	Data Scientist	2026-04-15 18:36:08.329	2026-04-15 18:36:08.329	4.2	f	LOW
+0aeca834-d8d7-4f2e-90d8-e1ae45458aea	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	e3d1fc44-bb7b-4f4c-9f8b-41d7beb0b9c0	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	Data Scientist	2026-04-15 18:36:08.429	2026-04-15 18:36:08.429	3.2	f	MEDIUM
+1692fa52-c64c-4b7d-b616-24279f75a1eb	39312998-cf88-478d-a27a-a9a75787b9fe	3d990fec-154b-43a7-bd66-80a135ab1d5a	dd9b845e-7538-4306-b480-e9fbcd48b6f4	Frontend Engineer	2026-04-15 18:36:08.553	2026-04-15 18:36:08.553	3	f	MEDIUM
+1e1ed1f9-b576-4b02-af98-273c5cc45156	06268a07-934e-41e5-9526-15687e490453	ff26b4c5-d014-4b71-8ab2-460684706127	594e286f-cc69-49da-883b-7ff2fcc87061	Security Analyst	2026-04-15 18:36:08.679	2026-04-15 18:36:08.679	4.8	t	LOW
+fe73efbe-32c5-498e-b4ad-b539ed83bfb5	5229418e-accc-47a3-aa8e-e630ecb2df9d	b72c1672-ba9c-4326-95c0-70ab116bf435	6e156838-4c84-457f-a32a-06e9f55602b9	Data Scientist	2026-04-15 18:36:08.811	2026-04-15 18:36:08.811	3.3	f	MEDIUM
+bf157948-cd48-457d-b2ab-98e37073d30b	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	7ac82137-cbc9-4908-ac2b-66caecc3494e	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	Data Scientist	2026-04-15 18:36:08.947	2026-04-15 18:36:08.947	4.2	f	LOW
+e6c7d222-3207-4b79-bf0e-3e2729711355	d5afc715-6859-4fb4-a128-b535547d272e	59a1b253-1257-47e9-b0ca-634aadbb82f8	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	Data Scientist	2026-04-15 18:36:09.063	2026-04-15 18:36:09.063	4.3	f	LOW
+1e301891-0e94-4443-b8dc-7b0e67d05aa0	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	d9536d0c-3882-40cb-8794-291981dce4b3	e7029756-37b0-4692-bb55-7339e3b9a0bf	Frontend Engineer	2026-04-15 18:36:09.173	2026-04-15 18:36:09.173	4	f	LOW
+4f5d0a1b-abe3-40fa-82af-875df5259a71	c6b5fe02-5974-4c38-8eee-62fec0916b76	f1cc7e35-a3a2-44e7-a8bb-c11fa06713e2	28f462ff-0757-44ce-92c2-b0864a8f4500	Security Analyst	2026-04-15 18:36:09.27	2026-04-15 18:36:09.27	3.9	f	LOW
+185d77ac-c536-4c25-9d76-3dcf5d1d8763	ace90216-fa2c-4ac5-ad89-645cb71736d0	89e25fcd-4e24-40e4-bb8f-7633cb53f453	13d1dadd-cbab-4aa6-873c-824524126cdd	DevOps Engineer	2026-04-15 18:36:09.352	2026-04-15 18:36:09.352	4	f	LOW
+\.
+
+
+--
+-- Data for Name: EmployeeSkill; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."EmployeeSkill" (id, "skillName", proficiency, "profileId") FROM stdin;
+eb89dae1-212c-48ef-8935-2a59e30e82d6	Docker	2.5	7c293905-7d0d-4a38-b33a-1fec22ad0648
+b626cb67-3be1-4c01-8e2f-82ad4d26a8a6	AWS	4.9	7c293905-7d0d-4a38-b33a-1fec22ad0648
+044c6b65-2598-4d86-ace2-2768446f245f	Tailwind	3.5	7c293905-7d0d-4a38-b33a-1fec22ad0648
+8e38e1ce-8959-4ab7-93d4-b588b16b8cfe	Kubernetes	3.2	7c293905-7d0d-4a38-b33a-1fec22ad0648
+4b88ecec-2df6-4daa-a5b5-109505540e98	SQL	2.8	7c293905-7d0d-4a38-b33a-1fec22ad0648
+992b9c28-60fd-40d5-9217-942fab37bc62	Rust	2.1	2bf78e26-c205-4642-b072-04b07fd66815
+111cc9dd-2dd5-4aec-ab62-80d11ba5df36	Python	3.9	2bf78e26-c205-4642-b072-04b07fd66815
+e9ac2c76-ddaa-46ad-93b4-4305e7e870bc	TypeScript	4.5	2bf78e26-c205-4642-b072-04b07fd66815
+99d8fcfd-feb9-4584-86fe-a79276c128b0	Mobile	3.9	2bf78e26-c205-4642-b072-04b07fd66815
+b78662c2-356e-40c3-9234-0624451f1068	Kubernetes	3.2	2bf78e26-c205-4642-b072-04b07fd66815
+7cf88b0a-cdc0-4c50-bb8c-1da9b727b5f9	React	4.9	2bf78e26-c205-4642-b072-04b07fd66815
+424814d3-47ee-4444-a5d5-2df4e333032b	Kubernetes	3.8	3798cd4b-a3b6-4850-8660-c6975f58016a
+a3c6ecd9-c19d-4d91-8615-9e5c1ce922ca	Python	3.7	3798cd4b-a3b6-4850-8660-c6975f58016a
+5345f516-03af-4952-bec5-4b51a99c7436	React	3.4	3798cd4b-a3b6-4850-8660-c6975f58016a
+e54597c2-a680-4a6f-b84e-be9a31df02e6	Node.js	2.5	3798cd4b-a3b6-4850-8660-c6975f58016a
+ab957191-e674-4ef0-ae86-3571b9336136	Rust	2.7	3798cd4b-a3b6-4850-8660-c6975f58016a
+404267e1-e2fd-4031-bf72-136bde9e9fc1	Tailwind	2	3798cd4b-a3b6-4850-8660-c6975f58016a
+4573a4db-52fa-4c0b-9c0d-45465ff2435d	Docker	4.4	5f7207d8-9a69-45fe-a219-bf5a7e311fef
+31505c6e-360a-46e3-ab17-a063f10300cb	TypeScript	3.9	5f7207d8-9a69-45fe-a219-bf5a7e311fef
+b1218110-472c-4918-9891-ab5654bbe99e	Mobile	3.4	5f7207d8-9a69-45fe-a219-bf5a7e311fef
+cdac7752-cdf8-4fcb-8502-3bf5dd452776	AWS	4.1	5f7207d8-9a69-45fe-a219-bf5a7e311fef
+bb5776c8-6bd7-452a-8bdd-102538003d18	Rust	4	5f7207d8-9a69-45fe-a219-bf5a7e311fef
+cd559256-3807-41b6-adf4-75879e168fbd	Rust	3.9	aa5913ab-ad01-43ae-9ce6-36116edbae31
+3c478681-0906-42b3-9376-56e4fa27e427	SQL	4.1	aa5913ab-ad01-43ae-9ce6-36116edbae31
+ebba0e05-4a66-46e3-9c62-16aa75f6de7f	Mobile	3.8	aa5913ab-ad01-43ae-9ce6-36116edbae31
+88b7c5ba-dfed-4b22-bc7b-abdd1d071edf	C++	2.1	aa5913ab-ad01-43ae-9ce6-36116edbae31
+85d6ea80-ad86-4ca4-8d95-352adad58703	TypeScript	2.1	aa5913ab-ad01-43ae-9ce6-36116edbae31
+f354582f-a29b-46ae-8aa8-77546a6a0c26	Node.js	4	aa5913ab-ad01-43ae-9ce6-36116edbae31
+a61bfd16-4f64-4b6b-9b79-316d5deb5c05	SQL	2.3	a0f0eeb0-2154-46cc-98de-613e4b1f63d5
+67895c3e-8ce6-43c9-a64e-c4e08a16e2d4	Rust	3.5	a0f0eeb0-2154-46cc-98de-613e4b1f63d5
+051d6066-8572-4c7e-9ce7-785acf41514a	Mobile	4.4	a0f0eeb0-2154-46cc-98de-613e4b1f63d5
+f28fa74b-7e06-4375-9637-f2bbb8984942	AWS	2.8	f7645bd8-f888-4f9b-b747-e599bc9dd900
+8ba445b9-1649-4feb-9077-fcc2718bf228	Node.js	3.3	f7645bd8-f888-4f9b-b747-e599bc9dd900
+b7604631-c88d-4218-985c-ee611d652a61	C++	2.8	f7645bd8-f888-4f9b-b747-e599bc9dd900
+acb04727-3d53-4e95-85ac-040f100acf7c	Tailwind	4.7	f7645bd8-f888-4f9b-b747-e599bc9dd900
+fa101ac1-0dab-4aec-897a-5bdca1277ca7	SQL	3.9	f7645bd8-f888-4f9b-b747-e599bc9dd900
+3b6f961e-4dac-4bb5-891f-91f5f13cb3af	Rust	4.8	f7645bd8-f888-4f9b-b747-e599bc9dd900
+02eb8cce-c36a-40ef-b675-2908a6f266d8	React	2.1	ddde01b8-09ee-4db5-81be-2506d58f4d49
+4feffbc4-9aba-4eba-9867-ecbb4d280de4	Docker	2.7	ddde01b8-09ee-4db5-81be-2506d58f4d49
+8afa0cf5-87af-4666-a215-948fe9e4c3d7	AWS	2.7	ddde01b8-09ee-4db5-81be-2506d58f4d49
+25cb4cd3-1ae3-46c0-958f-edc70e7e3bef	Tailwind	2.1	c79e9f6a-af3b-4ba4-a88a-9d7269a5d43d
+ec8daf5d-a74c-471b-b810-40fa84572b27	Node.js	2.9	c79e9f6a-af3b-4ba4-a88a-9d7269a5d43d
+a4e31fbf-1769-4398-b585-4ef69fa07df6	Docker	2.2	c79e9f6a-af3b-4ba4-a88a-9d7269a5d43d
+17d31312-4806-4c0c-98be-9398dcee93eb	Rust	4.9	c79e9f6a-af3b-4ba4-a88a-9d7269a5d43d
+94bf334d-05b6-4842-8d1c-68a5f3a74065	Mobile	2.4	ff04f1b9-0954-4ae3-bcc7-5a2cb61414e0
+6c0f7b66-e67f-4966-b19b-fad63ae0869b	Tailwind	3.6	ff04f1b9-0954-4ae3-bcc7-5a2cb61414e0
+4426d730-6eaf-4c33-a516-d57688bf54e0	SQL	3.5	ff04f1b9-0954-4ae3-bcc7-5a2cb61414e0
+6105ebdd-d27a-4c8f-bc76-9f2f2362339e	React	4.4	ff04f1b9-0954-4ae3-bcc7-5a2cb61414e0
+1c7920f5-5861-4d5d-897f-26ed0515d031	TypeScript	3.8	e788cb94-4247-43e1-999d-64bfb7e19223
+6c8222f0-69c0-4de9-a8bd-9d9633d2e942	AWS	4.9	e788cb94-4247-43e1-999d-64bfb7e19223
+bf71698d-16d0-4877-81b8-11d9c1755bcc	C++	2.3	e788cb94-4247-43e1-999d-64bfb7e19223
+52d057af-3358-46bd-a887-7dc3072d159d	Mobile	3.5	e788cb94-4247-43e1-999d-64bfb7e19223
+ab8c7bf2-9c77-47f7-bbaa-bb2c2e9101b3	Python	3	e788cb94-4247-43e1-999d-64bfb7e19223
+8a973ae2-decb-47e4-9fb5-6fcac6499227	Rust	3	e788cb94-4247-43e1-999d-64bfb7e19223
+f8b0581a-b4f1-47ae-a8c7-ece4c25267be	Rust	2.6	369af921-2d91-4166-8ccd-5fc89491cca0
+275bb4cb-adfd-48df-aca1-c60f09aa0b2a	Docker	4.2	369af921-2d91-4166-8ccd-5fc89491cca0
+63ae2a9c-195d-4476-b7aa-e2d70428d5ac	Python	2.3	369af921-2d91-4166-8ccd-5fc89491cca0
+8681a1dd-c306-4b73-9e74-90a1ba074e06	TypeScript	2.8	369af921-2d91-4166-8ccd-5fc89491cca0
+6a6a24f6-006f-46a7-a3f7-edd5db9e4e5c	AWS	4.4	369af921-2d91-4166-8ccd-5fc89491cca0
+7731bcad-51be-4863-b9e8-d65cbb7d5534	Tailwind	4.6	369af921-2d91-4166-8ccd-5fc89491cca0
+e9e64e02-7440-4a12-bb3d-5708e3117f6b	SQL	3	58f0190f-517b-410a-97a6-ff3286b14ca4
+45e9232d-f1a4-47f3-9169-f266ad5847ed	TypeScript	2.9	58f0190f-517b-410a-97a6-ff3286b14ca4
+fc34b98e-9865-4ceb-b9dd-33e210276c9f	Mobile	3.1	58f0190f-517b-410a-97a6-ff3286b14ca4
+04bb5a64-41d9-4d5d-b7c5-9bcdbbca8861	AWS	4.8	58f0190f-517b-410a-97a6-ff3286b14ca4
+08a04639-cb8a-4ea6-bd4e-24dab838a151	Tailwind	2	58f0190f-517b-410a-97a6-ff3286b14ca4
+69502e51-7ad4-4529-9a1c-8e3544a5cec5	Python	2.3	58f0190f-517b-410a-97a6-ff3286b14ca4
+e6628cbd-c356-418c-8751-5ce0a876427a	TypeScript	2.1	8726ce76-c4d9-4f45-a80b-0000cddabc8c
+71769dd9-f482-409b-b305-e4585a2a05d0	AWS	4.2	8726ce76-c4d9-4f45-a80b-0000cddabc8c
+a1da1939-c0e5-48fd-9545-cbe2093bb1e9	C++	3.8	8726ce76-c4d9-4f45-a80b-0000cddabc8c
+6bb7375e-1d7f-496a-983d-2dc5a0a13fe3	Node.js	2.5	8726ce76-c4d9-4f45-a80b-0000cddabc8c
+37a4c183-bfe0-4b11-804f-b57c9bcdd3dd	Mobile	4.2	8726ce76-c4d9-4f45-a80b-0000cddabc8c
+47d58e10-3c00-4708-bb9a-18b1a64cce09	Python	2.4	322a2d63-4941-4ba3-8741-1bf2e7d3c60f
+994711f2-5d4e-4250-a8c8-3f4674eb25e4	Docker	3.8	322a2d63-4941-4ba3-8741-1bf2e7d3c60f
+f81f0a88-07f3-4719-bf66-c568b7ef08b9	AWS	2.3	322a2d63-4941-4ba3-8741-1bf2e7d3c60f
+566add58-3522-4eaa-bf18-0181fed593e2	Tailwind	4.5	322a2d63-4941-4ba3-8741-1bf2e7d3c60f
+b3d98e0a-7224-43cf-ad0e-f2685ede9412	React	3.9	322a2d63-4941-4ba3-8741-1bf2e7d3c60f
+233dee5b-6234-478e-9c0d-949fda9358cd	C++	4.1	322a2d63-4941-4ba3-8741-1bf2e7d3c60f
+de6cc19e-7355-4f9e-b871-50a9356dba52	Kubernetes	4.5	4da41c22-f766-47a4-9aa9-3de77928a436
+f4617c3c-e758-4110-bf69-ba149564c71c	Mobile	4.2	4da41c22-f766-47a4-9aa9-3de77928a436
+34efc36c-f098-4c30-8071-164f27d83c69	AWS	3.5	4da41c22-f766-47a4-9aa9-3de77928a436
+7232f3d3-a180-4bce-997d-92229ea2efad	C++	4.1	4da41c22-f766-47a4-9aa9-3de77928a436
+80267452-2bfc-4876-9485-0d06df049502	Python	4.4	4da41c22-f766-47a4-9aa9-3de77928a436
+137ad3be-614e-4aa2-9215-4b13c2960048	AWS	4.2	6214c499-bcad-4b61-9697-557f8d3f32d7
+b7183677-ce0b-4409-abcd-e12dc6935ab0	TypeScript	4.7	6214c499-bcad-4b61-9697-557f8d3f32d7
+ae55ceb3-c544-4f40-a0c9-e1f4fc56009a	Rust	2.7	6214c499-bcad-4b61-9697-557f8d3f32d7
+b31eba06-b6fe-485d-a1f4-430725371d26	Mobile	4.7	6214c499-bcad-4b61-9697-557f8d3f32d7
+a887d847-ff58-479d-abdb-fe0e2c19aad4	Docker	4.6	6214c499-bcad-4b61-9697-557f8d3f32d7
+8741eb84-a060-4c07-b7e8-0f6849c17d7f	Node.js	4	5983dac0-727b-496d-84ae-5456df4e8ad4
+b473725a-0a02-4e00-9698-74aed9e0b843	Rust	3.9	5983dac0-727b-496d-84ae-5456df4e8ad4
+58447065-1da5-4a13-adf8-7a9f5c06a0aa	C++	4.5	5983dac0-727b-496d-84ae-5456df4e8ad4
+380e38dc-a5fa-40a8-8536-48d414dc8ecd	AWS	3.4	5983dac0-727b-496d-84ae-5456df4e8ad4
+c1733415-a7a1-484a-b9bb-064f48b3be42	Tailwind	4.8	5983dac0-727b-496d-84ae-5456df4e8ad4
+fbb5b19b-30c2-437f-9510-349da6c4a049	Mobile	3.1	5983dac0-727b-496d-84ae-5456df4e8ad4
+1984535a-b397-4cfa-b46f-3fb6d20c3487	Python	3.6	1624866b-50c5-41a0-b236-71548b31ba1c
+33511dc5-93e3-400a-bc2b-2e1514723ed9	Tailwind	2.9	1624866b-50c5-41a0-b236-71548b31ba1c
+c14b98f2-5fda-4f08-a770-4570580e2637	Node.js	3.1	1624866b-50c5-41a0-b236-71548b31ba1c
+cc5af6cc-24ad-4149-a32b-49208e0442e5	Kubernetes	2.3	1624866b-50c5-41a0-b236-71548b31ba1c
+a1c8d5fd-7e0d-44b6-965c-6847d79cb9df	SQL	3.8	1624866b-50c5-41a0-b236-71548b31ba1c
+55986a01-0d1e-4b5c-b8c0-a670736fab9a	SQL	4.8	5bd51f37-d26d-4b8e-a98b-cc6987fb407f
+737a55aa-2dc5-421d-8db4-3d6adfa48ec3	AWS	3.2	5bd51f37-d26d-4b8e-a98b-cc6987fb407f
+e28b83bd-d6e1-4486-977c-cda98d3ed5c4	Tailwind	4.7	5bd51f37-d26d-4b8e-a98b-cc6987fb407f
+805e2f3d-dada-4ae2-821a-6539998d394c	Node.js	3.4	5bd51f37-d26d-4b8e-a98b-cc6987fb407f
+cad83b86-3daa-479d-984e-3b2951151b80	TypeScript	2.7	5bd51f37-d26d-4b8e-a98b-cc6987fb407f
+41a9136f-9da1-4460-96c3-7c3b66858691	Python	4.9	5bd51f37-d26d-4b8e-a98b-cc6987fb407f
+9280d336-6c1b-4f47-8a43-399fe1fc094c	TypeScript	2.2	793c8954-6a0b-4324-b866-e647375a68e0
+eb3fdcb4-75b5-4183-85f7-be0afa4f1f83	Node.js	3.5	793c8954-6a0b-4324-b866-e647375a68e0
+a09412c5-40e8-43da-812c-ab23a9ba67d0	Kubernetes	4.3	793c8954-6a0b-4324-b866-e647375a68e0
+630328a7-ec5e-46e7-b8e4-d839d3695880	TypeScript	3.2	567fa813-a9aa-4cd2-b237-79bdeafdb73b
+8198cf2a-ceea-40fc-9ac9-65b6cfd71b9d	Mobile	4.5	567fa813-a9aa-4cd2-b237-79bdeafdb73b
+158cdf76-e029-49b7-9421-5c19204cd59e	React	2.1	567fa813-a9aa-4cd2-b237-79bdeafdb73b
+57630b34-73c0-4960-9ee2-e345b1d75a1e	Kubernetes	4.6	06723a29-b719-4d2b-9b70-965fc6b12c0b
+ce1e3fd1-3681-4d7d-b941-174ed8b582ae	Mobile	3.9	06723a29-b719-4d2b-9b70-965fc6b12c0b
+60e030d0-4153-4db2-8e3f-64e1a2486156	Rust	3.4	06723a29-b719-4d2b-9b70-965fc6b12c0b
+eae87e9a-7a93-49bb-a9f0-50c582be9f65	Tailwind	4	06723a29-b719-4d2b-9b70-965fc6b12c0b
+2d9471ca-b7c2-4b77-9204-890ed00a1be1	React	3.3	06723a29-b719-4d2b-9b70-965fc6b12c0b
+affa141c-79a0-4ef3-b5b6-a6628b89d427	Docker	3.1	35ae68f4-e23d-447a-a2bc-efa125edc80c
+0633502f-d11d-4a21-9668-298e672bc305	C++	2.8	35ae68f4-e23d-447a-a2bc-efa125edc80c
+f6e3913e-0363-4766-bfe4-2b07f42b764f	AWS	3	35ae68f4-e23d-447a-a2bc-efa125edc80c
+c88e38a6-17ab-43ba-b626-ac6d9d24fed9	React	3.2	ab57f6c1-4b51-4f8d-b8bd-9a488c2cd8d4
+3cd81719-6560-4d63-8c51-be261dfd26bb	Mobile	3.9	ab57f6c1-4b51-4f8d-b8bd-9a488c2cd8d4
+626b7fe7-1a37-449d-bb24-e7afd6e2f61d	C++	3.8	ab57f6c1-4b51-4f8d-b8bd-9a488c2cd8d4
+6c2ffb59-96c0-4f5d-aa4b-9cf7db1f3c42	Node.js	3	a5e1a9b2-cc3f-4013-80ad-64ff5535c959
+bc65a701-3863-4865-adc0-b23bf1a3edbe	Tailwind	3.3	a5e1a9b2-cc3f-4013-80ad-64ff5535c959
+3b713fb0-963d-4bfc-82a6-2c58854b6fc7	Rust	4.6	a5e1a9b2-cc3f-4013-80ad-64ff5535c959
+59401796-35cf-4f77-a4a7-1419fd8f1558	Docker	4.6	2a608cd4-0ad6-48e6-8e08-a228b9c6ed30
+b3550d57-6c03-4baf-939e-74d485f7369b	Node.js	4.5	2a608cd4-0ad6-48e6-8e08-a228b9c6ed30
+92a99427-fbdd-4263-bd8d-c9582631bb19	C++	4.7	2a608cd4-0ad6-48e6-8e08-a228b9c6ed30
+34530dea-e3a0-47b8-8c9f-e816a0563666	Tailwind	3.1	2a608cd4-0ad6-48e6-8e08-a228b9c6ed30
+9cb456d2-94aa-4b11-864f-8ff964391e6c	Rust	3.3	2a608cd4-0ad6-48e6-8e08-a228b9c6ed30
+5db42bf2-b449-424c-b75c-b1141ae7c07e	SQL	4.4	2a608cd4-0ad6-48e6-8e08-a228b9c6ed30
+c8f97cf5-fc1d-426f-af54-9553954fd896	Rust	4.8	ae4cff8d-74cc-43be-b57c-463017d8685e
+dc65aceb-156d-400f-86c1-be8f616612af	TypeScript	4.8	ae4cff8d-74cc-43be-b57c-463017d8685e
+51bc430a-0004-4e87-976a-1b5fa9eaad92	Python	3	ae4cff8d-74cc-43be-b57c-463017d8685e
+e7009bdf-949e-418d-a856-c7dd5dec17bd	AWS	4	ae4cff8d-74cc-43be-b57c-463017d8685e
+877e0d98-2e75-4dd6-a435-5820549de0ef	Node.js	4.8	ae4cff8d-74cc-43be-b57c-463017d8685e
+70df0cdf-0966-4e73-8213-44fccd0a6c12	C++	4	ae4cff8d-74cc-43be-b57c-463017d8685e
+66e6d090-ffa2-4908-aa87-5bf30a405499	React	2.9	c3a32ff4-6acd-4c6e-8e66-d822559126f5
+e1ddc45e-d54c-4f65-8753-525346d466c7	SQL	2	c3a32ff4-6acd-4c6e-8e66-d822559126f5
+7245bac1-265d-4cf2-aaf1-5d86d6a86e2b	C++	4.2	c3a32ff4-6acd-4c6e-8e66-d822559126f5
+43381060-8897-4028-b47e-1d4771a7433a	Rust	3.6	c3a32ff4-6acd-4c6e-8e66-d822559126f5
+89beacd0-ab8e-4f41-93f9-c3087ed67d3a	TypeScript	3.2	c3a32ff4-6acd-4c6e-8e66-d822559126f5
+6b3063bb-30c0-44bf-8419-13c948f09722	Python	4.9	be2bc5e4-6e8f-4af4-a890-c5973be3973b
+4829f5a8-15c4-4cd0-8515-88711d78c6e2	Tailwind	4.1	be2bc5e4-6e8f-4af4-a890-c5973be3973b
+c5c7fee7-1af4-4fe8-8884-829b19476bc8	Rust	2.3	be2bc5e4-6e8f-4af4-a890-c5973be3973b
+0546aa04-d440-4ed5-8faf-8cb79d681925	SQL	3.4	be2bc5e4-6e8f-4af4-a890-c5973be3973b
+568528e1-d8c0-4c18-a19f-21797c5858f7	C++	4.4	be2bc5e4-6e8f-4af4-a890-c5973be3973b
+e4087537-5b59-4821-bc06-9b52397e153f	Tailwind	2.6	a5114256-11fb-4066-a2ce-bc85442d187f
+876b2279-6945-4a8b-84a8-863c6d6e312d	TypeScript	2.3	a5114256-11fb-4066-a2ce-bc85442d187f
+ff3ffc73-6ca2-497d-b51e-ebe8fe472a29	AWS	3.3	a5114256-11fb-4066-a2ce-bc85442d187f
+19f05a09-07a1-4571-a397-e506661f49b8	Docker	4.6	a5114256-11fb-4066-a2ce-bc85442d187f
+efbaec8c-9d0c-40d6-b8ce-d76e16a12d19	Kubernetes	3.1	a5114256-11fb-4066-a2ce-bc85442d187f
+c7bfd082-956e-413d-b7c0-ffe05478c677	TypeScript	4.9	85b855db-747f-40f7-a918-a5dd00684675
+68f7590c-b7f0-4093-bb47-1c3906f41f1a	Node.js	3.4	85b855db-747f-40f7-a918-a5dd00684675
+66c28ca6-c776-4f78-a1de-8ab622544ac2	C++	3.7	85b855db-747f-40f7-a918-a5dd00684675
+89d78542-dec3-4737-a750-1012eabbed53	Mobile	2.8	85b855db-747f-40f7-a918-a5dd00684675
+083a6cc8-e97e-43c0-8123-809c9ed9a1e5	TypeScript	4.2	61bd343d-3138-4c7a-bdf8-7bd0dc0b1247
+d507abed-f197-46c6-a890-8f59b224a934	Kubernetes	4.7	61bd343d-3138-4c7a-bdf8-7bd0dc0b1247
+7bdde6c8-d182-43a1-b494-c471896e332d	React	3.7	61bd343d-3138-4c7a-bdf8-7bd0dc0b1247
+1c741155-f2a6-4a8f-bf1b-f4e16aea9531	Python	3.3	61bd343d-3138-4c7a-bdf8-7bd0dc0b1247
+eb8d12d4-bb12-4195-ac71-3b4e3d134b11	Kubernetes	3.1	7fb9b0e9-7ac7-45d0-9865-8d4332907ffe
+bbc5659c-3eba-42ba-90b0-b1a260d9a851	Docker	4.1	7fb9b0e9-7ac7-45d0-9865-8d4332907ffe
+8776c8a9-8871-47fa-95b0-01f6d26c357f	Python	3.9	7fb9b0e9-7ac7-45d0-9865-8d4332907ffe
+d2dd4f2b-0417-474c-9442-181672ed6309	Rust	4.4	7fb9b0e9-7ac7-45d0-9865-8d4332907ffe
+43c51ae3-6f09-490b-b552-e3226ba2b252	React	2.7	7fb9b0e9-7ac7-45d0-9865-8d4332907ffe
+847768cb-e93f-4fe6-8505-6e25b3ad882a	Node.js	2.2	7fb9b0e9-7ac7-45d0-9865-8d4332907ffe
+86ef1530-c701-4638-9c34-db113e6522d7	React	3	7905b888-cee1-40ed-8f05-dc3d2ddf3452
+5cefcf73-1b48-4a15-9b4a-9ce806923d9a	Rust	3.9	7905b888-cee1-40ed-8f05-dc3d2ddf3452
+e937e17e-6468-4378-933b-2d0ee4c0073f	Node.js	4.7	7905b888-cee1-40ed-8f05-dc3d2ddf3452
+f042ae4f-62a9-456e-8d52-56e12df50ca2	Mobile	4.3	7905b888-cee1-40ed-8f05-dc3d2ddf3452
+ac28608f-dd98-4267-add0-229eed56e219	C++	2.7	7905b888-cee1-40ed-8f05-dc3d2ddf3452
+3501c681-4a88-48d5-b5d2-f50f7b0b5464	C++	4.5	23ded092-ad3f-428e-b21f-0feb64a1320f
+58db525e-58f9-4d9b-ad52-4d37f1557e15	AWS	3.9	23ded092-ad3f-428e-b21f-0feb64a1320f
+cf27f6d3-5bad-4835-9f99-f0ca0bccf20e	Mobile	3.4	23ded092-ad3f-428e-b21f-0feb64a1320f
+e6d9efb0-40f0-40c5-bd43-74bd72a2c6df	C++	3.1	5e78279f-175f-4f3f-8405-0aca6cb416e3
+7e402072-f8be-4dec-8547-bf96942582b5	Node.js	2.9	5e78279f-175f-4f3f-8405-0aca6cb416e3
+a47023c8-588b-49a8-82d0-a7bf56fd9dbb	AWS	4.9	5e78279f-175f-4f3f-8405-0aca6cb416e3
+03e1bc41-991b-41d5-ae34-3404a36b85df	Kubernetes	3	5e78279f-175f-4f3f-8405-0aca6cb416e3
+7d4688dd-4be7-4cce-a104-73ff2f0817db	SQL	4.8	5e78279f-175f-4f3f-8405-0aca6cb416e3
+a964067a-5f8c-4303-8dac-bde7487888bd	Tailwind	2	8efec597-b366-48cf-8c7d-7d0a8fda96b3
+65652c3f-9d7d-47e9-8142-0f65bdbd2936	Python	4.4	8efec597-b366-48cf-8c7d-7d0a8fda96b3
+9b4660ab-8556-4c6d-b043-2fbf036fb5b2	Rust	2.2	8efec597-b366-48cf-8c7d-7d0a8fda96b3
+a0a2c286-32d0-4c97-b743-9d631a83d10c	React	2.5	8efec597-b366-48cf-8c7d-7d0a8fda96b3
+3c669cb4-9de8-4cfd-95b5-31b4f1b37f94	Docker	2.3	8efec597-b366-48cf-8c7d-7d0a8fda96b3
+adc1fdb6-2019-422a-89d8-c12fc517c016	Node.js	2.1	8efec597-b366-48cf-8c7d-7d0a8fda96b3
+788ef99d-4962-4821-9bac-31c42b5caac7	Node.js	4	8b93eaa0-e1e5-4d30-9d34-a254924e73a2
+927aa05c-a3b0-4826-9ab4-943b4fe803d7	Rust	2.9	8b93eaa0-e1e5-4d30-9d34-a254924e73a2
+da19523a-3ed0-4d05-bdef-1d7404e99bb9	C++	3.3	8b93eaa0-e1e5-4d30-9d34-a254924e73a2
+aac88eeb-5cb6-44eb-a80a-a8b4d031131f	AWS	2.8	a581cdb7-771f-490c-b2c8-2ec8bce366dc
+1b97aa38-f4b0-4950-a4a0-ed14ecb01c87	TypeScript	2.9	a581cdb7-771f-490c-b2c8-2ec8bce366dc
+60bea22e-e5e3-414e-911b-8b64822c45c7	Rust	3.6	a581cdb7-771f-490c-b2c8-2ec8bce366dc
+4d9a6e0a-54c9-4362-824b-763db504cfb2	Node.js	4.3	c61d5a4e-80b1-477c-8ce6-e6d07d070598
+8e3c7f12-1363-410d-9915-563702649960	React	2.6	c61d5a4e-80b1-477c-8ce6-e6d07d070598
+f5ac64f8-054d-46cf-8957-f5a3c15fc656	C++	3.4	c61d5a4e-80b1-477c-8ce6-e6d07d070598
+5d3f997b-fe7b-48ae-a7d9-08187949d752	Kubernetes	2.6	c61d5a4e-80b1-477c-8ce6-e6d07d070598
+37657448-3684-44ee-b725-c6f34425fb03	AWS	4.7	0aeca834-d8d7-4f2e-90d8-e1ae45458aea
+b4bd3005-7188-47a4-8946-18a70aff742b	Kubernetes	4.9	0aeca834-d8d7-4f2e-90d8-e1ae45458aea
+d08bfbea-db60-41d7-b1ab-b4b9abdd61a6	Docker	3.5	0aeca834-d8d7-4f2e-90d8-e1ae45458aea
+171a4382-361a-450e-ab70-910dcda15557	TypeScript	4.6	0aeca834-d8d7-4f2e-90d8-e1ae45458aea
+0aed72f8-1ed0-4ab3-bc05-b690a0bf7213	Rust	3.7	1692fa52-c64c-4b7d-b616-24279f75a1eb
+f6e88c7e-de87-4cfb-8fe8-927cfb147cea	Mobile	3.2	1692fa52-c64c-4b7d-b616-24279f75a1eb
+a9369752-905f-44ad-9c07-d5e6260786b6	SQL	3.8	1692fa52-c64c-4b7d-b616-24279f75a1eb
+13c40254-55b2-4fa7-8155-885951a3326a	AWS	2.3	1e1ed1f9-b576-4b02-af98-273c5cc45156
+e20597e7-a49b-4333-81c1-290aa18f8664	Mobile	2.3	1e1ed1f9-b576-4b02-af98-273c5cc45156
+1ee76c7c-d0e3-481c-b50a-1deda478ec50	Docker	4.5	1e1ed1f9-b576-4b02-af98-273c5cc45156
+f6d13dd8-7988-4343-91d7-b00a5b8b42a3	C++	3.8	1e1ed1f9-b576-4b02-af98-273c5cc45156
+c6c3f4d6-83ef-49f3-b0c3-091d2c9f6a0d	Tailwind	4.1	1e1ed1f9-b576-4b02-af98-273c5cc45156
+ef8a8f05-eadf-4c6a-b5c7-b2531ec9176f	Kubernetes	4.6	1e1ed1f9-b576-4b02-af98-273c5cc45156
+984103c6-6dd2-4f95-841d-d3b23509c8ba	TypeScript	4.7	fe73efbe-32c5-498e-b4ad-b539ed83bfb5
+1bf3d0e8-7734-4e77-81a2-fe799df024d1	Tailwind	3	fe73efbe-32c5-498e-b4ad-b539ed83bfb5
+579d1cc2-d1e5-4f46-8bc7-2f41bd1ecd7a	Node.js	4.4	fe73efbe-32c5-498e-b4ad-b539ed83bfb5
+df9e6bc0-33e2-423a-b3e8-f842b65e479e	Python	2.2	fe73efbe-32c5-498e-b4ad-b539ed83bfb5
+1d9858ad-7648-44d6-ab72-28418f2fd166	SQL	3.2	fe73efbe-32c5-498e-b4ad-b539ed83bfb5
+010385ea-40f4-40ca-a894-f32bba284581	Tailwind	4.4	bf157948-cd48-457d-b2ab-98e37073d30b
+61c8b8eb-5f8f-4e3c-9be0-cec2688f109e	Mobile	4	bf157948-cd48-457d-b2ab-98e37073d30b
+4370d2e9-bace-4b59-bfd2-95d811028982	Docker	4.6	bf157948-cd48-457d-b2ab-98e37073d30b
+a4bf2f12-14ff-4200-9fbb-d0afcab5ad20	SQL	2	e6c7d222-3207-4b79-bf0e-3e2729711355
+7bd5f857-50d4-46f7-842e-b8f5cee25b80	React	4.8	e6c7d222-3207-4b79-bf0e-3e2729711355
+9def1213-f0e3-4a5b-b6c4-cb519be94dbc	Python	4.5	e6c7d222-3207-4b79-bf0e-3e2729711355
+7c271404-005a-43db-9518-af19f5b7708a	Tailwind	2.3	e6c7d222-3207-4b79-bf0e-3e2729711355
+5ce0a439-9b3d-475f-9238-f0b0bd85491c	Node.js	4.3	e6c7d222-3207-4b79-bf0e-3e2729711355
+c5ee8d6e-0d78-4ce3-8acf-4b7b9362c63f	Docker	4.5	e6c7d222-3207-4b79-bf0e-3e2729711355
+551a55dd-801c-4d98-984a-e5ab89378472	AWS	3.2	1e301891-0e94-4443-b8dc-7b0e67d05aa0
+c4ec9281-e6c1-4c61-96f3-4c4da096f603	Docker	3	1e301891-0e94-4443-b8dc-7b0e67d05aa0
+9a1186c1-8480-4fd9-8d26-19637ff9722e	Node.js	4.3	1e301891-0e94-4443-b8dc-7b0e67d05aa0
+a5e44ce9-ac7f-49e3-8456-0e49f9fce821	Python	4.9	1e301891-0e94-4443-b8dc-7b0e67d05aa0
+81c5dd5e-356b-4ff6-9dd3-5f9553546f9a	Rust	3.8	1e301891-0e94-4443-b8dc-7b0e67d05aa0
+7b1d7227-5853-4f29-88cf-a1903a5b5bfc	TypeScript	2.6	4f5d0a1b-abe3-40fa-82af-875df5259a71
+3a174314-006a-4df1-bbb5-8ac501137082	Tailwind	4.2	4f5d0a1b-abe3-40fa-82af-875df5259a71
+440a46ea-0f5c-4db2-b578-8c0a4f8f0d04	Python	2.3	4f5d0a1b-abe3-40fa-82af-875df5259a71
+3d19c040-a0e0-4175-9e12-4243ca5f401d	Python	2.9	185d77ac-c536-4c25-9d76-3dcf5d1d8763
+dbda3cf8-c96a-4308-8e61-296df4834d7c	Tailwind	3.3	185d77ac-c536-4c25-9d76-3dcf5d1d8763
+134c1903-36f8-46f8-a494-8eb98f308b39	SQL	2	185d77ac-c536-4c25-9d76-3dcf5d1d8763
+cc5b9172-9fd9-41fd-9661-6e76ab0a8fe0	Kubernetes	2.4	185d77ac-c536-4c25-9d76-3dcf5d1d8763
+\.
+
+
+--
+-- Data for Name: Milestone; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Milestone" (id, "projectId", title, description, duration, impact, "isAchieved", date) FROM stdin;
+10fcd943-cff5-4adb-a8dd-e6bcbb29da43	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	Phase 1: Infrastructure Initiative 1 Launch	Core architecture established and verified.	14 Days	8.62954106267837	t	2026-03-27 01:44:05.783
+773711e9-099f-4682-ab73-ea6bf60816cb	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	Phase 2: Infrastructure Initiative 1 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	9.349685476509231	f	2026-05-01 01:44:05.803
+3b2602f9-4b81-48ce-a271-29e9b2e38114	551a836f-c2c2-4418-a73c-76dbfafd8442	Phase 1: Site Reliability Initiative 1 Launch	Core architecture established and verified.	14 Days	8.380605341858146	t	2026-03-27 01:44:05.807
+cb651a7e-e878-4197-97b4-b82b4df28a26	551a836f-c2c2-4418-a73c-76dbfafd8442	Phase 2: Site Reliability Initiative 1 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	9.77735532535724	f	2026-05-01 01:44:05.811
+050e27ee-95af-46c9-b21b-64d25cefe24f	f28f4b1c-9962-4b17-9082-5c058424872b	Phase 1: Data Science Initiative 1 Launch	Core architecture established and verified.	14 Days	9.235700190556134	t	2026-03-27 01:44:05.816
+01df13ca-d8a1-487f-bb29-7bfaf3c911b0	f28f4b1c-9962-4b17-9082-5c058424872b	Phase 2: Data Science Initiative 1 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	8.536059190157063	f	2026-05-01 01:44:05.82
+c31ce5c3-9d35-41b8-ba72-cbf58567972d	e7029756-37b0-4692-bb55-7339e3b9a0bf	Phase 1: Mobile Development Initiative 1 Launch	Core architecture established and verified.	14 Days	8.41695594770047	t	2026-03-27 01:44:05.825
+6484cf7d-68a1-49d6-a9e3-caf1133df7fc	e7029756-37b0-4692-bb55-7339e3b9a0bf	Phase 2: Mobile Development Initiative 1 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	8.651765174241293	f	2026-05-01 01:44:05.828
+666ba138-e15b-4c3f-a1bf-7390fd80d197	bb8fec06-89cc-4a76-8065-e5f87a51ffac	Phase 1: Quality Assurance Initiative 1 Launch	Core architecture established and verified.	14 Days	8.992636150812748	t	2026-03-27 01:44:05.834
+a115fc22-71d2-45d2-8aae-58b864464acb	bb8fec06-89cc-4a76-8065-e5f87a51ffac	Phase 2: Quality Assurance Initiative 1 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	9.014173630294925	f	2026-05-01 01:44:05.839
+8a1d9268-58e7-4a55-a43a-17713a48cb6f	176cf575-1e8f-4447-93d3-2999415d2173	Phase 1: Product Design Initiative 2 Launch	Core architecture established and verified.	14 Days	8.313262820536522	t	2026-03-27 01:44:05.849
+7b2aecba-8ef3-4ccf-8840-d056affeefde	176cf575-1e8f-4447-93d3-2999415d2173	Phase 2: Product Design Initiative 2 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	8.641041177557518	f	2026-05-01 01:44:05.856
+14787e45-f454-418e-956f-b284cc716c8a	28f462ff-0757-44ce-92c2-b0864a8f4500	Phase 1: Site Reliability Initiative 2 Launch	Core architecture established and verified.	14 Days	9.133708865396523	t	2026-03-27 01:44:05.863
+d116b838-07f5-4a39-a00c-da3f9b530178	28f462ff-0757-44ce-92c2-b0864a8f4500	Phase 2: Site Reliability Initiative 2 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	8.530511980222856	f	2026-05-01 01:44:05.871
+83875d98-f82b-4dfd-8ed9-085df96e2cf3	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	Phase 1: Infrastructure Initiative 2 Launch	Core architecture established and verified.	14 Days	8.06641645167355	t	2026-03-27 01:44:05.877
+de3fdd8e-7467-4d1f-9618-f6b9f1149534	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	Phase 2: Infrastructure Initiative 2 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	8.975799254984352	f	2026-05-01 01:44:05.888
+711b2391-c751-4ceb-a5f9-92b8a70d22ae	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	Phase 1: Data Science Initiative 2 Launch	Core architecture established and verified.	14 Days	8.726198310427778	t	2026-03-27 01:44:05.896
+4ecaa982-1d89-4974-9f46-d7f7f075fdf6	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	Phase 2: Data Science Initiative 2 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	8.904513056248232	f	2026-05-01 01:44:05.903
+51035bd8-b937-4e0a-9f65-293fb4b6a3dc	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	Phase 1: Mobile Development Initiative 2 Launch	Core architecture established and verified.	14 Days	9.291522670313103	t	2026-03-27 01:44:05.914
+f62e404b-2baf-4981-b209-32b8fc4b0ead	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	Phase 2: Mobile Development Initiative 2 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	8.61044673617741	f	2026-05-01 01:44:05.923
+1f64c11a-dda5-48f5-b428-7ef5909aee7b	c7599686-6b3b-44e0-b391-ea15e2e2823b	Phase 1: Product Engineering Initiative 1 Launch	Core architecture established and verified.	14 Days	9.352818266514483	t	2026-03-27 01:44:05.928
+870be937-dbc9-4cca-9c5f-4f3a9753df83	c7599686-6b3b-44e0-b391-ea15e2e2823b	Phase 2: Product Engineering Initiative 1 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	8.50159113511969	f	2026-05-01 01:44:05.935
+a02cd085-fadb-448d-a404-5519568f3056	6559b773-f734-4a70-b3c6-e1ad97ddc242	Phase 1: Hardware Initiative 2 Launch	Core architecture established and verified.	14 Days	9.116151936830322	t	2026-03-27 01:44:05.94
+7798db75-a754-4f48-bd17-b7c0e5702751	6559b773-f734-4a70-b3c6-e1ad97ddc242	Phase 2: Hardware Initiative 2 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	9.21774757841098	f	2026-05-01 01:44:05.944
+6cc681b1-d958-4c2e-b0f6-b720df9f48ff	e38149de-145b-4edb-9dae-f8b887cf1292	Phase 1: Security Operations Initiative 1 Launch	Core architecture established and verified.	14 Days	8.702474151129369	t	2026-03-27 01:44:05.948
+047c80d2-2385-4c23-8861-38b587193586	e38149de-145b-4edb-9dae-f8b887cf1292	Phase 2: Security Operations Initiative 1 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	8.698114306143086	f	2026-05-01 01:44:05.954
+3ccc76ab-fbc2-49b3-9b5d-308004b2d5bd	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	Phase 1: DevOps Initiative 2 Launch	Core architecture established and verified.	14 Days	8.86370646418971	t	2026-03-27 01:44:05.959
+18797217-6e43-4350-9bac-4beb07e03ba8	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	Phase 2: DevOps Initiative 2 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	8.612215361476219	f	2026-05-01 01:44:05.962
+44f1fb8d-82c5-460b-a9ab-5bc8e1624bb3	6e156838-4c84-457f-a32a-06e9f55602b9	Phase 1: Security Operations Initiative 2 Launch	Core architecture established and verified.	14 Days	8.067882906762875	t	2026-03-27 01:44:05.966
+98ab4fc7-b76c-4393-b489-5567fa586eb3	6e156838-4c84-457f-a32a-06e9f55602b9	Phase 2: Security Operations Initiative 2 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	9.550019903329277	f	2026-05-01 01:44:05.973
+4314a8aa-f40b-4806-a913-0781c2168472	8465e894-e6c3-4919-a3df-6f4d857f30d7	Phase 1: Product Engineering Initiative 2 Launch	Core architecture established and verified.	14 Days	8.512103034640012	t	2026-03-27 01:44:05.977
+30857066-8683-43c7-a2b3-4237b036c7f8	8465e894-e6c3-4919-a3df-6f4d857f30d7	Phase 2: Product Engineering Initiative 2 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	9.183664328610302	f	2026-05-01 01:44:05.981
+97396423-2425-44a5-8ce3-f39cf547ac25	594e286f-cc69-49da-883b-7ff2fcc87061	Phase 1: Quality Assurance Initiative 2 Launch	Core architecture established and verified.	14 Days	8.24899618116517	t	2026-03-27 01:44:05.986
+b4df33dc-51b0-4beb-ad9c-1131deeddb67	594e286f-cc69-49da-883b-7ff2fcc87061	Phase 2: Quality Assurance Initiative 2 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	8.88427358136327	f	2026-05-01 01:44:05.992
+c6e365e9-e8aa-44b7-aae3-60fe149913c4	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	Phase 1: DevOps Initiative 1 Launch	Core architecture established and verified.	14 Days	8.008216749870273	t	2026-03-27 01:44:05.996
+fe7d1f2c-3a91-4853-a7be-d6c3fc808454	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	Phase 2: DevOps Initiative 1 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	9.369254509401694	f	2026-05-01 01:44:06
+03c453bc-0d6e-4911-8df9-3ce3d6586945	dd9b845e-7538-4306-b480-e9fbcd48b6f4	Phase 1: Hardware Initiative 1 Launch	Core architecture established and verified.	14 Days	8.39882026109316	t	2026-03-27 01:44:06.007
+7da7c2d4-c397-4ce2-84ab-5eb44888a206	dd9b845e-7538-4306-b480-e9fbcd48b6f4	Phase 2: Hardware Initiative 1 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	8.679306243467579	f	2026-05-01 01:44:06.02
+13115e73-50b8-4d4e-ac0f-c2bd1062fced	13d1dadd-cbab-4aa6-873c-824524126cdd	Phase 1: Product Design Initiative 1 Launch	Core architecture established and verified.	14 Days	8.885141191328259	t	2026-03-27 01:44:06.028
+a9656bc1-d518-4b67-abbe-0361f1c372c7	13d1dadd-cbab-4aa6-873c-824524126cdd	Phase 2: Product Design Initiative 1 Optimization	Scaling throughput and reducing latency lag.	3 Weeks	8.656213792263623	f	2026-05-01 01:44:06.035
+\.
+
+
+--
+-- Data for Name: PerformanceReview; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."PerformanceReview" (id, "userId", "reviewerId", rating, comments, date) FROM stdin;
+\.
+
+
+--
+-- Data for Name: Project; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Project" (id, name, description, status, "requiredSkills", "managerId", "createdAt", "updatedAt", "teamId") FROM stdin;
+d98e6c70-40d0-4a35-b57e-89e97e3c43cd	Infrastructure Initiative 1	Critical development for Infrastructure department.	ACTIVE	{Rust,Mobile,SQL}	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	2026-04-15 18:36:04.109	2026-04-15 20:14:05.771	89e25fcd-4e24-40e4-bb8f-7633cb53f453
+551a836f-c2c2-4418-a73c-76dbfafd8442	Site Reliability Initiative 1	Critical development for Site Reliability department.	ACTIVE	{C++,Node.js,SQL}	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2026-04-15 18:36:04.129	2026-04-15 20:14:05.755	7ac82137-cbc9-4908-ac2b-66caecc3494e
+f28f4b1c-9962-4b17-9082-5c058424872b	Data Science Initiative 1	Critical development for Data Science department.	ACTIVE	{Kubernetes,Tailwind,Docker}	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	2026-04-15 18:36:04.116	2026-04-15 20:14:05.696	ff26b4c5-d014-4b71-8ab2-460684706127
+e7029756-37b0-4692-bb55-7339e3b9a0bf	Mobile Development Initiative 1	Critical development for Mobile Development department.	ACTIVE	{SQL,Node.js,Tailwind}	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	2026-04-15 18:36:04.122	2026-04-15 20:14:05.736	e3d1fc44-bb7b-4f4c-9f8b-41d7beb0b9c0
+bb8fec06-89cc-4a76-8065-e5f87a51ffac	Quality Assurance Initiative 1	Critical development for Quality Assurance department.	ACTIVE	{Python,Rust,SQL}	aa7cccf3-4edb-4a42-87df-41261f3b77b2	2026-04-15 18:36:04.095	2026-04-15 20:14:05.7	b72c1672-ba9c-4326-95c0-70ab116bf435
+176cf575-1e8f-4447-93d3-2999415d2173	Product Design Initiative 2	Critical development for Product Design department.	ACTIVE	{Docker,TypeScript,AWS}	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	2026-04-15 18:36:04.138	2026-04-15 20:14:05.717	d9536d0c-3882-40cb-8794-291981dce4b3
+28f462ff-0757-44ce-92c2-b0864a8f4500	Site Reliability Initiative 2	Critical development for Site Reliability department.	ACTIVE	{C++,TypeScript,React}	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2026-04-15 18:36:04.132	2026-04-15 20:14:05.705	7ac82137-cbc9-4908-ac2b-66caecc3494e
+8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	Infrastructure Initiative 2	Critical development for Infrastructure department.	ACTIVE	{Tailwind,Docker,Kubernetes}	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	2026-04-15 18:36:04.113	2026-04-15 20:14:05.759	59a1b253-1257-47e9-b0ca-634aadbb82f8
+5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	Data Science Initiative 2	Critical development for Data Science department.	ACTIVE	{SQL,Kubernetes,AWS}	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	2026-04-15 18:36:04.119	2026-04-15 20:14:05.741	3d990fec-154b-43a7-bd66-80a135ab1d5a
+acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	Mobile Development Initiative 2	Critical development for Mobile Development department.	ACTIVE	{Node.js,Python,TypeScript}	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	2026-04-15 18:36:04.126	2026-04-15 20:14:05.722	f1cc7e35-a3a2-44e7-a8bb-c11fa06713e2
+c7599686-6b3b-44e0-b391-ea15e2e2823b	Product Engineering Initiative 1	Critical development for Product Engineering department.	ACTIVE	{Mobile,React,Node.js}	ad644a94-f98d-4e72-9fd0-c69447f09c61	2026-04-15 18:36:04.071	2026-04-15 20:14:05.763	d9536d0c-3882-40cb-8794-291981dce4b3
+6559b773-f734-4a70-b3c6-e1ad97ddc242	Hardware Initiative 2	Critical development for Hardware department.	ACTIVE	{Python,Docker,TypeScript}	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	2026-04-15 18:36:04.092	2026-04-15 20:14:05.768	f1cc7e35-a3a2-44e7-a8bb-c11fa06713e2
+e38149de-145b-4edb-9dae-f8b887cf1292	Security Operations Initiative 1	Critical development for Security Operations department.	ACTIVE	{Python,Rust,Tailwind}	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	2026-04-15 18:36:04.102	2026-04-15 20:14:05.746	ff26b4c5-d014-4b71-8ab2-460684706127
+1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	DevOps Initiative 2	Critical development for DevOps department.	ACTIVE	{React,C++,Kubernetes}	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	2026-04-15 18:36:04.085	2026-04-15 20:14:05.727	89e25fcd-4e24-40e4-bb8f-7633cb53f453
+6e156838-4c84-457f-a32a-06e9f55602b9	Security Operations Initiative 2	Critical development for Security Operations department.	ACTIVE	{AWS,TypeScript,Mobile}	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	2026-04-15 18:36:04.105	2026-04-15 20:14:05.731	a0ceb753-272e-451b-9038-c3142593ff2b
+8465e894-e6c3-4919-a3df-6f4d857f30d7	Product Engineering Initiative 2	Critical development for Product Engineering department.	ACTIVE	{Docker,Tailwind,Python}	ad644a94-f98d-4e72-9fd0-c69447f09c61	2026-04-15 18:36:04.078	2026-04-15 20:14:05.75	b72c1672-ba9c-4326-95c0-70ab116bf435
+594e286f-cc69-49da-883b-7ff2fcc87061	Quality Assurance Initiative 2	Critical development for Quality Assurance department.	ACTIVE	{Rust,Node.js,Mobile}	aa7cccf3-4edb-4a42-87df-41261f3b77b2	2026-04-15 18:36:04.099	2026-04-15 20:14:05.654	a0ceb753-272e-451b-9038-c3142593ff2b
+2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	DevOps Initiative 1	Critical development for DevOps department.	ACTIVE	{Python,AWS,Rust}	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	2026-04-15 18:36:04.082	2026-04-15 20:14:05.686	e3d1fc44-bb7b-4f4c-9f8b-41d7beb0b9c0
+dd9b845e-7538-4306-b480-e9fbcd48b6f4	Hardware Initiative 1	Critical development for Hardware department.	ACTIVE	{Mobile,Node.js,Rust}	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	2026-04-15 18:36:04.089	2026-04-15 20:14:05.692	3d990fec-154b-43a7-bd66-80a135ab1d5a
+13d1dadd-cbab-4aa6-873c-824524126cdd	Product Design Initiative 1	Critical development for Product Design department.	ACTIVE	{TypeScript,Rust,Mobile}	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	2026-04-15 18:36:04.135	2026-04-15 20:14:05.711	59a1b253-1257-47e9-b0ca-634aadbb82f8
+\.
+
+
+--
+-- Data for Name: ProjectHistory; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."ProjectHistory" (id, "userId", "projectId", role, "startDate", "endDate") FROM stdin;
+d57282f8-e345-4ee6-98bd-d23dbea19539	247df865-0802-450f-994b-a7c9581f7a87	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.576	2025-10-18 01:10:58.576
+769a7120-a5c4-4412-80f0-2495beda53ee	247df865-0802-450f-994b-a7c9581f7a87	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.58	\N
+526dfdeb-85b0-4bf8-8b97-5438b4c64a1c	20e1523e-19b0-4103-b411-c65151555e82	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.588	2025-10-18 01:10:58.588
+748ad561-0dd0-41db-a726-f6849959b399	20e1523e-19b0-4103-b411-c65151555e82	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.591	\N
+5955a340-72b5-44b0-9ce1-981962f8d940	b39ddc58-6212-46bb-9cab-e59568337275	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.603	2025-10-18 01:10:58.603
+0dfea558-6792-4f50-afca-4cbb97cf5a1d	b39ddc58-6212-46bb-9cab-e59568337275	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.607	\N
+f04d8a25-1b25-4cd2-8cf8-41daf7f83c13	af0bbab8-3b33-4ff7-b88e-11c4699da50b	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.616	2025-10-18 01:10:58.616
+d4aea6c4-983e-4bb1-a6a7-139dad443138	af0bbab8-3b33-4ff7-b88e-11c4699da50b	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.619	\N
+661f4bdb-4f44-42bf-9093-313a9e4f9984	d674df84-6046-430c-9694-b2f7516f202c	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.629	2025-10-18 01:10:58.629
+d1e4e5a2-1e91-4334-a6e1-0fa312800967	d674df84-6046-430c-9694-b2f7516f202c	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.631	\N
+738398bc-4b9e-431e-a31f-40c34cdaf787	da706c4a-8b92-4d33-8975-a97639743688	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.645	2025-10-18 01:10:58.645
+e9511e30-0561-4bde-a30f-1b97d1cd77db	da706c4a-8b92-4d33-8975-a97639743688	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.648	\N
+b7a17269-4560-4d35-81b6-e74bc950acb3	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.672	2025-10-18 01:10:58.672
+6dabcc88-a1d2-478a-99b3-f577e1e0ec21	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.681	\N
+0bab9166-571d-44cf-bcf6-d6e6590f2215	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.712	2025-10-18 01:10:58.712
+ab2b7120-8851-45cf-a382-bd61df175ca0	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.72	\N
+949c4eda-28dd-41cb-ad7a-123375d9c018	2a023e98-8c19-4530-9921-69200099e4e9	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.738	2025-10-18 01:10:58.738
+f380210f-89b7-4a80-b43e-b32c10d17713	2a023e98-8c19-4530-9921-69200099e4e9	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.743	\N
+0551a295-4ccb-4d87-b241-53e4d3c793a1	8929de17-01c9-4486-bde1-caec1ed32ef2	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.839	2025-10-18 01:10:58.839
+e452e6a0-77cd-412b-8fd9-a40f3b011c4c	8929de17-01c9-4486-bde1-caec1ed32ef2	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.845	\N
+ddac5a57-2957-4fdb-bc03-90a078b95d37	85dea961-0141-4140-b9c6-f3dfd14e26a9	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.863	2025-10-18 01:10:58.863
+5fd34ee2-c60d-4f67-88e5-98998af9c803	85dea961-0141-4140-b9c6-f3dfd14e26a9	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.869	\N
+db0890b4-c533-4f2f-9f13-997d745bcc2f	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.89	2025-10-18 01:10:58.89
+2c9c928a-ef85-49c7-8df3-3ef7cd8a2ab2	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.895	\N
+b2ffef8f-6afc-4fa2-abc5-9b1146915ce3	bd6f42c0-60c5-4b7e-894a-524c311d026f	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.961	2025-10-18 01:10:58.961
+7cff5390-32ee-442e-a184-ea999f47a6cc	bd6f42c0-60c5-4b7e-894a-524c311d026f	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.965	\N
+f25e51f8-3c87-4d06-b6e9-ca9bc7ffc8fe	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:58.982	2025-10-18 01:10:58.982
+7fbf0e8b-ae96-4a98-a9dd-e9e8467cfd14	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:58.987	\N
+e1b6edab-d56e-458f-8ace-3d9754e657dc	f563015a-2a62-4e5d-b494-e76712c3fc00	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.041	2025-10-18 01:10:59.041
+f1b64c27-ef9e-48d7-8105-5e93528b54ce	f563015a-2a62-4e5d-b494-e76712c3fc00	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.044	\N
+e81e2392-94e7-4929-998d-c4f97864c117	0b0f005d-3943-4384-8f1b-b6210e5071e5	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.06	2025-10-18 01:10:59.06
+1baf8f07-6286-4942-b062-3606ad3454e4	0b0f005d-3943-4384-8f1b-b6210e5071e5	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.062	\N
+ef7226ae-5f6f-49d5-b2f8-7fb645d6b067	895f4fc3-59f8-4aea-870f-b20abc918ffe	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.12	2025-10-18 01:10:59.12
+3a7e5725-5fbf-4748-b2e3-3e32a9d7ef71	895f4fc3-59f8-4aea-870f-b20abc918ffe	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.123	\N
+6fc89b91-2b7f-44b1-8645-5f1e4d88716f	e7d09ede-899c-4b1d-a224-98865fd411bd	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.143	2025-10-18 01:10:59.143
+be170729-2a4c-41b2-8dd3-085dda16d0c0	e7d09ede-899c-4b1d-a224-98865fd411bd	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.15	\N
+634d54c5-512c-4825-8e3b-3c17b1418e85	2dcdf168-3b3c-4839-93b1-f18a1d089d02	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.167	2025-10-18 01:10:59.167
+21ea655d-a371-4f7b-9e80-cf0174b129a0	2dcdf168-3b3c-4839-93b1-f18a1d089d02	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.173	\N
+8ef97955-4148-4e42-8bc3-adc08b92fa20	7788fc3c-93f4-469b-879b-243d7f9623ec	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.204	2025-10-18 01:10:59.204
+8a84ff43-191f-4c1d-ac94-15b8d9d05fc2	7788fc3c-93f4-469b-879b-243d7f9623ec	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.212	\N
+44309ff9-213e-4484-b552-6645e1a4f488	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.235	2025-10-18 01:10:59.235
+fefe710f-55b0-46ba-b8d2-92c4538a467a	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.241	\N
+9280afe7-53d1-405c-aefe-e16098c1ba8e	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.334	2025-10-18 01:10:59.334
+ccfe5408-f8d9-4887-bb63-ce331379ad3c	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.341	\N
+92247557-08b2-45eb-bc8f-d0b242a64331	6a4ada48-0604-4d1f-abef-a3e921a9acb3	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.382	2025-10-18 01:10:59.382
+71ee9604-586e-4c90-a186-56f775879d3e	6a4ada48-0604-4d1f-abef-a3e921a9acb3	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.392	\N
+2ef52439-cdf9-4ec6-a9e4-90f73dffea37	714c5335-de73-4dd7-87bb-e59cfd464af1	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.464	2025-10-18 01:10:59.464
+a351f13f-931a-4ab8-84df-58b21a76a207	714c5335-de73-4dd7-87bb-e59cfd464af1	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.472	\N
+59660e39-2b41-44dc-a3c3-8ecc8d71ea6f	17527b7e-8e00-4412-8e70-1bfcafde77bb	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.498	2025-10-18 01:10:59.498
+87ead0dd-fc34-4de3-abb5-7217908fddc2	17527b7e-8e00-4412-8e70-1bfcafde77bb	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.506	\N
+61fa3a80-e5a2-4524-a064-3a78e15c6740	3d4681a2-47e9-4e57-902e-2c16de8e378e	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.534	2025-10-18 01:10:59.534
+fa83c758-0fe4-437d-8f34-3f28da2a84e1	3d4681a2-47e9-4e57-902e-2c16de8e378e	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.544	\N
+99e7b57b-d627-4fb1-a5e8-80d083f68282	f04a02a3-d5f1-407c-b530-9e36d9970c64	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.57	2025-10-18 01:10:59.57
+7fdc8760-9577-4075-9cf2-d68daf8962b8	f04a02a3-d5f1-407c-b530-9e36d9970c64	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.577	\N
+4cb33375-7a7b-44ac-82e0-4f1008dfd378	6054f413-2fa0-4af4-8784-2a0697ce75b8	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.603	2025-10-18 01:10:59.603
+fe5e33a8-5c85-4859-8df2-c97ed7557907	6054f413-2fa0-4af4-8784-2a0697ce75b8	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.613	\N
+cf57b521-8bd1-47cb-a569-e8d1af61f6ac	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.645	2025-10-18 01:10:59.645
+80b38022-52ec-4827-bf2a-3635bfd434d6	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.655	\N
+8a20e45a-2608-4ac5-84d2-25413cf2147a	c0ed9381-c09e-436c-ab26-952b1b31b854	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.686	2025-10-18 01:10:59.686
+83304db6-2ccf-4858-a165-85633b20148c	c0ed9381-c09e-436c-ab26-952b1b31b854	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.695	\N
+09e19aa6-0aba-41d4-a7c3-128790a3ceae	84a1c259-5964-4570-95d9-1299bc8b8258	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.728	2025-10-18 01:10:59.728
+6081aa4e-c1fa-449d-83a8-b0aca8c16660	84a1c259-5964-4570-95d9-1299bc8b8258	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.736	\N
+d1b7971f-b5af-428d-911a-75666fea4f04	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.757	2025-10-18 01:10:59.757
+9abab258-2d42-49da-ad05-3dae045f19f3	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.762	\N
+24fe0a00-4d6a-4a8f-a176-d225c55dab1e	b19cfec7-d521-4444-a0ab-481c6ea05158	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.779	2025-10-18 01:10:59.779
+b5f5af9c-7163-478a-a4c4-88af8f8d0bc1	b19cfec7-d521-4444-a0ab-481c6ea05158	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.784	\N
+26f10817-2ecf-4820-8b2b-d1ecdbb7abc7	1e287884-c4dc-4ecf-b418-e8e42ff75627	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.798	2025-10-18 01:10:59.798
+d5d8c798-7199-49a6-834b-8130e4ba614c	1e287884-c4dc-4ecf-b418-e8e42ff75627	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.803	\N
+a4a6d4e6-5342-472f-b4d1-81af48edd67f	86afda8b-8abf-4611-80d7-90d5b18e0695	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.819	2025-10-18 01:10:59.819
+ef48e038-250b-432c-a348-6abbdaae745e	86afda8b-8abf-4611-80d7-90d5b18e0695	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.825	\N
+6177f7a9-c7fc-49fb-ba40-cf4549f4976b	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.845	2025-10-18 01:10:59.845
+37e80b11-4864-48b3-a7a7-725251137ea9	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.855	\N
+4c5ee95c-5181-4cca-b878-1442674a1ea7	a135b85e-cf22-44be-a014-cc6116529fc9	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.874	2025-10-18 01:10:59.874
+7b43a339-1108-48d8-9f80-089af8fa86e9	a135b85e-cf22-44be-a014-cc6116529fc9	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.879	\N
+22deeb99-fc8f-449e-a3d6-a40a1498e29e	7ae07d1f-d90d-413e-b1cb-790033f947ce	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.902	2025-10-18 01:10:59.902
+39dcd11e-0244-4e4c-a48a-bf0dd01e6853	7ae07d1f-d90d-413e-b1cb-790033f947ce	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.908	\N
+27c7b288-07c0-405f-bd4a-5f9a9e1124f6	48aecaf6-373f-4012-9f9b-fae916047cc4	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.924	2025-10-18 01:10:59.924
+6deefed1-f40c-4529-8ac5-bb505e63f800	48aecaf6-373f-4012-9f9b-fae916047cc4	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.93	\N
+3e4facf4-3bf3-45a3-9e80-86aec274618b	100173fc-a655-4859-8bdb-33e695033fbf	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:10:59.985	2025-10-18 01:10:59.985
+faea5fd6-e4d1-4db0-abf3-44102634c37f	100173fc-a655-4859-8bdb-33e695033fbf	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:10:59.989	\N
+27cae893-be7a-49c3-9c7f-3124a05d718d	4638bdfb-2236-4901-8642-fc22bb4b936d	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:11:00.004	2025-10-18 01:11:00.004
+c693971f-d6f9-427e-afed-c15e4e91193b	4638bdfb-2236-4901-8642-fc22bb4b936d	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:11:00.016	\N
+18c6343d-c738-4070-bf62-47bdd5fc4781	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:11:00.038	2025-10-18 01:11:00.038
+b5d76627-98a7-497f-ab2f-3d6cf111c3dc	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:11:00.043	\N
+0d7338cf-f700-4ced-84f6-4734de155bcb	39312998-cf88-478d-a27a-a9a75787b9fe	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:11:00.061	2025-10-18 01:11:00.061
+c55849f8-bae2-48e8-9106-6c9ff55846a6	39312998-cf88-478d-a27a-a9a75787b9fe	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:11:00.066	\N
+d455e092-5934-42ce-8065-56532568b234	06268a07-934e-41e5-9526-15687e490453	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:11:00.08	2025-10-18 01:11:00.08
+4c2f1bf6-603d-43e8-9208-fb017cf5921b	06268a07-934e-41e5-9526-15687e490453	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:11:00.085	\N
+026df386-68ae-49a8-b0eb-4e5dda5c59e0	5229418e-accc-47a3-aa8e-e630ecb2df9d	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:11:00.15	2025-10-18 01:11:00.15
+21203903-1c57-41f2-a08e-db4b11b7a659	5229418e-accc-47a3-aa8e-e630ecb2df9d	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:11:00.155	\N
+c8d95c3a-0b80-48e3-bfe7-838f092cfd2b	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:11:00.174	2025-10-18 01:11:00.174
+b0eef23c-6cb1-40a5-989e-6abd1d063b78	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:11:00.181	\N
+196e8069-781f-4b56-a1d9-330859d5822b	d5afc715-6859-4fb4-a128-b535547d272e	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:11:00.243	2025-10-18 01:11:00.243
+8f3e6122-7b77-4f5b-b84a-4c79cd2fe0bc	d5afc715-6859-4fb4-a128-b535547d272e	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:11:00.247	\N
+0b518179-f3bb-4870-ac35-f315fc8bada6	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:11:00.259	2025-10-18 01:11:00.259
+1b3f4106-a21a-440e-a8db-9ce9f07fe6c2	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:11:00.263	\N
+2acf9427-1bcb-4804-9243-efcfd7d626a1	c6b5fe02-5974-4c38-8eee-62fec0916b76	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:11:00.279	2025-10-18 01:11:00.279
+f2717de4-ff7d-4e75-8d99-26e90f56da44	c6b5fe02-5974-4c38-8eee-62fec0916b76	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:11:00.283	\N
+3c3a8579-a21f-4447-863e-9e48942e1c12	ace90216-fa2c-4ac5-ad89-645cb71736d0	c7599686-6b3b-44e0-b391-ea15e2e2823b	Fullstack Engineer	2025-04-16 01:11:00.294	2025-10-18 01:11:00.294
+8d30c405-406a-49ef-98c0-e2b67d7110e2	ace90216-fa2c-4ac5-ad89-645cb71736d0	8465e894-e6c3-4919-a3df-6f4d857f30d7	Senior Developer	2025-10-28 01:11:00.298	\N
+\.
+
+
+--
+-- Data for Name: Team; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Team" (id, name, "leadId", "createdAt") FROM stdin;
+a0ceb753-272e-451b-9038-c3142593ff2b	Product Engineering	ad644a94-f98d-4e72-9fd0-c69447f09c61	2026-04-15 18:36:03.989
+e3d1fc44-bb7b-4f4c-9f8b-41d7beb0b9c0	DevOps	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	2026-04-15 18:36:04.008
+3d990fec-154b-43a7-bd66-80a135ab1d5a	Hardware	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	2026-04-15 18:36:04.016
+ff26b4c5-d014-4b71-8ab2-460684706127	Quality Assurance	aa7cccf3-4edb-4a42-87df-41261f3b77b2	2026-04-15 18:36:04.023
+b72c1672-ba9c-4326-95c0-70ab116bf435	Security Operations	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	2026-04-15 18:36:04.03
+7ac82137-cbc9-4908-ac2b-66caecc3494e	Infrastructure	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	2026-04-15 18:36:04.038
+59a1b253-1257-47e9-b0ca-634aadbb82f8	Data Science	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	2026-04-15 18:36:04.045
+d9536d0c-3882-40cb-8794-291981dce4b3	Mobile Development	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	2026-04-15 18:36:04.053
+f1cc7e35-a3a2-44e7-a8bb-c11fa06713e2	Site Reliability	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2026-04-15 18:36:04.06
+89e25fcd-4e24-40e4-bb8f-7633cb53f453	Product Design	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	2026-04-15 18:36:04.067
+\.
+
+
+--
+-- Data for Name: Ticket; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Ticket" (id, title, status, difficulty, "projectId", "assigneeId", "openedById", "closedById", "closedAt", "createdAt") FROM stdin;
+9f0882e4-62ab-4a69-b942-271e386d8944	JIRA-2956: API Integration	CLOSED	1.912819120459721	c7599686-6b3b-44e0-b391-ea15e2e2823b	247df865-0802-450f-994b-a7c9581f7a87	ad644a94-f98d-4e72-9fd0-c69447f09c61	247df865-0802-450f-994b-a7c9581f7a87	2026-04-16 00:06:04.261	2026-04-15 18:36:04.263
+58882e66-b76b-42e9-ada1-c88e57be30e1	JIRA-3642: API Integration	OPEN	1.013704551235862	c7599686-6b3b-44e0-b391-ea15e2e2823b	247df865-0802-450f-994b-a7c9581f7a87	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:04.269
+d580bb1c-21b0-426b-aa8b-d4c1c8bbcdcc	JIRA-2648: API Integration	CLOSED	1.868515518596356	c7599686-6b3b-44e0-b391-ea15e2e2823b	247df865-0802-450f-994b-a7c9581f7a87	ad644a94-f98d-4e72-9fd0-c69447f09c61	247df865-0802-450f-994b-a7c9581f7a87	2026-04-16 00:06:04.27	2026-04-15 18:36:04.272
+dcfeabb9-ebd8-4fed-a7e4-862e5125fae8	JIRA-2733: API Integration	OPEN	1.989278786596538	c7599686-6b3b-44e0-b391-ea15e2e2823b	247df865-0802-450f-994b-a7c9581f7a87	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:04.275
+363fcee4-6fcb-4a04-abbf-cd862111843e	JIRA-4792: API Integration	OPEN	1.159180890380745	c7599686-6b3b-44e0-b391-ea15e2e2823b	247df865-0802-450f-994b-a7c9581f7a87	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:04.279
+46d9f31a-0952-43c2-828a-8b8e9b48e64a	JIRA-1721: API Integration	CLOSED	2.583580934053329	c7599686-6b3b-44e0-b391-ea15e2e2823b	247df865-0802-450f-994b-a7c9581f7a87	ad644a94-f98d-4e72-9fd0-c69447f09c61	247df865-0802-450f-994b-a7c9581f7a87	2026-04-16 00:06:04.279	2026-04-15 18:36:04.282
+923d5071-f0e1-45d0-9b94-4d1bfc01b8bf	JIRA-7256: API Integration	OPEN	1.8763782041764	c7599686-6b3b-44e0-b391-ea15e2e2823b	247df865-0802-450f-994b-a7c9581f7a87	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:04.286
+94dcace5-22ef-465a-a3a5-d746769f4a8d	JIRA-8813: API Integration	CLOSED	2.249011162658648	c7599686-6b3b-44e0-b391-ea15e2e2823b	247df865-0802-450f-994b-a7c9581f7a87	ad644a94-f98d-4e72-9fd0-c69447f09c61	247df865-0802-450f-994b-a7c9581f7a87	2026-04-16 00:06:04.286	2026-04-15 18:36:04.289
+c5459d67-c208-44f7-8f9a-ddada5fb98c4	JIRA-6517: API Integration	CLOSED	1.497419137929902	c7599686-6b3b-44e0-b391-ea15e2e2823b	247df865-0802-450f-994b-a7c9581f7a87	ad644a94-f98d-4e72-9fd0-c69447f09c61	247df865-0802-450f-994b-a7c9581f7a87	2026-04-16 00:06:04.29	2026-04-15 18:36:04.292
+3a16b332-ae90-40e7-b904-a5d01baf84f7	JIRA-6129: API Integration	CLOSED	1.325191053063517	c7599686-6b3b-44e0-b391-ea15e2e2823b	247df865-0802-450f-994b-a7c9581f7a87	ad644a94-f98d-4e72-9fd0-c69447f09c61	247df865-0802-450f-994b-a7c9581f7a87	2026-04-16 00:06:04.293	2026-04-15 18:36:04.295
+ad6f7cb2-ca8b-4422-90e4-1794775173ea	JIRA-5766: API Integration	OPEN	2.238704613539581	c7599686-6b3b-44e0-b391-ea15e2e2823b	247df865-0802-450f-994b-a7c9581f7a87	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:04.298
+8d03850f-40ff-402a-a12a-22eb7d31aad6	JIRA-7997: API Integration	CLOSED	2.058606575412292	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	20e1523e-19b0-4103-b411-c65151555e82	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	20e1523e-19b0-4103-b411-c65151555e82	2026-04-16 00:06:04.395	2026-04-15 18:36:04.397
+a6af91c4-7a99-4644-a074-5e43735b172a	JIRA-4085: API Integration	CLOSED	2.645507596024405	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	20e1523e-19b0-4103-b411-c65151555e82	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	20e1523e-19b0-4103-b411-c65151555e82	2026-04-16 00:06:04.398	2026-04-15 18:36:04.4
+e9917b6f-01bd-4aeb-9b87-48050e53ad96	JIRA-6155: API Integration	OPEN	2.257166400144953	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	20e1523e-19b0-4103-b411-c65151555e82	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:04.403
+53b01d24-97f0-4ebb-b4a7-829702b57d83	JIRA-3249: API Integration	CLOSED	4.971347219467904	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	20e1523e-19b0-4103-b411-c65151555e82	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	20e1523e-19b0-4103-b411-c65151555e82	2026-04-16 00:06:04.403	2026-04-15 18:36:04.405
+d9092ce4-d453-4f82-b9eb-1e03a0041892	JIRA-2856: API Integration	OPEN	1.611625779300415	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	20e1523e-19b0-4103-b411-c65151555e82	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:04.407
+c3926ffc-1475-4cd8-8eb0-7fe95e070caf	JIRA-3210: API Integration	OPEN	2.59116323307597	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	20e1523e-19b0-4103-b411-c65151555e82	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:04.41
+05a5a47b-18ba-43ac-815a-838fb580f64c	JIRA-9794: API Integration	CLOSED	3.312766540111872	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	20e1523e-19b0-4103-b411-c65151555e82	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	20e1523e-19b0-4103-b411-c65151555e82	2026-04-16 00:06:04.411	2026-04-15 18:36:04.412
+6b1c581a-e84d-4fb6-9691-494d779892ee	JIRA-6639: API Integration	CLOSED	1.662965021015655	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	20e1523e-19b0-4103-b411-c65151555e82	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	20e1523e-19b0-4103-b411-c65151555e82	2026-04-16 00:06:04.413	2026-04-15 18:36:04.415
+c331bdff-4829-499a-b66a-d32dd2d85244	JIRA-5597: API Integration	CLOSED	1.615699135143633	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	20e1523e-19b0-4103-b411-c65151555e82	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	20e1523e-19b0-4103-b411-c65151555e82	2026-04-16 00:06:04.415	2026-04-15 18:36:04.418
+4cedc581-d576-4b0b-804c-490e093d7c36	JIRA-9724: API Integration	CLOSED	1.573818062639843	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	20e1523e-19b0-4103-b411-c65151555e82	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	20e1523e-19b0-4103-b411-c65151555e82	2026-04-16 00:06:04.418	2026-04-15 18:36:04.42
+d36fc843-d301-4e7e-a8b6-072afc5ce8de	JIRA-4314: API Integration	CLOSED	1.767719769143009	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	20e1523e-19b0-4103-b411-c65151555e82	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	20e1523e-19b0-4103-b411-c65151555e82	2026-04-16 00:06:04.421	2026-04-15 18:36:04.423
+0d2952d6-9e4f-411c-a3a8-b6026ed9382d	JIRA-9263: API Integration	OPEN	4.254136298244465	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	20e1523e-19b0-4103-b411-c65151555e82	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:04.425
+4699a043-0a50-4e41-bdae-096552fea0f1	JIRA-7501: API Integration	OPEN	2.027999579301242	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	20e1523e-19b0-4103-b411-c65151555e82	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:04.428
+cc7d2f1f-e692-4a5b-81eb-a50945c76eb0	JIRA-2653: API Integration	OPEN	2.415798426442133	dd9b845e-7538-4306-b480-e9fbcd48b6f4	b39ddc58-6212-46bb-9cab-e59568337275	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:04.514
+a75c1028-ac75-43d3-9e49-39b35b422b4e	JIRA-1004: API Integration	OPEN	4.754326196364364	dd9b845e-7538-4306-b480-e9fbcd48b6f4	b39ddc58-6212-46bb-9cab-e59568337275	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:04.516
+f4772870-642a-4dfe-a463-14630f21c5f1	JIRA-3056: API Integration	CLOSED	1.364793855251785	dd9b845e-7538-4306-b480-e9fbcd48b6f4	b39ddc58-6212-46bb-9cab-e59568337275	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	b39ddc58-6212-46bb-9cab-e59568337275	2026-04-16 00:06:04.516	2026-04-15 18:36:04.519
+5e144097-467b-422c-ae6c-d117d9c74282	JIRA-9797: API Integration	CLOSED	1.515597985116482	dd9b845e-7538-4306-b480-e9fbcd48b6f4	b39ddc58-6212-46bb-9cab-e59568337275	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	b39ddc58-6212-46bb-9cab-e59568337275	2026-04-16 00:06:04.52	2026-04-15 18:36:04.522
+53bac285-a48a-45a1-acfe-1a02f34e6b5a	JIRA-3093: API Integration	CLOSED	1.856163595300755	dd9b845e-7538-4306-b480-e9fbcd48b6f4	b39ddc58-6212-46bb-9cab-e59568337275	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	b39ddc58-6212-46bb-9cab-e59568337275	2026-04-16 00:06:04.522	2026-04-15 18:36:04.524
+22278973-5fc9-4758-a321-99bbf03e6a7d	JIRA-7674: API Integration	CLOSED	4.39720987696457	dd9b845e-7538-4306-b480-e9fbcd48b6f4	b39ddc58-6212-46bb-9cab-e59568337275	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	b39ddc58-6212-46bb-9cab-e59568337275	2026-04-16 00:06:04.525	2026-04-15 18:36:04.527
+2503e1f9-3a55-4a5c-abda-ed570c58cdd0	JIRA-5164: API Integration	OPEN	1.575873845935221	dd9b845e-7538-4306-b480-e9fbcd48b6f4	b39ddc58-6212-46bb-9cab-e59568337275	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:04.53
+11f271be-7a31-4060-9de7-05bce0a06a2b	JIRA-8749: API Integration	CLOSED	1.881764914928268	dd9b845e-7538-4306-b480-e9fbcd48b6f4	b39ddc58-6212-46bb-9cab-e59568337275	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	b39ddc58-6212-46bb-9cab-e59568337275	2026-04-16 00:06:04.529	2026-04-15 18:36:04.532
+79f5c421-d58d-44ec-8b21-31fd240815f9	JIRA-9708: API Integration	OPEN	2.843292061454278	dd9b845e-7538-4306-b480-e9fbcd48b6f4	b39ddc58-6212-46bb-9cab-e59568337275	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:04.536
+21ddc7d5-aa43-4031-9707-4b25b856d159	JIRA-9810: API Integration	OPEN	2.071457694432943	dd9b845e-7538-4306-b480-e9fbcd48b6f4	b39ddc58-6212-46bb-9cab-e59568337275	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:04.539
+1a372292-abec-48ec-b0c2-7b5f8c3b2992	JIRA-4327: API Integration	OPEN	3.475140115423431	dd9b845e-7538-4306-b480-e9fbcd48b6f4	b39ddc58-6212-46bb-9cab-e59568337275	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:04.541
+1e56dd7e-bfa2-46f2-8dcf-88903323f39c	JIRA-8802: API Integration	CLOSED	2.299299129830361	dd9b845e-7538-4306-b480-e9fbcd48b6f4	b39ddc58-6212-46bb-9cab-e59568337275	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	b39ddc58-6212-46bb-9cab-e59568337275	2026-04-16 00:06:04.541	2026-04-15 18:36:04.544
+6ecd9a7d-313a-4642-8307-44e7e1634300	JIRA-7165: API Integration	CLOSED	2.565804787004905	594e286f-cc69-49da-883b-7ff2fcc87061	af0bbab8-3b33-4ff7-b88e-11c4699da50b	aa7cccf3-4edb-4a42-87df-41261f3b77b2	af0bbab8-3b33-4ff7-b88e-11c4699da50b	2026-04-16 00:06:04.615	2026-04-15 18:36:04.617
+b679ed48-6101-4eb0-a2d9-1f6dfdba69a1	JIRA-3956: API Integration	CLOSED	4.442821717610819	594e286f-cc69-49da-883b-7ff2fcc87061	af0bbab8-3b33-4ff7-b88e-11c4699da50b	aa7cccf3-4edb-4a42-87df-41261f3b77b2	af0bbab8-3b33-4ff7-b88e-11c4699da50b	2026-04-16 00:06:04.617	2026-04-15 18:36:04.619
+89ae0cf1-461f-4c49-8a8b-0f3516520ab1	JIRA-7736: API Integration	CLOSED	1.713264009671123	594e286f-cc69-49da-883b-7ff2fcc87061	af0bbab8-3b33-4ff7-b88e-11c4699da50b	aa7cccf3-4edb-4a42-87df-41261f3b77b2	af0bbab8-3b33-4ff7-b88e-11c4699da50b	2026-04-16 00:06:04.619	2026-04-15 18:36:04.621
+0093e981-4a70-4974-96d8-86dd9319dcac	JIRA-8397: API Integration	CLOSED	4.236290103392085	594e286f-cc69-49da-883b-7ff2fcc87061	af0bbab8-3b33-4ff7-b88e-11c4699da50b	aa7cccf3-4edb-4a42-87df-41261f3b77b2	af0bbab8-3b33-4ff7-b88e-11c4699da50b	2026-04-16 00:06:04.621	2026-04-15 18:36:04.623
+3ee4a1e6-5990-4662-aff6-3b2f52c033da	JIRA-6551: API Integration	OPEN	4.729205199627865	594e286f-cc69-49da-883b-7ff2fcc87061	af0bbab8-3b33-4ff7-b88e-11c4699da50b	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:04.625
+c4523aa0-a7a0-4175-b076-191645fe97c8	JIRA-3143: API Integration	OPEN	2.349120125669432	594e286f-cc69-49da-883b-7ff2fcc87061	af0bbab8-3b33-4ff7-b88e-11c4699da50b	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:04.627
+855c4f91-f26b-446e-b026-d00290ca171e	JIRA-3658: API Integration	OPEN	2.082584706405736	594e286f-cc69-49da-883b-7ff2fcc87061	af0bbab8-3b33-4ff7-b88e-11c4699da50b	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:04.629
+f60f65a2-e0e5-45d7-8468-856b511c4e86	JIRA-6773: API Integration	OPEN	2.676240480797941	594e286f-cc69-49da-883b-7ff2fcc87061	af0bbab8-3b33-4ff7-b88e-11c4699da50b	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:04.631
+0a68e1ec-8aaa-4f51-baa3-3d1d931c965e	JIRA-1560: API Integration	CLOSED	2.125638247606815	594e286f-cc69-49da-883b-7ff2fcc87061	af0bbab8-3b33-4ff7-b88e-11c4699da50b	aa7cccf3-4edb-4a42-87df-41261f3b77b2	af0bbab8-3b33-4ff7-b88e-11c4699da50b	2026-04-16 00:06:04.631	2026-04-15 18:36:04.633
+0d3cd256-851f-4057-87b0-2a316d509a23	JIRA-4500: API Integration	OPEN	1.328736435646124	594e286f-cc69-49da-883b-7ff2fcc87061	af0bbab8-3b33-4ff7-b88e-11c4699da50b	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:04.634
+958f9b53-9d93-4f03-bd30-5f80f0233f1e	JIRA-5558: API Integration	CLOSED	1.403234551428347	6e156838-4c84-457f-a32a-06e9f55602b9	d674df84-6046-430c-9694-b2f7516f202c	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	d674df84-6046-430c-9694-b2f7516f202c	2026-04-16 00:06:04.695	2026-04-15 18:36:04.697
+52342744-fb3d-4b60-86a1-94c44b5009e1	JIRA-8396: API Integration	OPEN	4.655512116150673	6e156838-4c84-457f-a32a-06e9f55602b9	d674df84-6046-430c-9694-b2f7516f202c	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:04.699
+ef782ce6-9e34-4653-a09f-4bffc2b6b86f	JIRA-7520: API Integration	CLOSED	4.764446913481049	6e156838-4c84-457f-a32a-06e9f55602b9	d674df84-6046-430c-9694-b2f7516f202c	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	d674df84-6046-430c-9694-b2f7516f202c	2026-04-16 00:06:04.699	2026-04-15 18:36:04.701
+2fc2dd5a-6551-49ec-8c44-0a90f8ef8e1c	JIRA-7821: API Integration	OPEN	2.030526302543887	6e156838-4c84-457f-a32a-06e9f55602b9	d674df84-6046-430c-9694-b2f7516f202c	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:04.703
+d25d517c-3438-46fc-b9bc-31cc303a13e5	JIRA-3599: API Integration	OPEN	4.668971566307078	6e156838-4c84-457f-a32a-06e9f55602b9	d674df84-6046-430c-9694-b2f7516f202c	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:04.705
+bf86768f-9160-41ea-ac88-bc9efc3f9985	JIRA-7318: API Integration	CLOSED	4.812394049549452	6e156838-4c84-457f-a32a-06e9f55602b9	d674df84-6046-430c-9694-b2f7516f202c	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	d674df84-6046-430c-9694-b2f7516f202c	2026-04-16 00:06:04.705	2026-04-15 18:36:04.707
+54303f26-2089-432b-abe6-bb3d2ac82fcf	JIRA-4469: API Integration	CLOSED	1.165287383803583	6e156838-4c84-457f-a32a-06e9f55602b9	d674df84-6046-430c-9694-b2f7516f202c	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	d674df84-6046-430c-9694-b2f7516f202c	2026-04-16 00:06:04.707	2026-04-15 18:36:04.709
+37a699a1-a281-4f52-b54a-74be4d7e13c2	JIRA-8841: API Integration	CLOSED	4.600546954869719	6e156838-4c84-457f-a32a-06e9f55602b9	d674df84-6046-430c-9694-b2f7516f202c	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	d674df84-6046-430c-9694-b2f7516f202c	2026-04-16 00:06:04.709	2026-04-15 18:36:04.712
+03d4fa6b-734f-40d5-af86-74344084c020	JIRA-8345: API Integration	OPEN	3.810210749048708	6e156838-4c84-457f-a32a-06e9f55602b9	d674df84-6046-430c-9694-b2f7516f202c	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:04.714
+058401b2-66c5-44eb-b1f2-24bc589d089e	JIRA-6734: API Integration	OPEN	4.588850574881225	6e156838-4c84-457f-a32a-06e9f55602b9	d674df84-6046-430c-9694-b2f7516f202c	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:04.716
+756cfb4b-5f2b-4f43-b82a-c6f887563ac0	JIRA-7452: API Integration	CLOSED	3.505891163553783	6e156838-4c84-457f-a32a-06e9f55602b9	d674df84-6046-430c-9694-b2f7516f202c	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	d674df84-6046-430c-9694-b2f7516f202c	2026-04-16 00:06:04.716	2026-04-15 18:36:04.718
+2d6b0f04-8070-4d49-9b10-0d060bbb81b0	JIRA-4031: API Integration	CLOSED	4.703885340177916	6e156838-4c84-457f-a32a-06e9f55602b9	d674df84-6046-430c-9694-b2f7516f202c	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	d674df84-6046-430c-9694-b2f7516f202c	2026-04-16 00:06:04.719	2026-04-15 18:36:04.721
+18842274-6f7f-421d-b67f-9a3b36ffa35e	JIRA-9381: API Integration	CLOSED	1.434217512121486	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	da706c4a-8b92-4d33-8975-a97639743688	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	da706c4a-8b92-4d33-8975-a97639743688	2026-04-16 00:06:04.791	2026-04-15 18:36:04.794
+281a7215-8890-4de1-a6a3-2dd61a8c8b15	JIRA-4387: API Integration	CLOSED	2.318400591584385	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	da706c4a-8b92-4d33-8975-a97639743688	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	da706c4a-8b92-4d33-8975-a97639743688	2026-04-16 00:06:04.794	2026-04-15 18:36:04.796
+147ad3cd-4aaa-43f1-a0e9-12cad54fc22f	JIRA-6416: API Integration	CLOSED	3.033320170677238	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	da706c4a-8b92-4d33-8975-a97639743688	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	da706c4a-8b92-4d33-8975-a97639743688	2026-04-16 00:06:04.797	2026-04-15 18:36:04.798
+b573d764-ae1a-4065-8262-3e8c545542ff	JIRA-6716: API Integration	OPEN	3.472427332328972	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	da706c4a-8b92-4d33-8975-a97639743688	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:04.8
+5630f667-987a-41cc-b0b7-82c7764b95c3	JIRA-2356: API Integration	OPEN	1.291781206102006	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	da706c4a-8b92-4d33-8975-a97639743688	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:04.802
+9e2c57fc-821f-465c-94b6-d11dfd0235cf	JIRA-7554: API Integration	CLOSED	2.108361162207691	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	da706c4a-8b92-4d33-8975-a97639743688	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	da706c4a-8b92-4d33-8975-a97639743688	2026-04-16 00:06:04.802	2026-04-15 18:36:04.804
+ca8d4174-c62f-4f1a-8985-632b525a7246	JIRA-5275: API Integration	CLOSED	4.29119720806961	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	da706c4a-8b92-4d33-8975-a97639743688	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	da706c4a-8b92-4d33-8975-a97639743688	2026-04-16 00:06:04.804	2026-04-15 18:36:04.806
+47fa1cd4-f3bb-403c-9d5f-42bcbf04791c	JIRA-1800: API Integration	CLOSED	4.272687800346555	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	da706c4a-8b92-4d33-8975-a97639743688	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	da706c4a-8b92-4d33-8975-a97639743688	2026-04-16 00:06:04.806	2026-04-15 18:36:04.808
+728c7c31-7d6e-4cbe-b935-912e64edcfd1	JIRA-9150: API Integration	OPEN	2.700138448262987	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	da706c4a-8b92-4d33-8975-a97639743688	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:04.81
+4568e9df-9e58-4b71-a2ab-57f73bb28c6b	JIRA-5697: API Integration	CLOSED	1.732915202233077	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	da706c4a-8b92-4d33-8975-a97639743688	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	da706c4a-8b92-4d33-8975-a97639743688	2026-04-16 00:06:04.811	2026-04-15 18:36:04.813
+323ccb08-9fab-4861-8e47-e7aa59302e1a	JIRA-6469: API Integration	OPEN	2.96160280956061	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	da706c4a-8b92-4d33-8975-a97639743688	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:04.815
+fbc82899-b306-4dae-b8d6-00e1037968e5	JIRA-6879: API Integration	OPEN	3.406207694334111	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	da706c4a-8b92-4d33-8975-a97639743688	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:04.817
+9f7567da-09ac-4c81-9c50-10c016e54aeb	JIRA-6194: API Integration	CLOSED	2.931307281206497	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	2026-04-16 00:06:04.872	2026-04-15 18:36:04.874
+1db77e6d-9c53-4be6-bf83-029464af7b4c	JIRA-2477: API Integration	CLOSED	1.882778373663763	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	2026-04-16 00:06:04.873	2026-04-15 18:36:04.876
+2fc207e6-4bb1-439d-9473-a96d159db44c	JIRA-4231: API Integration	OPEN	3.176613657047412	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:04.878
+eb42ec97-b951-46b9-a317-7f3668c86720	JIRA-7307: API Integration	CLOSED	2.901861354284128	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	2026-04-16 00:06:04.878	2026-04-15 18:36:04.88
+a55c76ec-23b3-4888-94bb-130520a84755	JIRA-7194: API Integration	OPEN	3.643379250348977	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:04.882
+b3d05d1a-c9b3-4ec5-9884-a3d6ee0bc123	JIRA-6017: API Integration	CLOSED	2.693239197654096	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	2026-04-16 00:06:04.882	2026-04-15 18:36:04.884
+86773caa-3efb-4cab-8b0c-22e7bc0430f8	JIRA-5058: API Integration	OPEN	2.495578990766631	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:04.886
+26e3b015-8afc-46f2-972d-64eb00232200	JIRA-6358: API Integration	CLOSED	1.70898042405683	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	2026-04-16 00:06:04.886	2026-04-15 18:36:04.888
+04d783d5-30b8-4860-9c36-c2af5529f5fc	JIRA-9565: API Integration	OPEN	3.725121410709248	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:04.89
+bd87aa2e-efa5-43d1-9810-70785c814ede	JIRA-8313: API Integration	CLOSED	2.35126751145956	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	2026-04-16 00:06:04.89	2026-04-15 18:36:04.892
+ce819db4-d017-4e06-8107-84ccdd0fe1a8	JIRA-8278: API Integration	OPEN	1.432053228244497	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:04.894
+8f847600-e7a2-41cd-8f0a-4f0d80a43da1	JIRA-9709: API Integration	CLOSED	3.283238353285084	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	2026-04-16 00:06:04.894	2026-04-15 18:36:04.896
+54f73661-fe5c-4341-a71c-803592eb7b85	JIRA-5860: API Integration	CLOSED	1.6903872630609	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	2026-04-16 00:06:04.958	2026-04-15 18:36:04.96
+dee2ae27-09c2-429a-a337-fe0ecefc1c7d	JIRA-1725: API Integration	OPEN	2.877461870801439	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:04.962
+c48665d9-9df4-4f41-8f13-a80c297536da	JIRA-8813: API Integration	OPEN	2.60727398571719	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:04.964
+f593bafe-d7ca-48b3-9784-ec7c8f207ca6	JIRA-6838: API Integration	CLOSED	3.509674957221959	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	2026-04-16 00:06:04.964	2026-04-15 18:36:04.966
+ddf1f947-458b-47ff-a6db-3f490b541495	JIRA-3915: API Integration	CLOSED	1.915405397794101	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	2026-04-16 00:06:04.965	2026-04-15 18:36:04.967
+090bdb89-cf99-4356-9630-e270489539f3	JIRA-2035: API Integration	CLOSED	2.058014172060746	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	2026-04-16 00:06:04.968	2026-04-15 18:36:04.969
+98a80fe1-14f0-4d69-a365-19992f875858	JIRA-2682: API Integration	CLOSED	3.042771380889432	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	2026-04-16 00:06:04.97	2026-04-15 18:36:04.972
+07c7c5f2-ba74-4054-93e0-73116ecd0daf	JIRA-9684: API Integration	CLOSED	3.354486176354875	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	2026-04-16 00:06:04.972	2026-04-15 18:36:04.973
+f5608aa5-34c1-448e-b16f-09f900959536	JIRA-2721: API Integration	CLOSED	3.239896774295972	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	2026-04-16 00:06:04.974	2026-04-15 18:36:04.975
+80393e8d-dbec-417b-8321-c9bfd9146ec1	JIRA-2447: API Integration	OPEN	1.709459292557439	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:04.977
+654f1a99-3f13-4e62-ba45-149077b98ce3	JIRA-9395: API Integration	CLOSED	1.72864640146424	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	2026-04-16 00:06:04.977	2026-04-15 18:36:04.979
+81387ea4-53e1-4a50-9e4d-5c03ddb7322d	JIRA-4430: API Integration	OPEN	4.676227821430816	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:04.981
+9b41eba7-3c4c-492d-8a2a-78390ad05130	JIRA-8596: API Integration	CLOSED	1.58184132741683	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	2026-04-16 00:06:04.981	2026-04-15 18:36:04.983
+1faee594-eedc-4be8-85b2-fe5a4033a829	JIRA-7037: API Integration	CLOSED	3.394860333481108	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	2026-04-16 00:06:04.984	2026-04-15 18:36:04.986
+f5eab3f8-1934-44c5-b958-86d0fe513fe5	JIRA-5254: API Integration	CLOSED	1.577359658664313	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	ab97f1fd-5c85-49cd-8dc4-05220db2ea99	2026-04-16 00:06:04.987	2026-04-15 18:36:04.988
+f13a157f-b173-491c-aaf2-841ba0f61eeb	JIRA-7923: API Integration	CLOSED	2.031093643041633	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2a023e98-8c19-4530-9921-69200099e4e9	2026-04-16 00:06:05.061	2026-04-15 18:36:05.063
+0129f942-5110-43d7-a324-3913b5ef1d5b	JIRA-6228: API Integration	OPEN	3.216566727674113	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:05.065
+31efe32d-bc0a-4407-829b-8c088c9871e3	JIRA-1695: API Integration	OPEN	2.307455312043403	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:05.067
+ebe4d003-514e-4d8c-abb5-e80e997067fb	JIRA-5879: API Integration	CLOSED	1.139516893206681	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2a023e98-8c19-4530-9921-69200099e4e9	2026-04-16 00:06:05.067	2026-04-15 18:36:05.069
+a83d6a96-7b05-4116-9a2b-7de9dc872024	JIRA-7280: API Integration	CLOSED	1.232468162305754	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2a023e98-8c19-4530-9921-69200099e4e9	2026-04-16 00:06:05.07	2026-04-15 18:36:05.072
+ae9f8e4c-b106-4e0e-bfc4-64cbf700fb1f	JIRA-1015: API Integration	CLOSED	2.256983798862569	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2a023e98-8c19-4530-9921-69200099e4e9	2026-04-16 00:06:05.071	2026-04-15 18:36:05.073
+934c8794-6182-4401-9639-6580b5fdf613	JIRA-7851: API Integration	CLOSED	4.39696555048742	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2a023e98-8c19-4530-9921-69200099e4e9	2026-04-16 00:06:05.073	2026-04-15 18:36:05.075
+051d31f1-f3c6-4146-b878-7def286992ec	JIRA-1717: API Integration	OPEN	4.538831640161532	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:05.077
+471c3c0f-4990-4ab9-8985-ac7c752a8214	JIRA-7639: API Integration	OPEN	3.76451919914239	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:05.079
+0cd1acd6-c5af-4ed1-b702-f739d3ec8d06	JIRA-7180: API Integration	OPEN	2.747003730050786	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:05.081
+91cb39fd-ba2a-439a-8c70-08c713fdef1f	JIRA-1970: API Integration	OPEN	3.116050851981181	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:05.083
+b0a97cb9-f66a-4ef4-9278-c87025c1ac47	JIRA-6659: API Integration	OPEN	3.393020423050467	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:05.085
+f53af0f9-cf0a-4286-b57c-8b1e48816915	JIRA-6890: API Integration	CLOSED	2.678389197103785	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2a023e98-8c19-4530-9921-69200099e4e9	2026-04-16 00:06:05.085	2026-04-15 18:36:05.087
+f48d1305-1073-4416-bfff-74906dbfafd4	JIRA-3889: API Integration	CLOSED	2.603303617007737	28f462ff-0757-44ce-92c2-b0864a8f4500	2a023e98-8c19-4530-9921-69200099e4e9	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2a023e98-8c19-4530-9921-69200099e4e9	2026-04-16 00:06:05.087	2026-04-15 18:36:05.088
+11e788c1-c736-455f-b5c3-ad33bef95eef	JIRA-7246: API Integration	CLOSED	3.850873102521886	176cf575-1e8f-4447-93d3-2999415d2173	8929de17-01c9-4486-bde1-caec1ed32ef2	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	8929de17-01c9-4486-bde1-caec1ed32ef2	2026-04-16 00:06:05.161	2026-04-15 18:36:05.163
+82ac4af9-6ea4-42cf-b20f-ee7890c2dc3a	JIRA-2759: API Integration	OPEN	1.310254762508361	176cf575-1e8f-4447-93d3-2999415d2173	8929de17-01c9-4486-bde1-caec1ed32ef2	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:05.166
+144d0392-4146-4db0-80ee-3cf9823ed641	JIRA-7455: API Integration	CLOSED	2.456084666215891	176cf575-1e8f-4447-93d3-2999415d2173	8929de17-01c9-4486-bde1-caec1ed32ef2	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	8929de17-01c9-4486-bde1-caec1ed32ef2	2026-04-16 00:06:05.167	2026-04-15 18:36:05.169
+ac49f167-7af0-478d-bac7-1c84cf320a60	JIRA-2447: API Integration	OPEN	4.811827814389964	176cf575-1e8f-4447-93d3-2999415d2173	8929de17-01c9-4486-bde1-caec1ed32ef2	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:05.171
+cbbaa85b-a0c9-4811-a6d0-304692f4fa4b	JIRA-2914: API Integration	OPEN	3.081458222675259	176cf575-1e8f-4447-93d3-2999415d2173	8929de17-01c9-4486-bde1-caec1ed32ef2	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:05.174
+943ecd4c-7cb1-4859-8264-d2f8d8841cf3	JIRA-3648: API Integration	OPEN	1.315058787010134	176cf575-1e8f-4447-93d3-2999415d2173	8929de17-01c9-4486-bde1-caec1ed32ef2	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:05.177
+69cc47e5-b072-48a6-86eb-8f541df9bd4a	JIRA-4575: API Integration	OPEN	3.812012444432351	176cf575-1e8f-4447-93d3-2999415d2173	8929de17-01c9-4486-bde1-caec1ed32ef2	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:05.179
+efe1f4ee-dd79-4032-b970-d643a05a1e81	JIRA-8520: API Integration	OPEN	1.032264400378155	176cf575-1e8f-4447-93d3-2999415d2173	8929de17-01c9-4486-bde1-caec1ed32ef2	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:05.182
+f51cc553-e378-49b5-842c-5df4edf7935a	JIRA-2252: API Integration	CLOSED	3.281859499347926	176cf575-1e8f-4447-93d3-2999415d2173	8929de17-01c9-4486-bde1-caec1ed32ef2	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	8929de17-01c9-4486-bde1-caec1ed32ef2	2026-04-16 00:06:05.183	2026-04-15 18:36:05.184
+5e602c59-a5d2-4d77-bd7f-2d88c0172322	JIRA-3944: API Integration	OPEN	1.985826840132494	176cf575-1e8f-4447-93d3-2999415d2173	8929de17-01c9-4486-bde1-caec1ed32ef2	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:05.186
+d51eb183-7933-4cf6-b21e-eb8e45fc6d3a	JIRA-4100: API Integration	CLOSED	4.028669520454146	176cf575-1e8f-4447-93d3-2999415d2173	8929de17-01c9-4486-bde1-caec1ed32ef2	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	8929de17-01c9-4486-bde1-caec1ed32ef2	2026-04-16 00:06:05.186	2026-04-15 18:36:05.189
+74a85a4c-19ee-4dce-9d05-ac6914f679e6	JIRA-5460: API Integration	OPEN	4.483538363672213	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:05.312
+e173bbaa-fa91-4381-8f0e-206e8a5fb568	JIRA-8439: API Integration	CLOSED	1.357382153419745	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	85dea961-0141-4140-b9c6-f3dfd14e26a9	2026-04-16 00:06:05.313	2026-04-15 18:36:05.315
+755b7d61-df0b-45a9-9be0-6188c2a209e2	JIRA-1587: API Integration	OPEN	1.614819870398718	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:05.318
+6cceba0f-84d8-4650-a37e-cbdc9fee8972	JIRA-8552: API Integration	CLOSED	4.315130402967324	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	85dea961-0141-4140-b9c6-f3dfd14e26a9	2026-04-16 00:06:05.319	2026-04-15 18:36:05.321
+93bfb2d7-d427-4fe7-a76e-31f84a9ef680	JIRA-9627: API Integration	OPEN	3.612036428533794	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:05.324
+b64181c3-7f4f-48ff-a520-33d6dea489c0	JIRA-4233: API Integration	CLOSED	4.914354290635414	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	85dea961-0141-4140-b9c6-f3dfd14e26a9	2026-04-16 00:06:05.325	2026-04-15 18:36:05.327
+de9e8910-aca2-49da-8946-d7a9b521aab0	JIRA-5694: API Integration	OPEN	1.426783556251614	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:05.331
+79f2a664-b166-4ee7-b58f-3f06232609a1	JIRA-6363: API Integration	CLOSED	2.544740359449381	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	85dea961-0141-4140-b9c6-f3dfd14e26a9	2026-04-16 00:06:05.332	2026-04-15 18:36:05.334
+b4252aaf-8285-400e-9baf-eb279152265c	JIRA-5353: API Integration	OPEN	1.533264955784958	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:05.337
+a07301d8-e582-43ba-9e21-af847a3a70b4	JIRA-9341: API Integration	CLOSED	4.898696420404687	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	85dea961-0141-4140-b9c6-f3dfd14e26a9	2026-04-16 00:06:05.338	2026-04-15 18:36:05.34
+5b030e68-caaf-4724-b103-9b7137a90ed2	JIRA-9062: API Integration	OPEN	1.968396457562472	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:05.343
+5259e298-f915-4c87-8072-28054aa7eb5b	JIRA-2008: API Integration	CLOSED	4.773999990995311	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	85dea961-0141-4140-b9c6-f3dfd14e26a9	2026-04-16 00:06:05.343	2026-04-15 18:36:05.346
+b771ab6d-28c9-4f5f-8f87-00632d7de167	JIRA-2799: API Integration	CLOSED	4.041503550947159	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	85dea961-0141-4140-b9c6-f3dfd14e26a9	2026-04-16 00:06:05.346	2026-04-15 18:36:05.349
+0ddab508-82d5-4ca0-8c8d-74857d6ed4f2	JIRA-4524: API Integration	CLOSED	2.994115046775783	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	85dea961-0141-4140-b9c6-f3dfd14e26a9	2026-04-16 00:06:05.35	2026-04-15 18:36:05.352
+5189a8d0-11a4-4ad9-b4cc-b1e4a8b9b80c	JIRA-5801: API Integration	OPEN	1.716760624058083	8465e894-e6c3-4919-a3df-6f4d857f30d7	85dea961-0141-4140-b9c6-f3dfd14e26a9	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:05.356
+0605f93c-ca0c-4af7-8429-929a2aae36b7	JIRA-2580: API Integration	OPEN	4.113454472549082	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:05.43
+010c7c80-f78c-45cd-ac1a-ba93b7b4c492	JIRA-9137: API Integration	OPEN	1.385811376793348	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:05.432
+e7123e13-0e38-40c9-b707-6afce8671556	JIRA-3791: API Integration	CLOSED	2.065604142764614	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2026-04-16 00:06:05.433	2026-04-15 18:36:05.434
+51219887-ccae-42af-87dd-e7f8d5eec219	JIRA-3009: API Integration	OPEN	3.090795949512406	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:05.436
+3b18bf92-f982-4558-a3c5-56435c22e0dd	JIRA-5603: API Integration	OPEN	3.943110715986558	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:05.438
+959db5b1-0a44-4273-8cf4-0315bd3eb623	JIRA-8810: API Integration	CLOSED	3.547095919075809	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2026-04-16 00:06:05.439	2026-04-15 18:36:05.441
+2e29f6cb-528a-4ad6-88b1-04475b53d591	JIRA-4415: API Integration	CLOSED	4.322101160849126	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2026-04-16 00:06:05.441	2026-04-15 18:36:05.443
+5e56f58a-ebb9-453c-8caf-23454921a79b	JIRA-7715: API Integration	CLOSED	1.136794103223703	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2026-04-16 00:06:05.443	2026-04-15 18:36:05.445
+851a146c-d6ce-46df-81f4-10e272c06b42	JIRA-3714: API Integration	CLOSED	2.803966367635469	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2026-04-16 00:06:05.445	2026-04-15 18:36:05.447
+dabf43a5-1761-490f-a30e-b70ffa3610d3	JIRA-6235: API Integration	OPEN	3.74744078051938	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:05.448
+6896f204-4102-47a3-86b3-c36d174a0fff	JIRA-7807: API Integration	OPEN	1.294357442645615	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:05.45
+5b3eab17-155f-4fdd-bfed-d5c8db90bbac	JIRA-3436: API Integration	CLOSED	1.367465935543293	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	2026-04-16 00:06:05.45	2026-04-15 18:36:05.453
+3a1dd9be-f2f0-4114-83c3-8d649b5e3891	JIRA-1839: API Integration	OPEN	2.765419258628893	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:05.455
+c94a3b9f-d174-4f0b-b7c5-db0ef12465f7	JIRA-1855: API Integration	OPEN	4.988526200520372	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:05.457
+cf2b0eab-fd2e-4e6b-8072-0cce9b7b64fb	JIRA-1449: API Integration	CLOSED	3.743295745261002	dd9b845e-7538-4306-b480-e9fbcd48b6f4	bd6f42c0-60c5-4b7e-894a-524c311d026f	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	bd6f42c0-60c5-4b7e-894a-524c311d026f	2026-04-16 00:06:05.533	2026-04-15 18:36:05.535
+d0cd8016-bee4-4a45-a70f-c816a554fe10	JIRA-9388: API Integration	CLOSED	3.556380517413693	dd9b845e-7538-4306-b480-e9fbcd48b6f4	bd6f42c0-60c5-4b7e-894a-524c311d026f	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	bd6f42c0-60c5-4b7e-894a-524c311d026f	2026-04-16 00:06:05.535	2026-04-15 18:36:05.537
+5cc87f7d-3427-41c5-af50-27e07dfad936	JIRA-2775: API Integration	OPEN	1.335472347302564	dd9b845e-7538-4306-b480-e9fbcd48b6f4	bd6f42c0-60c5-4b7e-894a-524c311d026f	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:05.539
+2ec37482-d711-4183-b4d0-b758cac8b454	JIRA-6189: API Integration	OPEN	2.799925831299593	dd9b845e-7538-4306-b480-e9fbcd48b6f4	bd6f42c0-60c5-4b7e-894a-524c311d026f	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:05.541
+d18063ef-14c4-41a8-a06c-4ddb321585cf	JIRA-3087: API Integration	OPEN	1.483831343867139	dd9b845e-7538-4306-b480-e9fbcd48b6f4	bd6f42c0-60c5-4b7e-894a-524c311d026f	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:05.543
+c8ad2474-0789-48b7-a09b-d3d6a81ddc76	JIRA-4289: API Integration	OPEN	1.807220558949686	dd9b845e-7538-4306-b480-e9fbcd48b6f4	bd6f42c0-60c5-4b7e-894a-524c311d026f	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:05.544
+d7060d1b-0d18-4ec1-b6b7-d49bb7ace417	JIRA-3207: API Integration	OPEN	4.57460704483564	dd9b845e-7538-4306-b480-e9fbcd48b6f4	bd6f42c0-60c5-4b7e-894a-524c311d026f	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:05.546
+226be749-a66f-4627-be06-0b2ce1713087	JIRA-2689: API Integration	CLOSED	1.467040805717559	dd9b845e-7538-4306-b480-e9fbcd48b6f4	bd6f42c0-60c5-4b7e-894a-524c311d026f	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	bd6f42c0-60c5-4b7e-894a-524c311d026f	2026-04-16 00:06:05.547	2026-04-15 18:36:05.549
+20b27c0e-aaac-4263-80e0-c8bee19aa188	JIRA-5684: API Integration	CLOSED	4.957353110153592	dd9b845e-7538-4306-b480-e9fbcd48b6f4	bd6f42c0-60c5-4b7e-894a-524c311d026f	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	bd6f42c0-60c5-4b7e-894a-524c311d026f	2026-04-16 00:06:05.549	2026-04-15 18:36:05.551
+8c6b8b62-0553-4740-9408-7fa51eca1412	JIRA-8585: API Integration	OPEN	3.827100821027001	dd9b845e-7538-4306-b480-e9fbcd48b6f4	bd6f42c0-60c5-4b7e-894a-524c311d026f	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:05.552
+da8badf9-3dc1-4215-ac16-d4e14203d910	JIRA-6614: API Integration	CLOSED	2.923924768032015	594e286f-cc69-49da-883b-7ff2fcc87061	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	aa7cccf3-4edb-4a42-87df-41261f3b77b2	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	2026-04-16 00:06:05.62	2026-04-15 18:36:05.621
+8d8bc1ab-46e9-4903-b4c9-7f74a427fb18	JIRA-2094: API Integration	CLOSED	2.503666567836115	594e286f-cc69-49da-883b-7ff2fcc87061	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	aa7cccf3-4edb-4a42-87df-41261f3b77b2	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	2026-04-16 00:06:05.621	2026-04-15 18:36:05.623
+d57c29a4-8a0f-4a9f-8805-cfe36af28d76	JIRA-8767: API Integration	CLOSED	4.633625381829583	594e286f-cc69-49da-883b-7ff2fcc87061	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	aa7cccf3-4edb-4a42-87df-41261f3b77b2	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	2026-04-16 00:06:05.624	2026-04-15 18:36:05.625
+0d938e4f-3037-48b6-939d-514149b2eded	JIRA-6682: API Integration	OPEN	2.062943127405854	594e286f-cc69-49da-883b-7ff2fcc87061	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:05.627
+3a6aaf29-51e6-4ac8-bc59-fa742b0b7420	JIRA-4758: API Integration	CLOSED	1.668886684824499	594e286f-cc69-49da-883b-7ff2fcc87061	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	aa7cccf3-4edb-4a42-87df-41261f3b77b2	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	2026-04-16 00:06:05.626	2026-04-15 18:36:05.629
+377c3e61-197d-4e9f-a836-6cf1059d4a20	JIRA-7536: API Integration	CLOSED	3.523481261941353	594e286f-cc69-49da-883b-7ff2fcc87061	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	aa7cccf3-4edb-4a42-87df-41261f3b77b2	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	2026-04-16 00:06:05.629	2026-04-15 18:36:05.631
+0b57eebf-e7ab-4360-a071-bf99128e3670	JIRA-5314: API Integration	OPEN	1.303880311924671	594e286f-cc69-49da-883b-7ff2fcc87061	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:05.633
+5307897f-466a-420f-af0d-2308a25de57d	JIRA-6807: API Integration	CLOSED	4.02181544235404	594e286f-cc69-49da-883b-7ff2fcc87061	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	aa7cccf3-4edb-4a42-87df-41261f3b77b2	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	2026-04-16 00:06:05.633	2026-04-15 18:36:05.635
+9754f553-4405-4f71-8220-8ea3aab66f3f	JIRA-8195: API Integration	CLOSED	4.152427982321539	594e286f-cc69-49da-883b-7ff2fcc87061	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	aa7cccf3-4edb-4a42-87df-41261f3b77b2	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	2026-04-16 00:06:05.635	2026-04-15 18:36:05.637
+37854ba7-cdec-41dd-93ac-a53a9afc5749	JIRA-6890: API Integration	CLOSED	4.717686043194066	594e286f-cc69-49da-883b-7ff2fcc87061	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	aa7cccf3-4edb-4a42-87df-41261f3b77b2	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	2026-04-16 00:06:05.637	2026-04-15 18:36:05.639
+859e7452-cba7-4612-9395-c7a1585eaecc	JIRA-4870: API Integration	CLOSED	2.860791000689666	594e286f-cc69-49da-883b-7ff2fcc87061	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	aa7cccf3-4edb-4a42-87df-41261f3b77b2	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	2026-04-16 00:06:05.639	2026-04-15 18:36:05.641
+bbb006f4-dd93-4749-b6b6-dfebdc30b1e9	JIRA-9876: API Integration	CLOSED	1.421784230936175	594e286f-cc69-49da-883b-7ff2fcc87061	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	aa7cccf3-4edb-4a42-87df-41261f3b77b2	fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	2026-04-16 00:06:05.641	2026-04-15 18:36:05.643
+550ecb03-f6fb-4e1c-beb4-5acadebde1b1	JIRA-3633: API Integration	CLOSED	1.807242428535472	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	f563015a-2a62-4e5d-b494-e76712c3fc00	2026-04-16 00:06:05.726	2026-04-15 18:36:05.728
+1f69025e-f6b7-48bf-ae0a-ffe529e1dc74	JIRA-5133: API Integration	OPEN	3.12946379710575	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:05.731
+c252d99b-7c38-405e-bb42-79af44d241d5	JIRA-5775: API Integration	CLOSED	2.630242882509711	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	f563015a-2a62-4e5d-b494-e76712c3fc00	2026-04-16 00:06:05.731	2026-04-15 18:36:05.733
+aca11a79-4707-4feb-87ee-bef7184f561b	JIRA-7197: API Integration	CLOSED	3.548653564857345	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	f563015a-2a62-4e5d-b494-e76712c3fc00	2026-04-16 00:06:05.733	2026-04-15 18:36:05.735
+9c6bd431-2ad8-432e-bf5e-54e9d71989dc	JIRA-5696: API Integration	OPEN	2.24417006948577	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:05.738
+04a75bfa-20c7-44e2-a8aa-78120f15d877	JIRA-6681: API Integration	OPEN	1.895734214839591	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:05.74
+646ffec3-bd8e-4856-b68a-21bce87e83c0	JIRA-4046: API Integration	OPEN	3.752120074978663	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:05.741
+eff82c88-42a1-4338-afef-b8f3caae8be7	JIRA-4240: API Integration	OPEN	3.118036375061235	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:05.743
+ab6b020d-f1dd-464b-9629-18de5f3b150d	JIRA-3878: API Integration	OPEN	1.671794541167968	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:05.746
+4e5b7129-a741-4b7c-9269-21e517162f95	JIRA-4875: API Integration	OPEN	2.186912344029878	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:05.748
+061f466b-5139-4488-846e-19ce011fd4d6	JIRA-7836: API Integration	OPEN	4.490727201314511	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:05.75
+15a73558-a04c-4f1e-9ff4-5b767e5dbc05	JIRA-9541: API Integration	OPEN	3.673379436663748	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:05.753
+fc0939ad-ebbe-4569-a6ed-3c83c30e62a0	JIRA-6711: API Integration	CLOSED	4.501620960463275	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	f563015a-2a62-4e5d-b494-e76712c3fc00	2026-04-16 00:06:05.753	2026-04-15 18:36:05.755
+200f225d-b917-4ad7-920a-ab83e4836dc3	JIRA-6627: API Integration	OPEN	3.680452450371164	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:05.756
+b6a16f7d-a855-4d85-a3e7-39b07f68bd29	JIRA-4201: API Integration	CLOSED	3.561119936071348	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	0b0f005d-3943-4384-8f1b-b6210e5071e5	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	0b0f005d-3943-4384-8f1b-b6210e5071e5	2026-04-16 00:06:05.817	2026-04-15 18:36:05.819
+f2f9d89f-ab47-4d1a-8038-8a2fd65763d6	JIRA-8220: API Integration	CLOSED	4.821557486662771	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	0b0f005d-3943-4384-8f1b-b6210e5071e5	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	0b0f005d-3943-4384-8f1b-b6210e5071e5	2026-04-16 00:06:05.818	2026-04-15 18:36:05.821
+8963aa39-5682-4023-b52f-fd3985c1a61a	JIRA-9616: API Integration	OPEN	2.821329836223283	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	0b0f005d-3943-4384-8f1b-b6210e5071e5	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:05.823
+f616f0d6-1e7e-4242-8b10-f9c59943500c	JIRA-8355: API Integration	CLOSED	1.841499462496959	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	0b0f005d-3943-4384-8f1b-b6210e5071e5	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	0b0f005d-3943-4384-8f1b-b6210e5071e5	2026-04-16 00:06:05.823	2026-04-15 18:36:05.825
+23220cb4-1013-4874-97c9-51a729f4c923	JIRA-8489: API Integration	OPEN	4.396671723637187	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	0b0f005d-3943-4384-8f1b-b6210e5071e5	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:05.827
+120e1775-99f4-437d-9f0a-0050da9b5f18	JIRA-6883: API Integration	CLOSED	4.63516344862675	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	0b0f005d-3943-4384-8f1b-b6210e5071e5	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	0b0f005d-3943-4384-8f1b-b6210e5071e5	2026-04-16 00:06:05.828	2026-04-15 18:36:05.829
+d20f5ae9-b9cf-45ec-8172-05077f5b734b	JIRA-7751: API Integration	OPEN	3.874809396577693	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	0b0f005d-3943-4384-8f1b-b6210e5071e5	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:05.831
+0f4d2ed8-f78f-4a8e-8416-d52a732dbb2c	JIRA-1857: API Integration	CLOSED	3.706445923102399	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	0b0f005d-3943-4384-8f1b-b6210e5071e5	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	0b0f005d-3943-4384-8f1b-b6210e5071e5	2026-04-16 00:06:05.831	2026-04-15 18:36:05.833
+a3a92ebd-1b8d-4586-9a12-6d88b2198387	JIRA-5128: API Integration	CLOSED	4.036274713573452	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	0b0f005d-3943-4384-8f1b-b6210e5071e5	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	0b0f005d-3943-4384-8f1b-b6210e5071e5	2026-04-16 00:06:05.833	2026-04-15 18:36:05.835
+07905eee-ce50-48d7-b96f-8af0fc9b4106	JIRA-4534: API Integration	OPEN	3.16018596050351	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	0b0f005d-3943-4384-8f1b-b6210e5071e5	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:05.836
+01ff620a-1e7b-4b77-be2c-01c4bfa52509	JIRA-1875: API Integration	OPEN	3.663914262045684	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	895f4fc3-59f8-4aea-870f-b20abc918ffe	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:05.893
+378cd55c-406c-4bfe-95d8-c12a7403ddab	JIRA-1244: API Integration	CLOSED	4.830107116022736	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	895f4fc3-59f8-4aea-870f-b20abc918ffe	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	895f4fc3-59f8-4aea-870f-b20abc918ffe	2026-04-16 00:06:05.893	2026-04-15 18:36:05.895
+838f348b-45aa-4522-95e0-6b7ceaabb903	JIRA-9677: API Integration	CLOSED	2.727959301072477	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	895f4fc3-59f8-4aea-870f-b20abc918ffe	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	895f4fc3-59f8-4aea-870f-b20abc918ffe	2026-04-16 00:06:05.896	2026-04-15 18:36:05.897
+f52837d7-7312-4892-b626-525a11ad2fbc	JIRA-8902: API Integration	CLOSED	2.990955016600489	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	895f4fc3-59f8-4aea-870f-b20abc918ffe	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	895f4fc3-59f8-4aea-870f-b20abc918ffe	2026-04-16 00:06:05.897	2026-04-15 18:36:05.899
+32281162-f95b-40d4-9756-2233f7c55d23	JIRA-4091: API Integration	OPEN	4.098111989561307	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	895f4fc3-59f8-4aea-870f-b20abc918ffe	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:05.901
+e88bfa51-6fbc-4984-8c00-ae4b5716c3a1	JIRA-3793: API Integration	CLOSED	4.316003567915593	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	895f4fc3-59f8-4aea-870f-b20abc918ffe	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	895f4fc3-59f8-4aea-870f-b20abc918ffe	2026-04-16 00:06:05.901	2026-04-15 18:36:05.903
+ea1f8bcc-59f4-4097-8275-3b70c1350792	JIRA-6726: API Integration	OPEN	3.631174294832305	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	895f4fc3-59f8-4aea-870f-b20abc918ffe	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:05.905
+b4b84a8c-1452-406a-8eaf-d0c7427f43ab	JIRA-4768: API Integration	OPEN	3.310946583411555	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	895f4fc3-59f8-4aea-870f-b20abc918ffe	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:05.907
+e150d1f4-909f-4889-b35d-0c76fb12c776	JIRA-2989: API Integration	OPEN	2.647958436390759	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	895f4fc3-59f8-4aea-870f-b20abc918ffe	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:05.909
+ea5cd332-9150-41b3-bb39-53b335b1cb93	JIRA-4752: API Integration	OPEN	1.409846243231328	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	895f4fc3-59f8-4aea-870f-b20abc918ffe	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:05.911
+df9feec4-0608-4506-96ef-b7775c6883cd	JIRA-2116: API Integration	OPEN	1.094483042167821	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:05.973
+11fcd53b-d49a-4a3e-8b58-f198aba052d7	JIRA-3396: API Integration	CLOSED	4.993662937213647	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	e7d09ede-899c-4b1d-a224-98865fd411bd	2026-04-16 00:06:05.973	2026-04-15 18:36:05.975
+591fc9c5-1ae3-488b-95e6-538b3198476e	JIRA-4235: API Integration	CLOSED	4.034182822456868	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	e7d09ede-899c-4b1d-a224-98865fd411bd	2026-04-16 00:06:05.975	2026-04-15 18:36:05.977
+b43c7ae4-781a-4342-9637-ace1bae145ca	JIRA-4979: API Integration	OPEN	3.447399044100953	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:05.978
+edfbbccf-5174-49eb-86cc-9c3c2f2815ce	JIRA-7012: API Integration	CLOSED	1.452051180397485	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	e7d09ede-899c-4b1d-a224-98865fd411bd	2026-04-16 00:06:05.979	2026-04-15 18:36:05.98
+6c295c03-d649-446d-8f87-7121cdd699c7	JIRA-6683: API Integration	CLOSED	4.822906415334982	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	e7d09ede-899c-4b1d-a224-98865fd411bd	2026-04-16 00:06:05.981	2026-04-15 18:36:05.983
+a4d7a4ef-22f8-43b5-9b76-d7268d66deb1	JIRA-4015: API Integration	CLOSED	4.876192861355744	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	e7d09ede-899c-4b1d-a224-98865fd411bd	2026-04-16 00:06:05.984	2026-04-15 18:36:05.985
+f99fed6c-814d-444c-a44b-2c1c1938a5ca	JIRA-6974: API Integration	OPEN	2.33720528289343	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:05.988
+08bbcdb8-84c7-40f6-aa8f-df2914a5fa93	JIRA-5702: API Integration	CLOSED	2.341748568123195	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	e7d09ede-899c-4b1d-a224-98865fd411bd	2026-04-16 00:06:05.989	2026-04-15 18:36:05.991
+7f5e493b-4497-4151-825d-899cd7f86784	JIRA-7962: API Integration	CLOSED	4.673087013527534	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	e7d09ede-899c-4b1d-a224-98865fd411bd	2026-04-16 00:06:05.991	2026-04-15 18:36:05.993
+013f8ae6-c8b7-4b03-aed8-8638549b6b84	JIRA-1177: API Integration	OPEN	4.397660018256376	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:05.997
+e2558a05-f367-4d99-b079-439a04d3e404	JIRA-6628: API Integration	CLOSED	3.436242973653575	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	e7d09ede-899c-4b1d-a224-98865fd411bd	2026-04-16 00:06:05.997	2026-04-15 18:36:05.999
+9a08b0a1-fd5f-4c53-b413-b97fc3500b16	JIRA-4940: API Integration	OPEN	1.339922506052608	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:06.002
+4257abec-2e09-4522-821c-7cae263a2d43	JIRA-9282: API Integration	CLOSED	2.599269810457195	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	e7d09ede-899c-4b1d-a224-98865fd411bd	2026-04-16 00:06:06.003	2026-04-15 18:36:06.005
+347717cc-e239-41b2-a3de-7da050c96f15	JIRA-7239: API Integration	OPEN	3.084064156558411	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	e7d09ede-899c-4b1d-a224-98865fd411bd	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:06.008
+cad1ce23-f5b3-4e98-83de-164e164423c1	JIRA-4595: API Integration	CLOSED	4.581822153347952	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-16 00:06:06.08	2026-04-15 18:36:06.081
+7b4cec08-2570-404a-8aad-2437e958a95b	JIRA-9437: API Integration	CLOSED	4.296255634265544	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-16 00:06:06.081	2026-04-15 18:36:06.083
+582629df-04e0-4af3-8935-0fc38be7c8ba	JIRA-3749: API Integration	CLOSED	3.459230532098866	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-16 00:06:06.083	2026-04-15 18:36:06.085
+6da18942-26d6-41dc-b2f8-101499b22d06	JIRA-1592: API Integration	CLOSED	2.561381047807156	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-16 00:06:06.085	2026-04-15 18:36:06.087
+72f08780-cf7b-4df4-88e0-9257fc61a0fa	JIRA-1444: API Integration	OPEN	1.023003514155715	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:06.089
+9a412c4d-6a84-4029-8cd1-86be8572174f	JIRA-3750: API Integration	CLOSED	3.659367035714255	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-16 00:06:06.088	2026-04-15 18:36:06.091
+a3bfbd23-1484-453a-b06a-06d582a1267a	JIRA-6665: API Integration	CLOSED	2.461666523372009	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-16 00:06:06.091	2026-04-15 18:36:06.093
+ff1c7103-9844-48bf-8b7b-ff21b8a867da	JIRA-2463: API Integration	CLOSED	1.324104988142408	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-16 00:06:06.093	2026-04-15 18:36:06.095
+9e93a7f5-b6f5-4d73-b034-2b0512cad7e3	JIRA-2551: API Integration	CLOSED	1.426299738617421	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-16 00:06:06.095	2026-04-15 18:36:06.097
+bc06dee7-65d8-4e29-8355-ea4bfe26f2ad	JIRA-8043: API Integration	CLOSED	2.63062181114187	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-16 00:06:06.096	2026-04-15 18:36:06.098
+7cb6e520-eb3d-4045-8406-8da37805a785	JIRA-6339: API Integration	CLOSED	1.719731732333901	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-16 00:06:06.098	2026-04-15 18:36:06.1
+2c68fca8-aaf6-4683-8dce-6488f2bd026e	JIRA-7678: API Integration	OPEN	1.976278655730392	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:06.102
+69eb0021-fbbf-4de2-8206-7f7460e3a8c1	JIRA-8760: API Integration	OPEN	3.701053321284939	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:06.104
+2aba7377-a586-4dbd-9e15-f31c7b2082cd	JIRA-3741: API Integration	CLOSED	4.671374783792208	551a836f-c2c2-4418-a73c-76dbfafd8442	2dcdf168-3b3c-4839-93b1-f18a1d089d02	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	2dcdf168-3b3c-4839-93b1-f18a1d089d02	2026-04-16 00:06:06.104	2026-04-15 18:36:06.106
+65edd4dd-5353-464c-a39a-3b643e83cbf4	JIRA-3648: API Integration	OPEN	4.880432768839222	176cf575-1e8f-4447-93d3-2999415d2173	7788fc3c-93f4-469b-879b-243d7f9623ec	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:06.173
+d8bd508c-3849-4625-8c52-92acb611d277	JIRA-3517: API Integration	CLOSED	4.292734581488318	176cf575-1e8f-4447-93d3-2999415d2173	7788fc3c-93f4-469b-879b-243d7f9623ec	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	7788fc3c-93f4-469b-879b-243d7f9623ec	2026-04-16 00:06:06.173	2026-04-15 18:36:06.175
+85a0ce6a-8e0d-4b20-a26f-f935a4b23a21	JIRA-5187: API Integration	CLOSED	4.31476427367328	176cf575-1e8f-4447-93d3-2999415d2173	7788fc3c-93f4-469b-879b-243d7f9623ec	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	7788fc3c-93f4-469b-879b-243d7f9623ec	2026-04-16 00:06:06.176	2026-04-15 18:36:06.177
+16e0ba8b-9aa6-425c-90fa-c88c823948a4	JIRA-7392: API Integration	OPEN	2.947118102829815	176cf575-1e8f-4447-93d3-2999415d2173	7788fc3c-93f4-469b-879b-243d7f9623ec	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:06.179
+927828ff-7006-44d5-9fdb-397f62cae2e4	JIRA-8228: API Integration	OPEN	4.76995081975897	176cf575-1e8f-4447-93d3-2999415d2173	7788fc3c-93f4-469b-879b-243d7f9623ec	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:06.182
+b25d3d37-f35a-4e2b-a8c1-b2616ec506ec	JIRA-2524: API Integration	CLOSED	1.964645405794681	176cf575-1e8f-4447-93d3-2999415d2173	7788fc3c-93f4-469b-879b-243d7f9623ec	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	7788fc3c-93f4-469b-879b-243d7f9623ec	2026-04-16 00:06:06.182	2026-04-15 18:36:06.184
+ea34f195-cb7e-422d-b3e4-defb289e15c7	JIRA-2665: API Integration	CLOSED	1.487748657396363	176cf575-1e8f-4447-93d3-2999415d2173	7788fc3c-93f4-469b-879b-243d7f9623ec	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	7788fc3c-93f4-469b-879b-243d7f9623ec	2026-04-16 00:06:06.185	2026-04-15 18:36:06.186
+a9d9f846-4d2f-49be-8929-56f0555b69a9	JIRA-9300: API Integration	CLOSED	1.673097432644286	176cf575-1e8f-4447-93d3-2999415d2173	7788fc3c-93f4-469b-879b-243d7f9623ec	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	7788fc3c-93f4-469b-879b-243d7f9623ec	2026-04-16 00:06:06.187	2026-04-15 18:36:06.188
+493627bc-d0df-4035-a840-e3eef88251fb	JIRA-6924: API Integration	OPEN	2.905966082211813	176cf575-1e8f-4447-93d3-2999415d2173	7788fc3c-93f4-469b-879b-243d7f9623ec	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:06.191
+80f0e328-7f28-43eb-9db5-94853b6dbc25	JIRA-5347: API Integration	OPEN	1.841551831650684	176cf575-1e8f-4447-93d3-2999415d2173	7788fc3c-93f4-469b-879b-243d7f9623ec	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:06.193
+5660eb15-475b-4e25-a02e-5f1a154eee89	JIRA-8732: API Integration	CLOSED	2.974428958738963	176cf575-1e8f-4447-93d3-2999415d2173	7788fc3c-93f4-469b-879b-243d7f9623ec	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	7788fc3c-93f4-469b-879b-243d7f9623ec	2026-04-16 00:06:06.194	2026-04-15 18:36:06.196
+eb29e5da-f215-47cf-a3fe-aef16d726ead	JIRA-2246: API Integration	CLOSED	4.894193903553245	176cf575-1e8f-4447-93d3-2999415d2173	7788fc3c-93f4-469b-879b-243d7f9623ec	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	7788fc3c-93f4-469b-879b-243d7f9623ec	2026-04-16 00:06:06.197	2026-04-15 18:36:06.199
+7bad053c-38a7-42e5-95b4-1abee2a22615	JIRA-5763: API Integration	OPEN	4.027012029120667	c7599686-6b3b-44e0-b391-ea15e2e2823b	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:06.289
+d92686d2-40b3-4991-81e2-93e12ed366e7	JIRA-8158: API Integration	OPEN	2.926341156353179	c7599686-6b3b-44e0-b391-ea15e2e2823b	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:06.291
+9072588e-967d-4c22-9dc1-a1dac965379c	JIRA-1224: API Integration	OPEN	1.74224930886763	c7599686-6b3b-44e0-b391-ea15e2e2823b	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:06.294
+d33c531c-6710-47da-9226-2c8365f9d688	JIRA-5202: API Integration	CLOSED	4.076005645306823	c7599686-6b3b-44e0-b391-ea15e2e2823b	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	ad644a94-f98d-4e72-9fd0-c69447f09c61	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	2026-04-16 00:06:06.295	2026-04-15 18:36:06.297
+0a205ec3-40b3-4200-b322-159cd6e3cb89	JIRA-6786: API Integration	CLOSED	1.989217419223747	c7599686-6b3b-44e0-b391-ea15e2e2823b	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	ad644a94-f98d-4e72-9fd0-c69447f09c61	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	2026-04-16 00:06:06.297	2026-04-15 18:36:06.299
+07b978c1-a778-471d-8634-0c318817cda5	JIRA-9490: API Integration	CLOSED	1.839769641389314	c7599686-6b3b-44e0-b391-ea15e2e2823b	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	ad644a94-f98d-4e72-9fd0-c69447f09c61	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	2026-04-16 00:06:06.3	2026-04-15 18:36:06.302
+feaa1011-0e18-40e3-a5d5-0b014d21ae17	JIRA-8142: API Integration	OPEN	1.680529066769399	c7599686-6b3b-44e0-b391-ea15e2e2823b	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:06.304
+b240e395-7d0c-4cfd-bfba-6e2813144027	JIRA-1125: API Integration	OPEN	3.59057217385816	c7599686-6b3b-44e0-b391-ea15e2e2823b	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:06.306
+3cf7744e-f6ad-471e-9c67-63250dc76cd5	JIRA-8581: API Integration	CLOSED	1.804845598022397	c7599686-6b3b-44e0-b391-ea15e2e2823b	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	ad644a94-f98d-4e72-9fd0-c69447f09c61	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	2026-04-16 00:06:06.306	2026-04-15 18:36:06.309
+dc9500d6-76f1-4f17-adc5-b07da13d2302	JIRA-4402: API Integration	OPEN	2.370026641013841	c7599686-6b3b-44e0-b391-ea15e2e2823b	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:06.311
+e347d169-b572-4a49-b9cf-b3bab7807f83	JIRA-6748: API Integration	CLOSED	1.766078654141343	c7599686-6b3b-44e0-b391-ea15e2e2823b	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	ad644a94-f98d-4e72-9fd0-c69447f09c61	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	2026-04-16 00:06:06.31	2026-04-15 18:36:06.313
+1b1ae831-1e86-4775-aaac-ebb78ce3b716	JIRA-6293: API Integration	CLOSED	3.965474472221927	c7599686-6b3b-44e0-b391-ea15e2e2823b	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	ad644a94-f98d-4e72-9fd0-c69447f09c61	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	2026-04-16 00:06:06.313	2026-04-15 18:36:06.315
+6a16c804-894d-4cea-b27f-6aa8b3ae7ae8	JIRA-7016: API Integration	CLOSED	4.364648646403449	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	2026-04-16 00:06:06.371	2026-04-15 18:36:06.373
+bf676655-b701-41ab-a055-5ad49b6e9adf	JIRA-2739: API Integration	OPEN	1.305846824985879	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:06.376
+5bcb1a8f-b9b3-4c5c-9b25-97dcb10f8f18	JIRA-7879: API Integration	OPEN	2.078338431333399	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:06.378
+0ebb92ef-669b-45fc-9758-16812a54a660	JIRA-3145: API Integration	OPEN	3.67972807475635	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:06.38
+9e22bd01-3c22-4053-a479-e954d88ccf62	JIRA-4757: API Integration	CLOSED	4.216198873357893	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	2026-04-16 00:06:06.381	2026-04-15 18:36:06.383
+031370aa-52d5-4ccc-b859-427c76e5fe6a	JIRA-9969: API Integration	OPEN	2.94326806348107	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:06.385
+bc82cb90-6555-42ff-b63d-9c64c45a818c	JIRA-5754: API Integration	CLOSED	4.881325299692154	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	2026-04-16 00:06:06.386	2026-04-15 18:36:06.388
+2b8196bb-bf55-4a4a-91ba-8ca3e4037425	JIRA-2886: API Integration	OPEN	2.573402112309178	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:06.39
+37a43354-6188-4015-b6ef-2277634bc2e2	JIRA-6895: API Integration	CLOSED	3.723611448031761	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	2026-04-16 00:06:06.39	2026-04-15 18:36:06.392
+2915a50a-dbd9-4e50-9da0-e12c6406e056	JIRA-5037: API Integration	OPEN	4.231030897449506	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:06.394
+6cbb0bd0-c95f-4d9c-9714-66231a88720f	JIRA-8998: API Integration	CLOSED	1.704634563548568	dd9b845e-7538-4306-b480-e9fbcd48b6f4	6a4ada48-0604-4d1f-abef-a3e921a9acb3	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	6a4ada48-0604-4d1f-abef-a3e921a9acb3	2026-04-16 00:06:06.458	2026-04-15 18:36:06.46
+4bd42efa-a015-4276-9404-b61872ecfbf7	JIRA-2294: API Integration	OPEN	3.801068349527922	dd9b845e-7538-4306-b480-e9fbcd48b6f4	6a4ada48-0604-4d1f-abef-a3e921a9acb3	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:06.463
+484998d7-1603-46b2-9373-48d164fa4b49	JIRA-9767: API Integration	OPEN	2.98618077560664	dd9b845e-7538-4306-b480-e9fbcd48b6f4	6a4ada48-0604-4d1f-abef-a3e921a9acb3	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:06.466
+db7fe016-04c0-4805-a1ed-41ecea82dcbc	JIRA-1989: API Integration	OPEN	3.123764968640927	dd9b845e-7538-4306-b480-e9fbcd48b6f4	6a4ada48-0604-4d1f-abef-a3e921a9acb3	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:06.468
+6b596825-4468-4fbe-9565-00ab3882552a	JIRA-5130: API Integration	CLOSED	4.48620906710773	dd9b845e-7538-4306-b480-e9fbcd48b6f4	6a4ada48-0604-4d1f-abef-a3e921a9acb3	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	6a4ada48-0604-4d1f-abef-a3e921a9acb3	2026-04-16 00:06:06.468	2026-04-15 18:36:06.47
+1567092b-5af7-4bd6-a980-50aca0e4f23b	JIRA-3110: API Integration	CLOSED	1.145508639293956	dd9b845e-7538-4306-b480-e9fbcd48b6f4	6a4ada48-0604-4d1f-abef-a3e921a9acb3	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	6a4ada48-0604-4d1f-abef-a3e921a9acb3	2026-04-16 00:06:06.471	2026-04-15 18:36:06.473
+50ce1930-8a83-4e70-b5c9-3b96edb3afae	JIRA-1482: API Integration	CLOSED	2.606472629138977	dd9b845e-7538-4306-b480-e9fbcd48b6f4	6a4ada48-0604-4d1f-abef-a3e921a9acb3	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	6a4ada48-0604-4d1f-abef-a3e921a9acb3	2026-04-16 00:06:06.473	2026-04-15 18:36:06.476
+51c3fb97-1466-4a45-95ea-49ecc90f3151	JIRA-4306: API Integration	CLOSED	1.776043092011216	dd9b845e-7538-4306-b480-e9fbcd48b6f4	6a4ada48-0604-4d1f-abef-a3e921a9acb3	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	6a4ada48-0604-4d1f-abef-a3e921a9acb3	2026-04-16 00:06:06.477	2026-04-15 18:36:06.479
+acffdbd9-c0bf-4715-8b83-889d65c7b381	JIRA-6766: API Integration	OPEN	1.155321167904241	dd9b845e-7538-4306-b480-e9fbcd48b6f4	6a4ada48-0604-4d1f-abef-a3e921a9acb3	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:06.483
+82f5adff-a0a5-4f6b-b82c-a065c3b8a3f1	JIRA-6585: API Integration	CLOSED	2.000408734521577	dd9b845e-7538-4306-b480-e9fbcd48b6f4	6a4ada48-0604-4d1f-abef-a3e921a9acb3	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	6a4ada48-0604-4d1f-abef-a3e921a9acb3	2026-04-16 00:06:06.485	2026-04-15 18:36:06.487
+9a842586-7e1c-4721-9cda-b2313a84bb73	JIRA-4214: API Integration	CLOSED	3.668179049710163	dd9b845e-7538-4306-b480-e9fbcd48b6f4	6a4ada48-0604-4d1f-abef-a3e921a9acb3	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	6a4ada48-0604-4d1f-abef-a3e921a9acb3	2026-04-16 00:06:06.488	2026-04-15 18:36:06.49
+bc889e04-a1ae-4c56-b282-08155a621e39	JIRA-5120: API Integration	OPEN	2.044063538806688	dd9b845e-7538-4306-b480-e9fbcd48b6f4	6a4ada48-0604-4d1f-abef-a3e921a9acb3	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:06.493
+0720a165-3cbe-4b52-b16f-eb9651187994	JIRA-1747: API Integration	OPEN	2.502705431388904	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:06.569
+21fb525a-357e-4f01-ab6d-343830801ce8	JIRA-7880: API Integration	OPEN	3.458844946189615	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:06.571
+cabe658e-ea58-4c95-9aa9-d30ffc7cf721	JIRA-9150: API Integration	OPEN	2.216962012995108	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:06.573
+fdb47a4f-366e-4fe9-a0bb-b6b3fdb1f5b7	JIRA-2418: API Integration	OPEN	3.568041073529924	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:06.575
+d661203c-d1a9-44dc-93a5-2f97738b8ffa	JIRA-1225: API Integration	OPEN	4.358301076827241	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:06.577
+583ad151-1499-4a60-89fa-adef3b5dddf5	JIRA-8779: API Integration	OPEN	4.277012924704682	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:06.579
+99d32aff-aac2-46e8-a39c-6865e54f546b	JIRA-3034: API Integration	OPEN	3.802800759861559	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:06.581
+93f74f58-9db8-4b7a-ba8c-b534e0888ab6	JIRA-3367: API Integration	OPEN	3.448828525560189	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:06.583
+1f888eb9-0c5c-4fb9-b8e9-dc366724880a	JIRA-5858: API Integration	CLOSED	2.612989935109411	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	714c5335-de73-4dd7-87bb-e59cfd464af1	2026-04-16 00:06:06.583	2026-04-15 18:36:06.585
+3a217e4a-ad2c-4ac5-8184-34f0c8c98983	JIRA-1938: API Integration	CLOSED	1.608559126738737	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	714c5335-de73-4dd7-87bb-e59cfd464af1	2026-04-16 00:06:06.585	2026-04-15 18:36:06.587
+c0c6913b-d9ad-4b30-b2f4-8cc4dae161bd	JIRA-9460: API Integration	OPEN	1.965446089187623	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:06.589
+4ca1ebce-9fb8-4f4a-9e22-6ab93ac097f8	JIRA-3753: API Integration	OPEN	1.44548926019203	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:06.592
+8d4c9cd5-17e1-4468-be8c-4f47c2706939	JIRA-1864: API Integration	OPEN	2.289635806197598	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:06.594
+fa229d79-31d2-4885-8e99-a5f02c3c6f26	JIRA-5097: API Integration	OPEN	3.44675513842916	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:06.596
+8735e883-0e5f-4bf8-b559-910f0fd2d188	JIRA-2879: API Integration	OPEN	4.70480255940222	594e286f-cc69-49da-883b-7ff2fcc87061	714c5335-de73-4dd7-87bb-e59cfd464af1	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:06.599
+8bf21e6d-f1d8-4214-842a-637271146a8e	JIRA-5165: API Integration	CLOSED	4.808016733287124	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	17527b7e-8e00-4412-8e70-1bfcafde77bb	2026-04-16 00:06:06.673	2026-04-15 18:36:06.675
+f8fa5f7f-8849-4714-a620-97254a3f3e1e	JIRA-5588: API Integration	OPEN	4.070670990029627	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:06.679
+3c55eb72-7854-485e-a66d-94159bda3f39	JIRA-9613: API Integration	CLOSED	1.912660930661318	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	17527b7e-8e00-4412-8e70-1bfcafde77bb	2026-04-16 00:06:06.68	2026-04-15 18:36:06.682
+6930e4cd-d682-409e-814b-78e9a04232aa	JIRA-5673: API Integration	OPEN	4.036425403614257	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:06.685
+66d3e4e0-6e7b-4bb1-86b6-98d9e7743f71	JIRA-3641: API Integration	CLOSED	4.043359476336828	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	17527b7e-8e00-4412-8e70-1bfcafde77bb	2026-04-16 00:06:06.686	2026-04-15 18:36:06.688
+0c5b49fe-2849-4075-b453-a771f86e339a	JIRA-8486: API Integration	OPEN	4.017254077464342	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:06.691
+c4a71beb-04f6-4575-b8a9-b3c8f643c2de	JIRA-4656: API Integration	CLOSED	1.823176105496702	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	17527b7e-8e00-4412-8e70-1bfcafde77bb	2026-04-16 00:06:06.691	2026-04-15 18:36:06.693
+0d5472c2-fa88-4362-9880-f20dd4299734	JIRA-6091: API Integration	OPEN	1.768207558774697	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:06.697
+e1c14a95-9f5f-4bfa-a5d4-3e83adfe8674	JIRA-4998: API Integration	OPEN	4.225664591639166	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:06.7
+4affe8df-0886-4633-866f-9c11909ebc1d	JIRA-5298: API Integration	OPEN	1.035437485810726	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:06.703
+0b98d48c-3a99-4066-ab19-5130e7784786	JIRA-7095: API Integration	CLOSED	2.781205165444207	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	17527b7e-8e00-4412-8e70-1bfcafde77bb	2026-04-16 00:06:06.704	2026-04-15 18:36:06.706
+61644b11-cfe8-4b02-9a4c-0b10373e90e2	JIRA-2577: API Integration	OPEN	1.566059797035127	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:06.709
+8e5400c1-f1a7-4bee-b4b5-49540f4e8e7a	JIRA-1563: API Integration	OPEN	1.934323707694282	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:06.715
+8de94721-4cea-4e56-92e1-7adbaa95567d	JIRA-6258: API Integration	CLOSED	2.087001392150517	6e156838-4c84-457f-a32a-06e9f55602b9	17527b7e-8e00-4412-8e70-1bfcafde77bb	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	17527b7e-8e00-4412-8e70-1bfcafde77bb	2026-04-16 00:06:06.717	2026-04-15 18:36:06.719
+c968f761-68be-4e8a-86c6-7ab82f1461d6	JIRA-8668: API Integration	OPEN	2.251275748988958	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	3d4681a2-47e9-4e57-902e-2c16de8e378e	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:06.79
+837eecf6-0ffe-4325-80f3-731cbf9ab178	JIRA-2273: API Integration	OPEN	3.03707558896076	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	3d4681a2-47e9-4e57-902e-2c16de8e378e	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:06.793
+d67d6b57-93f3-4b61-819b-21d0520bf61a	JIRA-9917: API Integration	OPEN	2.8674145958192	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	3d4681a2-47e9-4e57-902e-2c16de8e378e	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:06.795
+cc986895-0642-4786-b9d1-698c3372025e	JIRA-9974: API Integration	CLOSED	4.979275653771526	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	3d4681a2-47e9-4e57-902e-2c16de8e378e	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	3d4681a2-47e9-4e57-902e-2c16de8e378e	2026-04-16 00:06:06.796	2026-04-15 18:36:06.798
+d2c847e7-de2d-4233-bbad-f41e3715d4c3	JIRA-4192: API Integration	CLOSED	2.690634928884497	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	3d4681a2-47e9-4e57-902e-2c16de8e378e	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	3d4681a2-47e9-4e57-902e-2c16de8e378e	2026-04-16 00:06:06.799	2026-04-15 18:36:06.8
+03b66aa1-da94-477e-81bf-a819b89ec33f	JIRA-1332: API Integration	OPEN	1.116002627683788	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	3d4681a2-47e9-4e57-902e-2c16de8e378e	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:06.802
+d26fd04a-ef93-461a-b61c-5538746aa4d8	JIRA-2936: API Integration	OPEN	4.706591129193415	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	3d4681a2-47e9-4e57-902e-2c16de8e378e	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:06.805
+b6bb6560-2742-49f6-81ac-0e5666a0f47b	JIRA-2296: API Integration	CLOSED	3.764923068101889	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	3d4681a2-47e9-4e57-902e-2c16de8e378e	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	3d4681a2-47e9-4e57-902e-2c16de8e378e	2026-04-16 00:06:06.806	2026-04-15 18:36:06.808
+c923e103-adf0-4b26-a27a-6113872cfca8	JIRA-8392: API Integration	CLOSED	3.005159482119408	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	3d4681a2-47e9-4e57-902e-2c16de8e378e	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	3d4681a2-47e9-4e57-902e-2c16de8e378e	2026-04-16 00:06:06.809	2026-04-15 18:36:06.811
+e93585d3-ad07-438a-9a6e-79d38b0b6e8f	JIRA-7963: API Integration	OPEN	3.415945469944777	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	3d4681a2-47e9-4e57-902e-2c16de8e378e	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:06.813
+8c29450d-769e-4da0-b08f-68a7248929f6	JIRA-9222: API Integration	OPEN	3.013040394805759	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	3d4681a2-47e9-4e57-902e-2c16de8e378e	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:06.816
+8ba29da4-cdbf-4733-a379-c8f93c156834	JIRA-2579: API Integration	CLOSED	3.516454453052016	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	3d4681a2-47e9-4e57-902e-2c16de8e378e	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	3d4681a2-47e9-4e57-902e-2c16de8e378e	2026-04-16 00:06:06.817	2026-04-15 18:36:06.819
+8bacdb16-f06f-4274-b45f-668511833cbe	JIRA-7353: API Integration	OPEN	1.884898232476696	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	3d4681a2-47e9-4e57-902e-2c16de8e378e	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:06.821
+6e406f6f-e913-4cb9-af67-5c0fc17d4fbf	JIRA-7294: API Integration	OPEN	4.770261647659446	f28f4b1c-9962-4b17-9082-5c058424872b	f04a02a3-d5f1-407c-b530-9e36d9970c64	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:06.898
+927a028d-53cd-424b-be6e-5a9b743f40da	JIRA-8618: API Integration	OPEN	1.310252573018824	f28f4b1c-9962-4b17-9082-5c058424872b	f04a02a3-d5f1-407c-b530-9e36d9970c64	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:06.9
+a9a9c9f1-a978-431d-a119-897ae0ac37fb	JIRA-3727: API Integration	CLOSED	3.884864529959021	f28f4b1c-9962-4b17-9082-5c058424872b	f04a02a3-d5f1-407c-b530-9e36d9970c64	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	f04a02a3-d5f1-407c-b530-9e36d9970c64	2026-04-16 00:06:06.9	2026-04-15 18:36:06.902
+97f62be8-2b95-484e-ab18-6195fa25bf78	JIRA-7146: API Integration	OPEN	1.384602080049817	f28f4b1c-9962-4b17-9082-5c058424872b	f04a02a3-d5f1-407c-b530-9e36d9970c64	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:06.905
+3c669a4d-8fb4-48c2-a3ad-d85a1ba8fcfb	JIRA-2414: API Integration	CLOSED	3.748724409302676	f28f4b1c-9962-4b17-9082-5c058424872b	f04a02a3-d5f1-407c-b530-9e36d9970c64	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	f04a02a3-d5f1-407c-b530-9e36d9970c64	2026-04-16 00:06:06.905	2026-04-15 18:36:06.907
+bb773408-88ef-4587-98bc-0780706966f8	JIRA-4187: API Integration	CLOSED	2.748555799823472	f28f4b1c-9962-4b17-9082-5c058424872b	f04a02a3-d5f1-407c-b530-9e36d9970c64	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	f04a02a3-d5f1-407c-b530-9e36d9970c64	2026-04-16 00:06:06.907	2026-04-15 18:36:06.909
+96901091-7da2-49d8-a46c-718e89cbcf13	JIRA-5803: API Integration	CLOSED	2.337877222937518	f28f4b1c-9962-4b17-9082-5c058424872b	f04a02a3-d5f1-407c-b530-9e36d9970c64	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	f04a02a3-d5f1-407c-b530-9e36d9970c64	2026-04-16 00:06:06.909	2026-04-15 18:36:06.911
+8d8d64ef-71ad-40ed-9a0f-600cadd5daf1	JIRA-1067: API Integration	OPEN	1.709419598633009	f28f4b1c-9962-4b17-9082-5c058424872b	f04a02a3-d5f1-407c-b530-9e36d9970c64	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:06.913
+30d1baec-cade-4560-ba9e-c4d9d5b0784a	JIRA-1691: API Integration	OPEN	2.254434822816706	f28f4b1c-9962-4b17-9082-5c058424872b	f04a02a3-d5f1-407c-b530-9e36d9970c64	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:06.915
+57c629f2-48e2-4d35-a29d-4a50e9814808	JIRA-6519: API Integration	CLOSED	4.852396500647892	f28f4b1c-9962-4b17-9082-5c058424872b	f04a02a3-d5f1-407c-b530-9e36d9970c64	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	f04a02a3-d5f1-407c-b530-9e36d9970c64	2026-04-16 00:06:06.915	2026-04-15 18:36:06.917
+b01e20d4-915e-461f-bbee-76ea021f85aa	JIRA-2623: API Integration	CLOSED	3.348497245090795	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	6054f413-2fa0-4af4-8784-2a0697ce75b8	2026-04-16 00:06:06.976	2026-04-15 18:36:06.978
+2d634145-d784-4b3a-9ba6-04c18cfd840d	JIRA-5137: API Integration	CLOSED	3.377109929836569	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	6054f413-2fa0-4af4-8784-2a0697ce75b8	2026-04-16 00:06:06.979	2026-04-15 18:36:06.981
+2382229f-8749-4c92-9ba3-0907a8b2d42c	JIRA-7307: API Integration	OPEN	4.323501921833461	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:06.983
+bfb709dc-97b0-4c9c-9fd3-ecfe8b340275	JIRA-2095: API Integration	OPEN	1.684172209455594	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:06.986
+f8eb257f-1f58-4949-818d-bdca91e5db43	JIRA-2241: API Integration	CLOSED	3.586865572390883	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	6054f413-2fa0-4af4-8784-2a0697ce75b8	2026-04-16 00:06:06.987	2026-04-15 18:36:06.989
+5b9faf89-f639-46ca-b840-a76e8ba69011	JIRA-4268: API Integration	CLOSED	4.710100476078995	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	6054f413-2fa0-4af4-8784-2a0697ce75b8	2026-04-16 00:06:06.989	2026-04-15 18:36:06.991
+d8d0eae5-1862-4d6f-820c-2a3df0bfe415	JIRA-7184: API Integration	OPEN	3.494393848166766	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:06.994
+6257e012-d26e-4d09-a6b0-7592b875b4b3	JIRA-3928: API Integration	CLOSED	2.100180030732124	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	6054f413-2fa0-4af4-8784-2a0697ce75b8	2026-04-16 00:06:06.995	2026-04-15 18:36:06.998
+5aa60d5e-44f5-4782-bb35-0d9a04f89b2a	JIRA-7834: API Integration	OPEN	4.509187261944248	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:07.001
+87077c76-9151-4ad7-8433-928424d58cbb	JIRA-5982: API Integration	OPEN	4.275041475259618	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:07.004
+b93d98e1-d24c-4774-879e-5ddb27ddfcd3	JIRA-5280: API Integration	OPEN	4.024581879422481	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:07.007
+62b2b2ac-6f55-4f37-8dc1-07c4a47d0cca	Fix: Production bug resoltuion	CLOSED	3.023540216219101	\N	b39ddc58-6212-46bb-9cab-e59568337275	b39ddc58-6212-46bb-9cab-e59568337275	\N	2026-04-10 01:44:06.27	2026-04-15 20:14:06.273
+21c57a9d-fea3-4227-8d01-9eeeb9b1f0a0	JIRA-5580: API Integration	CLOSED	3.680722808874684	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	6054f413-2fa0-4af4-8784-2a0697ce75b8	2026-04-16 00:06:07.007	2026-04-15 18:36:07.009
+e3c36f57-5584-4532-ab6e-a9774d20d25d	JIRA-3287: API Integration	OPEN	3.895427906388732	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:07.012
+7a507994-ef59-4f32-8625-ef3505d3aa64	JIRA-9384: API Integration	OPEN	2.917050995531905	e7029756-37b0-4692-bb55-7339e3b9a0bf	6054f413-2fa0-4af4-8784-2a0697ce75b8	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:07.015
+c4261cdc-c957-42a7-b245-647fcca49bfa	JIRA-5145: API Integration	CLOSED	2.164915746097726	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-16 00:06:07.148	2026-04-15 18:36:07.151
+88284ee8-2f78-4709-b9c0-25d95dc4cbcd	JIRA-9829: API Integration	CLOSED	3.354322543335126	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-16 00:06:07.153	2026-04-15 18:36:07.155
+dda7ea46-d32c-45de-a386-26ccca4b5eb6	JIRA-5721: API Integration	CLOSED	2.77618789230628	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-16 00:06:07.156	2026-04-15 18:36:07.159
+db9e8298-f6ec-46f8-9865-b99a14017ab0	JIRA-8471: API Integration	OPEN	3.804283189646677	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:07.163
+94982be9-a178-47fb-8838-c3cc2c47edba	JIRA-1799: API Integration	OPEN	1.060409792158045	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:07.167
+4781168e-68f9-4936-8a52-1d2b2bb7265e	JIRA-8659: API Integration	CLOSED	1.359734720410098	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-16 00:06:07.169	2026-04-15 18:36:07.171
+13fa3007-3469-4532-aa5e-3cff8b047311	JIRA-8286: API Integration	OPEN	4.401975952793727	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:07.174
+e832370b-e5d0-470f-b1f3-4b357885d0fa	JIRA-7525: API Integration	CLOSED	4.377227077162857	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-16 00:06:07.175	2026-04-15 18:36:07.177
+bf5586b8-6a03-4f7c-b4ae-3d9a30bda20d	JIRA-5019: API Integration	CLOSED	3.143585531744618	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-16 00:06:07.178	2026-04-15 18:36:07.18
+a7165e28-8d2e-43c2-b89a-530ea7553473	JIRA-9916: API Integration	CLOSED	3.139607854739888	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-16 00:06:07.18	2026-04-15 18:36:07.182
+81e356c0-ca0b-48e4-904c-279030b23414	JIRA-6285: API Integration	CLOSED	3.419845804200619	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	2026-04-16 00:06:07.183	2026-04-15 18:36:07.185
+ac6924ba-0c0b-46cc-b483-62d0c1c438ec	JIRA-9245: API Integration	OPEN	4.829792756208279	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:07.187
+9a1ff895-0a71-4523-b4d3-b1eba8339bfc	JIRA-2006: API Integration	OPEN	4.927957000439438	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:07.189
+4ad1fdd1-7e10-401f-8d87-adcd89459667	JIRA-8507: API Integration	OPEN	2.248849209743089	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:07.191
+9c691e7f-0440-4f69-9cc5-3379fe2856a2	JIRA-7201: API Integration	OPEN	4.912894391479091	551a836f-c2c2-4418-a73c-76dbfafd8442	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:07.193
+d93499f1-fbd0-4e3e-8d04-bac92dc4bc19	JIRA-5113: API Integration	CLOSED	4.620574240863654	176cf575-1e8f-4447-93d3-2999415d2173	c0ed9381-c09e-436c-ab26-952b1b31b854	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	c0ed9381-c09e-436c-ab26-952b1b31b854	2026-04-16 00:06:07.265	2026-04-15 18:36:07.267
+7a4a0f98-094d-4886-a5de-751fa4e9f534	JIRA-8728: API Integration	CLOSED	2.224477298923802	176cf575-1e8f-4447-93d3-2999415d2173	c0ed9381-c09e-436c-ab26-952b1b31b854	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	c0ed9381-c09e-436c-ab26-952b1b31b854	2026-04-16 00:06:07.266	2026-04-15 18:36:07.268
+0ad4fee2-b680-4bc8-bd07-4a4ae29824e3	JIRA-6558: API Integration	OPEN	4.079004159453305	176cf575-1e8f-4447-93d3-2999415d2173	c0ed9381-c09e-436c-ab26-952b1b31b854	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:07.271
+8b0b8e43-8ff7-4b44-ba03-f0c3d0b5c70c	JIRA-4515: API Integration	OPEN	2.685721444670633	176cf575-1e8f-4447-93d3-2999415d2173	c0ed9381-c09e-436c-ab26-952b1b31b854	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:07.273
+eac2fa9d-6381-4602-b234-6a452640f95e	JIRA-3614: API Integration	CLOSED	4.619289462488936	176cf575-1e8f-4447-93d3-2999415d2173	c0ed9381-c09e-436c-ab26-952b1b31b854	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	c0ed9381-c09e-436c-ab26-952b1b31b854	2026-04-16 00:06:07.273	2026-04-15 18:36:07.275
+fc6155ea-e81e-407b-9a8e-7ba82076a61a	JIRA-4758: API Integration	OPEN	1.918664134288061	176cf575-1e8f-4447-93d3-2999415d2173	c0ed9381-c09e-436c-ab26-952b1b31b854	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:07.277
+5fbd9b85-a1f2-4fbd-a80e-f62d261a28e9	JIRA-8100: API Integration	OPEN	4.152850620868433	176cf575-1e8f-4447-93d3-2999415d2173	c0ed9381-c09e-436c-ab26-952b1b31b854	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:07.279
+55aae4e7-2cc5-4810-81d9-c3c3c1d5e4ab	JIRA-1478: API Integration	OPEN	1.034150905590593	176cf575-1e8f-4447-93d3-2999415d2173	c0ed9381-c09e-436c-ab26-952b1b31b854	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:07.281
+87063eea-d74e-4d79-b1c0-1bfaa5ac769b	JIRA-7867: API Integration	CLOSED	4.951205216365395	176cf575-1e8f-4447-93d3-2999415d2173	c0ed9381-c09e-436c-ab26-952b1b31b854	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	c0ed9381-c09e-436c-ab26-952b1b31b854	2026-04-16 00:06:07.281	2026-04-15 18:36:07.283
+92becc41-ed1d-47bc-8688-acb05c44a6b6	JIRA-8547: API Integration	CLOSED	2.388611031372611	176cf575-1e8f-4447-93d3-2999415d2173	c0ed9381-c09e-436c-ab26-952b1b31b854	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	c0ed9381-c09e-436c-ab26-952b1b31b854	2026-04-16 00:06:07.283	2026-04-15 18:36:07.285
+336e2583-da0f-412c-8386-a5f51fa92c9d	JIRA-8556: API Integration	OPEN	1.316939832772523	176cf575-1e8f-4447-93d3-2999415d2173	c0ed9381-c09e-436c-ab26-952b1b31b854	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:07.287
+ba227921-c7e9-47d7-91c8-d903b87b20ae	JIRA-7766: API Integration	OPEN	4.009043499614492	c7599686-6b3b-44e0-b391-ea15e2e2823b	84a1c259-5964-4570-95d9-1299bc8b8258	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:07.349
+fdacde4c-619c-4324-870d-feb435d38560	JIRA-4613: API Integration	CLOSED	4.124856919774473	c7599686-6b3b-44e0-b391-ea15e2e2823b	84a1c259-5964-4570-95d9-1299bc8b8258	ad644a94-f98d-4e72-9fd0-c69447f09c61	84a1c259-5964-4570-95d9-1299bc8b8258	2026-04-16 00:06:07.349	2026-04-15 18:36:07.351
+7c8158f1-25eb-450e-8711-b7fb4e58cf09	Fix: Production bug resoltuion	CLOSED	3.563248880871295	\N	b39ddc58-6212-46bb-9cab-e59568337275	b39ddc58-6212-46bb-9cab-e59568337275	\N	2026-04-07 01:44:06.276	2026-04-15 20:14:06.279
+c2c18fca-cd5a-4ce6-9ce6-9f6879551a0e	JIRA-4522: API Integration	CLOSED	2.984086681413745	c7599686-6b3b-44e0-b391-ea15e2e2823b	84a1c259-5964-4570-95d9-1299bc8b8258	ad644a94-f98d-4e72-9fd0-c69447f09c61	84a1c259-5964-4570-95d9-1299bc8b8258	2026-04-16 00:06:07.351	2026-04-15 18:36:07.353
+6683343b-7db5-4bf2-b78e-f5393c30fdc1	JIRA-5593: API Integration	OPEN	2.859437990960101	c7599686-6b3b-44e0-b391-ea15e2e2823b	84a1c259-5964-4570-95d9-1299bc8b8258	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:07.355
+5a63be50-0deb-487a-8c63-8fc4ea775ac7	JIRA-3770: API Integration	OPEN	4.590293790977581	c7599686-6b3b-44e0-b391-ea15e2e2823b	84a1c259-5964-4570-95d9-1299bc8b8258	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:07.357
+9b6974a5-e8b3-4a3e-815d-c8d54a513c91	JIRA-7405: API Integration	CLOSED	2.943089969309038	c7599686-6b3b-44e0-b391-ea15e2e2823b	84a1c259-5964-4570-95d9-1299bc8b8258	ad644a94-f98d-4e72-9fd0-c69447f09c61	84a1c259-5964-4570-95d9-1299bc8b8258	2026-04-16 00:06:07.357	2026-04-15 18:36:07.359
+d28a8a65-52c1-4275-9b89-24690ffe940c	JIRA-4207: API Integration	OPEN	3.424935200545626	c7599686-6b3b-44e0-b391-ea15e2e2823b	84a1c259-5964-4570-95d9-1299bc8b8258	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:07.361
+66312f98-3c83-4e7b-a550-937f16d3255a	JIRA-5676: API Integration	OPEN	2.356120179113948	c7599686-6b3b-44e0-b391-ea15e2e2823b	84a1c259-5964-4570-95d9-1299bc8b8258	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:07.363
+d951cbfd-6d66-4da7-9154-3176c667bf26	JIRA-3091: API Integration	OPEN	1.444702874458254	c7599686-6b3b-44e0-b391-ea15e2e2823b	84a1c259-5964-4570-95d9-1299bc8b8258	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:07.364
+55cc6aaa-a5df-4172-8589-e48a1e96eff8	JIRA-5065: API Integration	CLOSED	1.204017781348127	c7599686-6b3b-44e0-b391-ea15e2e2823b	84a1c259-5964-4570-95d9-1299bc8b8258	ad644a94-f98d-4e72-9fd0-c69447f09c61	84a1c259-5964-4570-95d9-1299bc8b8258	2026-04-16 00:06:07.364	2026-04-15 18:36:07.366
+e6a44627-3de5-441e-81d2-3e9c14c95e9f	JIRA-7126: API Integration	CLOSED	1.912938889938113	c7599686-6b3b-44e0-b391-ea15e2e2823b	84a1c259-5964-4570-95d9-1299bc8b8258	ad644a94-f98d-4e72-9fd0-c69447f09c61	84a1c259-5964-4570-95d9-1299bc8b8258	2026-04-16 00:06:07.367	2026-04-15 18:36:07.369
+f0dc446e-001d-420a-b975-750c53ef640d	JIRA-3268: API Integration	CLOSED	2.470080352376827	c7599686-6b3b-44e0-b391-ea15e2e2823b	84a1c259-5964-4570-95d9-1299bc8b8258	ad644a94-f98d-4e72-9fd0-c69447f09c61	84a1c259-5964-4570-95d9-1299bc8b8258	2026-04-16 00:06:07.37	2026-04-15 18:36:07.372
+8760f27a-86eb-4e3f-9dfc-4e135e0db8fd	JIRA-1882: API Integration	CLOSED	3.113253415369555	c7599686-6b3b-44e0-b391-ea15e2e2823b	84a1c259-5964-4570-95d9-1299bc8b8258	ad644a94-f98d-4e72-9fd0-c69447f09c61	84a1c259-5964-4570-95d9-1299bc8b8258	2026-04-16 00:06:07.372	2026-04-15 18:36:07.374
+e5a54d45-16d1-4b54-af72-3e10735576b0	JIRA-4119: API Integration	OPEN	1.188598911766084	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:07.452
+0faee51f-4148-4222-98f5-e6107b804dcd	JIRA-5179: API Integration	OPEN	4.451327653262705	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:07.455
+26ffa785-ddc6-4654-8eb7-1f2856e73142	JIRA-4777: API Integration	CLOSED	2.9675983353043	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	2026-04-16 00:06:07.457	2026-04-15 18:36:07.459
+f8b6bb12-5b6f-4117-9439-2c68c648dd05	JIRA-9039: API Integration	OPEN	1.557048752268166	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:07.463
+426cdc3d-7882-4332-9dd5-eddb04c05e21	JIRA-8942: API Integration	CLOSED	4.915680718254867	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	2026-04-16 00:06:07.464	2026-04-15 18:36:07.466
+9f135998-e9f4-4976-b9ae-e5877f8efc01	JIRA-9089: API Integration	OPEN	4.331857273824173	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:07.47
+f9f0a114-0574-4467-9d12-2b8ea7cec319	JIRA-9545: API Integration	OPEN	4.020057186949307	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:07.473
+cb84a6ca-025f-4245-ae32-7f278b3d0a8d	JIRA-4824: API Integration	OPEN	1.805687856449862	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:07.476
+f21e1364-3e6c-4f8b-90c7-cf75b6832aed	JIRA-4544: API Integration	OPEN	1.503528764960102	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:07.479
+6513c649-74d3-4d17-9236-44582e03decb	JIRA-3689: API Integration	CLOSED	1.256358209478097	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	2026-04-16 00:06:07.481	2026-04-15 18:36:07.483
+d4ac940b-6abe-405b-9d3c-123a8d5d4779	JIRA-5804: API Integration	CLOSED	4.726652074648648	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	2026-04-16 00:06:07.486	2026-04-15 18:36:07.488
+f64f3838-84f7-41aa-9f11-83def417c69b	JIRA-9053: API Integration	CLOSED	2.642701122950116	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	2026-04-16 00:06:07.491	2026-04-15 18:36:07.494
+7487182d-8faa-4cc1-93b6-15ba40583ddc	JIRA-6061: API Integration	CLOSED	4.82793351159413	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	2026-04-16 00:06:07.496	2026-04-15 18:36:07.498
+ff7e4910-fdeb-4a5a-8576-eba73ebf1e01	JIRA-2073: API Integration	CLOSED	1.544769761514476	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	2026-04-16 00:06:07.5	2026-04-15 18:36:07.502
+a0ed671e-63c3-45f5-ba85-d2f06e8c1295	JIRA-3434: API Integration	OPEN	4.847895257108037	6559b773-f734-4a70-b3c6-e1ad97ddc242	b19cfec7-d521-4444-a0ab-481c6ea05158	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:07.602
+6a67708f-3704-4901-a6c3-2532e99bb318	JIRA-5910: API Integration	OPEN	4.037403535121429	6559b773-f734-4a70-b3c6-e1ad97ddc242	b19cfec7-d521-4444-a0ab-481c6ea05158	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:07.605
+cb2dfd53-915d-4ddd-8dac-0bd14a9935b6	JIRA-8273: API Integration	CLOSED	2.426555112389608	6559b773-f734-4a70-b3c6-e1ad97ddc242	b19cfec7-d521-4444-a0ab-481c6ea05158	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	b19cfec7-d521-4444-a0ab-481c6ea05158	2026-04-16 00:06:07.606	2026-04-15 18:36:07.608
+6814e540-4d46-4993-826c-849fd428d889	JIRA-7519: API Integration	CLOSED	2.134072644716976	6559b773-f734-4a70-b3c6-e1ad97ddc242	b19cfec7-d521-4444-a0ab-481c6ea05158	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	b19cfec7-d521-4444-a0ab-481c6ea05158	2026-04-16 00:06:07.609	2026-04-15 18:36:07.61
+f26413f7-6000-4ea6-91e9-bc63bea03dfe	JIRA-3422: API Integration	CLOSED	3.225492375487165	6559b773-f734-4a70-b3c6-e1ad97ddc242	b19cfec7-d521-4444-a0ab-481c6ea05158	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	b19cfec7-d521-4444-a0ab-481c6ea05158	2026-04-16 00:06:07.611	2026-04-15 18:36:07.613
+6c52cee3-33a2-4a68-8992-6ff38f217fc3	JIRA-8279: API Integration	CLOSED	2.417256264143216	6559b773-f734-4a70-b3c6-e1ad97ddc242	b19cfec7-d521-4444-a0ab-481c6ea05158	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	b19cfec7-d521-4444-a0ab-481c6ea05158	2026-04-16 00:06:07.613	2026-04-15 18:36:07.616
+2d0f8190-152f-4146-b2b2-c59f10febe4e	JIRA-9611: API Integration	OPEN	1.480626689046121	6559b773-f734-4a70-b3c6-e1ad97ddc242	b19cfec7-d521-4444-a0ab-481c6ea05158	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:07.62
+2a7a97dd-86d8-4b99-9e7b-79ff337135f3	JIRA-4508: API Integration	OPEN	3.60209376756001	6559b773-f734-4a70-b3c6-e1ad97ddc242	b19cfec7-d521-4444-a0ab-481c6ea05158	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:07.624
+27e1b471-5ffa-4316-aba0-d101b71a2b1e	JIRA-7218: API Integration	OPEN	2.314519084145124	6559b773-f734-4a70-b3c6-e1ad97ddc242	b19cfec7-d521-4444-a0ab-481c6ea05158	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:07.627
+ed62abc3-07c5-4c1a-9dec-364984926e96	JIRA-7058: API Integration	CLOSED	4.428905964183372	6559b773-f734-4a70-b3c6-e1ad97ddc242	b19cfec7-d521-4444-a0ab-481c6ea05158	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	b19cfec7-d521-4444-a0ab-481c6ea05158	2026-04-16 00:06:07.628	2026-04-15 18:36:07.63
+7ff61c57-07dc-4c3b-86fa-18ab22537711	JIRA-7714: API Integration	CLOSED	3.638828897298022	6559b773-f734-4a70-b3c6-e1ad97ddc242	b19cfec7-d521-4444-a0ab-481c6ea05158	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	b19cfec7-d521-4444-a0ab-481c6ea05158	2026-04-16 00:06:07.63	2026-04-15 18:36:07.633
+3bcbc1a9-1cdb-4550-916f-8cf8ba759fc0	JIRA-1182: API Integration	CLOSED	4.983925877991782	6559b773-f734-4a70-b3c6-e1ad97ddc242	b19cfec7-d521-4444-a0ab-481c6ea05158	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	b19cfec7-d521-4444-a0ab-481c6ea05158	2026-04-16 00:06:07.634	2026-04-15 18:36:07.635
+91753cba-3ce9-4e2c-8283-ada5fc1cab5e	JIRA-8253: API Integration	OPEN	4.186090444902563	6559b773-f734-4a70-b3c6-e1ad97ddc242	b19cfec7-d521-4444-a0ab-481c6ea05158	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:07.638
+1ae1a98a-1e64-4c67-b2c1-179f3ec05a65	JIRA-5051: API Integration	CLOSED	2.205947010131264	bb8fec06-89cc-4a76-8065-e5f87a51ffac	1e287884-c4dc-4ecf-b418-e8e42ff75627	aa7cccf3-4edb-4a42-87df-41261f3b77b2	1e287884-c4dc-4ecf-b418-e8e42ff75627	2026-04-16 00:06:07.73	2026-04-15 18:36:07.731
+5bbc18de-d9e7-45d5-aaed-82bf8d9a82ac	JIRA-9893: API Integration	CLOSED	3.920577999031543	bb8fec06-89cc-4a76-8065-e5f87a51ffac	1e287884-c4dc-4ecf-b418-e8e42ff75627	aa7cccf3-4edb-4a42-87df-41261f3b77b2	1e287884-c4dc-4ecf-b418-e8e42ff75627	2026-04-16 00:06:07.732	2026-04-15 18:36:07.734
+8eb0b570-db33-4113-8da4-c50ebaa196f5	JIRA-8404: API Integration	CLOSED	3.232848575842688	bb8fec06-89cc-4a76-8065-e5f87a51ffac	1e287884-c4dc-4ecf-b418-e8e42ff75627	aa7cccf3-4edb-4a42-87df-41261f3b77b2	1e287884-c4dc-4ecf-b418-e8e42ff75627	2026-04-16 00:06:07.735	2026-04-15 18:36:07.736
+22cb99d4-402f-4548-a88b-5cba09df3a39	JIRA-1876: API Integration	OPEN	3.792343157326395	bb8fec06-89cc-4a76-8065-e5f87a51ffac	1e287884-c4dc-4ecf-b418-e8e42ff75627	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:07.739
+b5e49a86-0960-4a02-9421-c367d6946283	JIRA-8248: API Integration	CLOSED	1.862302831132373	bb8fec06-89cc-4a76-8065-e5f87a51ffac	1e287884-c4dc-4ecf-b418-e8e42ff75627	aa7cccf3-4edb-4a42-87df-41261f3b77b2	1e287884-c4dc-4ecf-b418-e8e42ff75627	2026-04-16 00:06:07.74	2026-04-15 18:36:07.741
+3dd1323d-bd94-44f3-becb-f2b287274e31	JIRA-2273: API Integration	CLOSED	4.774286529755384	bb8fec06-89cc-4a76-8065-e5f87a51ffac	1e287884-c4dc-4ecf-b418-e8e42ff75627	aa7cccf3-4edb-4a42-87df-41261f3b77b2	1e287884-c4dc-4ecf-b418-e8e42ff75627	2026-04-16 00:06:07.742	2026-04-15 18:36:07.743
+11f5725b-3bca-4ef6-9969-9c1b5a64228e	JIRA-3882: API Integration	CLOSED	3.723161794996971	bb8fec06-89cc-4a76-8065-e5f87a51ffac	1e287884-c4dc-4ecf-b418-e8e42ff75627	aa7cccf3-4edb-4a42-87df-41261f3b77b2	1e287884-c4dc-4ecf-b418-e8e42ff75627	2026-04-16 00:06:07.743	2026-04-15 18:36:07.745
+bbf5b8a5-f250-4126-af66-e32fc271dca2	JIRA-4753: API Integration	CLOSED	3.363245118078122	bb8fec06-89cc-4a76-8065-e5f87a51ffac	1e287884-c4dc-4ecf-b418-e8e42ff75627	aa7cccf3-4edb-4a42-87df-41261f3b77b2	1e287884-c4dc-4ecf-b418-e8e42ff75627	2026-04-16 00:06:07.745	2026-04-15 18:36:07.747
+0a93bd3f-b37f-4a1d-ae27-b3eabe5da9a1	JIRA-6242: API Integration	CLOSED	1.506974039373112	bb8fec06-89cc-4a76-8065-e5f87a51ffac	1e287884-c4dc-4ecf-b418-e8e42ff75627	aa7cccf3-4edb-4a42-87df-41261f3b77b2	1e287884-c4dc-4ecf-b418-e8e42ff75627	2026-04-16 00:06:07.747	2026-04-15 18:36:07.749
+181f80fc-b397-43e4-b120-67b2e7a796df	JIRA-4526: API Integration	OPEN	3.703047160859408	bb8fec06-89cc-4a76-8065-e5f87a51ffac	1e287884-c4dc-4ecf-b418-e8e42ff75627	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:07.751
+7c8fda4f-a5c3-4b18-881e-5de5e62c8d42	JIRA-7294: API Integration	OPEN	4.687533598851214	bb8fec06-89cc-4a76-8065-e5f87a51ffac	1e287884-c4dc-4ecf-b418-e8e42ff75627	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:07.753
+e445e77f-7581-4077-b89c-411c59d939d9	JIRA-2982: API Integration	CLOSED	3.275263845112906	bb8fec06-89cc-4a76-8065-e5f87a51ffac	1e287884-c4dc-4ecf-b418-e8e42ff75627	aa7cccf3-4edb-4a42-87df-41261f3b77b2	1e287884-c4dc-4ecf-b418-e8e42ff75627	2026-04-16 00:06:07.753	2026-04-15 18:36:07.755
+957dac61-cea9-43a1-9898-375581881b07	JIRA-1872: API Integration	OPEN	4.287583239376214	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:07.813
+0c5cd90e-aa00-442e-b72f-6eb2b5e0e9a3	JIRA-5646: API Integration	CLOSED	2.052895455972232	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	86afda8b-8abf-4611-80d7-90d5b18e0695	2026-04-16 00:06:07.813	2026-04-15 18:36:07.815
+cb50b9ce-f21c-4ecf-9334-3d4d62ae2210	JIRA-9367: API Integration	OPEN	3.3374876476987	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:07.817
+cf144d6e-e805-4993-b05e-26eecc6f5111	JIRA-4466: API Integration	CLOSED	2.204790357933438	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	86afda8b-8abf-4611-80d7-90d5b18e0695	2026-04-16 00:06:07.818	2026-04-15 18:36:07.819
+6514a3de-2db0-4b53-8d8c-1fdf2260b823	JIRA-6077: API Integration	CLOSED	3.045998380107413	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	86afda8b-8abf-4611-80d7-90d5b18e0695	2026-04-16 00:06:07.82	2026-04-15 18:36:07.822
+d28b433e-ca6e-4234-bf94-169b87d464d6	JIRA-5647: API Integration	CLOSED	3.439605982659021	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	86afda8b-8abf-4611-80d7-90d5b18e0695	2026-04-16 00:06:07.822	2026-04-15 18:36:07.823
+b9867c3b-d0ee-472d-8765-d3a7ebb968f3	JIRA-9858: API Integration	OPEN	4.096092390678513	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:07.825
+56b3dfe7-488d-4f3f-98ac-7dd8495c6e3f	JIRA-6858: API Integration	CLOSED	3.232597838452676	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	86afda8b-8abf-4611-80d7-90d5b18e0695	2026-04-16 00:06:07.826	2026-04-15 18:36:07.827
+70e95d03-a7a0-42ba-8899-2aecfc99b7df	JIRA-3857: API Integration	OPEN	3.090927146786487	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:07.829
+c2b527d7-37b7-4310-b1f7-50bd45f2a5bb	JIRA-5852: API Integration	OPEN	2.167238520659023	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:07.831
+8cdcb93b-6a70-4440-ac68-96fc26b804c7	JIRA-7768: API Integration	OPEN	1.09338229559344	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:07.833
+18b485d7-e328-450f-a22a-12f6161501e3	JIRA-9325: API Integration	OPEN	2.619523625817982	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:07.835
+8a329ec7-7e5d-4dcf-af1c-a5712a1015fa	JIRA-4485: API Integration	OPEN	4.359631450357337	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:07.837
+c448be98-3bdd-426c-b1ba-5b73f6783e27	JIRA-6202: API Integration	OPEN	4.082999543527672	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:07.839
+cdf3288c-9fa1-433e-a9e1-872eaa12f4e0	JIRA-9245: API Integration	OPEN	2.851871995833672	6e156838-4c84-457f-a32a-06e9f55602b9	86afda8b-8abf-4611-80d7-90d5b18e0695	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:07.841
+f65df505-e16d-46ac-9a4d-ad078f95d410	JIRA-1717: API Integration	CLOSED	1.873710684815552	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	2026-04-16 00:06:07.913	2026-04-15 18:36:07.915
+59c6afd8-fb5f-4f1f-a161-003a36321b34	JIRA-7950: API Integration	CLOSED	2.947974458086273	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	2026-04-16 00:06:07.915	2026-04-15 18:36:07.916
+931b5b2d-0ffc-4a25-9ba4-3e7c0275c061	JIRA-5394: API Integration	OPEN	4.594746695461146	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:07.918
+1ed308e7-3042-411e-b57a-9fae36c45e23	JIRA-5931: API Integration	CLOSED	3.469693922767991	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	2026-04-16 00:06:07.918	2026-04-15 18:36:07.92
+463e5a57-baf1-4a83-8be1-ad22b0f63f3f	JIRA-8023: API Integration	CLOSED	2.587229132240493	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	2026-04-16 00:06:07.921	2026-04-15 18:36:07.922
+ef782cfc-c3d9-4174-8597-26f79da00682	JIRA-1768: API Integration	CLOSED	2.139484574993072	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	2026-04-16 00:06:07.923	2026-04-15 18:36:07.924
+79af9298-9655-4a25-98ce-1f781408a3c8	JIRA-2750: API Integration	OPEN	3.158246527540365	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:07.926
+986cea44-6f58-4257-8ac0-8a7fe85569e8	JIRA-6949: API Integration	CLOSED	1.447753926599151	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	2026-04-16 00:06:07.927	2026-04-15 18:36:07.928
+e47e1a38-8b3d-427c-bcc0-fc11965a4227	JIRA-5835: API Integration	OPEN	2.335846265457987	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:07.93
+4c33c07f-fc8e-4c5d-97f6-c5f54c93ec08	JIRA-4559: API Integration	OPEN	1.887396401350607	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:07.932
+d5310229-9eac-4eab-a6e7-cf862d5dd35a	JIRA-1850: API Integration	OPEN	2.394370401085285	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:07.934
+90b5e3ba-801b-42a5-a40e-d147edef35fb	JIRA-3020: API Integration	CLOSED	4.465719768344557	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	2026-04-16 00:06:07.934	2026-04-15 18:36:07.936
+27af6728-18c5-4225-9c39-60a0d80fbded	JIRA-3170: API Integration	OPEN	3.779267267792566	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:07.999
+6f875887-6368-4549-b4e1-16440b7924e6	JIRA-4193: API Integration	CLOSED	4.342855069479294	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-16 00:06:08	2026-04-15 18:36:08.002
+837ec32d-9cd0-44df-958e-21199b3936da	JIRA-6066: API Integration	CLOSED	2.588518933047409	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-16 00:06:08.002	2026-04-15 18:36:08.004
+7fbe84e9-2cde-4373-987c-a4553ff0da88	JIRA-4290: API Integration	OPEN	2.17890519220105	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:08.007
+ac2a378b-7f40-49df-8ea7-65a5d6bd4e46	JIRA-2978: API Integration	CLOSED	2.73216343498276	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-16 00:06:08.008	2026-04-15 18:36:08.01
+871add05-245d-4dfd-b6f8-972a304a4d39	JIRA-6206: API Integration	CLOSED	1.491388094893253	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-16 00:06:08.01	2026-04-15 18:36:08.012
+9ab3853a-730f-4b81-8062-e2e873ab7d88	JIRA-3304: API Integration	CLOSED	3.359379631736387	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-16 00:06:08.013	2026-04-15 18:36:08.014
+92868ee7-9f50-4101-83e8-a19e56e9d2cc	JIRA-3730: API Integration	CLOSED	1.419915221052567	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-16 00:06:08.015	2026-04-15 18:36:08.017
+f5093635-6a98-4ae4-b462-173792749135	JIRA-7476: API Integration	CLOSED	3.071110750702194	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-16 00:06:08.018	2026-04-15 18:36:08.02
+c8933e2e-a25d-4dc6-afa4-f411e3a7e3bd	JIRA-2161: API Integration	CLOSED	4.935623306557813	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-16 00:06:08.02	2026-04-15 18:36:08.022
+5359236c-2fe8-4204-8b0a-6db477b2b00e	JIRA-8275: API Integration	CLOSED	3.480752359531349	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-16 00:06:08.023	2026-04-15 18:36:08.025
+f7c66cbc-a6d9-43fa-b30c-3f6f39cabcbe	JIRA-9558: API Integration	OPEN	1.129167507967803	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:08.028
+a0a15507-7ec8-40b2-b4ab-ed72f4e7bcb6	JIRA-1694: API Integration	OPEN	2.17131662500378	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:08.031
+fdd5b53b-54e5-415d-88b6-c36d085a6903	JIRA-4174: API Integration	CLOSED	4.712263072796807	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	a135b85e-cf22-44be-a014-cc6116529fc9	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	a135b85e-cf22-44be-a014-cc6116529fc9	2026-04-16 00:06:08.031	2026-04-15 18:36:08.034
+4c1239c6-1b1d-4ec4-9a6a-eccbe36f3afd	JIRA-8561: API Integration	CLOSED	4.480146500777114	e7029756-37b0-4692-bb55-7339e3b9a0bf	7ae07d1f-d90d-413e-b1cb-790033f947ce	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	7ae07d1f-d90d-413e-b1cb-790033f947ce	2026-04-16 00:06:08.11	2026-04-15 18:36:08.112
+1c7c3210-6561-47e7-91ab-be5454b4708e	JIRA-9994: API Integration	CLOSED	3.868736474579111	e7029756-37b0-4692-bb55-7339e3b9a0bf	7ae07d1f-d90d-413e-b1cb-790033f947ce	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	7ae07d1f-d90d-413e-b1cb-790033f947ce	2026-04-16 00:06:08.112	2026-04-15 18:36:08.114
+383c0c40-a13b-49bc-a201-4f10853cd0ef	JIRA-2066: API Integration	OPEN	4.341377804126123	e7029756-37b0-4692-bb55-7339e3b9a0bf	7ae07d1f-d90d-413e-b1cb-790033f947ce	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:08.116
+13d6063b-e1ac-4613-afce-b6b8e73aa276	JIRA-9495: API Integration	CLOSED	4.585167503498647	e7029756-37b0-4692-bb55-7339e3b9a0bf	7ae07d1f-d90d-413e-b1cb-790033f947ce	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	7ae07d1f-d90d-413e-b1cb-790033f947ce	2026-04-16 00:06:08.116	2026-04-15 18:36:08.118
+ca5174b8-23b8-4c07-9e1e-db430b897f0f	JIRA-2074: API Integration	OPEN	1.638112655713421	e7029756-37b0-4692-bb55-7339e3b9a0bf	7ae07d1f-d90d-413e-b1cb-790033f947ce	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:08.12
+b3b690bc-f103-46d8-a66e-b8bc25b5fc3c	JIRA-5414: API Integration	CLOSED	4.916887270769831	e7029756-37b0-4692-bb55-7339e3b9a0bf	7ae07d1f-d90d-413e-b1cb-790033f947ce	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	7ae07d1f-d90d-413e-b1cb-790033f947ce	2026-04-16 00:06:08.121	2026-04-15 18:36:08.122
+aac1f3c5-ac31-4918-bca4-1d8a007b7dd2	JIRA-1020: API Integration	CLOSED	3.071391384561415	e7029756-37b0-4692-bb55-7339e3b9a0bf	7ae07d1f-d90d-413e-b1cb-790033f947ce	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	7ae07d1f-d90d-413e-b1cb-790033f947ce	2026-04-16 00:06:08.122	2026-04-15 18:36:08.124
+1061310f-3717-4e11-8854-370a180a12b7	JIRA-4516: API Integration	CLOSED	4.954813099262678	e7029756-37b0-4692-bb55-7339e3b9a0bf	7ae07d1f-d90d-413e-b1cb-790033f947ce	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	7ae07d1f-d90d-413e-b1cb-790033f947ce	2026-04-16 00:06:08.123	2026-04-15 18:36:08.126
+92c5d193-b8f0-4c8e-9510-ead840e507d5	JIRA-2784: API Integration	OPEN	3.061661573988476	e7029756-37b0-4692-bb55-7339e3b9a0bf	7ae07d1f-d90d-413e-b1cb-790033f947ce	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:08.128
+9aa96c44-18a1-4409-9bed-b6f34925a360	JIRA-4544: API Integration	OPEN	1.763422911869878	e7029756-37b0-4692-bb55-7339e3b9a0bf	7ae07d1f-d90d-413e-b1cb-790033f947ce	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:08.13
+5f2ad530-954a-4d87-a6c1-8d3fa4cf700b	JIRA-3268: API Integration	OPEN	3.578192582744584	e7029756-37b0-4692-bb55-7339e3b9a0bf	7ae07d1f-d90d-413e-b1cb-790033f947ce	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:08.132
+6da2f053-f828-46f2-97bf-8c6b4f84ef74	JIRA-3262: API Integration	CLOSED	3.437599462977241	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	48aecaf6-373f-4012-9f9b-fae916047cc4	2026-04-16 00:06:08.181	2026-04-15 18:36:08.183
+812e0a50-f934-4b30-9906-e27a79a99a45	JIRA-1677: API Integration	CLOSED	3.674298799663768	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	48aecaf6-373f-4012-9f9b-fae916047cc4	2026-04-16 00:06:08.184	2026-04-15 18:36:08.185
+5f0f89c6-1782-4bb4-87a3-4440edb924e1	JIRA-6333: API Integration	CLOSED	3.713887298722617	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	48aecaf6-373f-4012-9f9b-fae916047cc4	2026-04-16 00:06:08.185	2026-04-15 18:36:08.187
+759b63d4-6f75-470c-84f9-25ef93ba2888	JIRA-8779: API Integration	CLOSED	2.733228071399537	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	48aecaf6-373f-4012-9f9b-fae916047cc4	2026-04-16 00:06:08.187	2026-04-15 18:36:08.189
+b56a61be-f4b4-43c5-8376-ac1f40e7cb7a	JIRA-7105: API Integration	CLOSED	1.344432370284125	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	48aecaf6-373f-4012-9f9b-fae916047cc4	2026-04-16 00:06:08.19	2026-04-15 18:36:08.192
+5c8e11f1-7c58-48c5-a9cc-4c09bcabe7ff	JIRA-9643: API Integration	CLOSED	1.158708939105825	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	48aecaf6-373f-4012-9f9b-fae916047cc4	2026-04-16 00:06:08.193	2026-04-15 18:36:08.195
+7eec4101-7198-44c1-8a9a-5ade272e02ad	JIRA-1632: API Integration	OPEN	1.635425385381565	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:08.198
+20753c79-566d-476a-a727-c04187732b1a	JIRA-6924: API Integration	OPEN	1.145552137158649	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:08.2
+9f104915-c4aa-4c30-b328-b4251df8312d	JIRA-3576: API Integration	OPEN	3.471773423793781	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:08.202
+bf98fe83-7efc-4325-953b-07618f6ec37e	JIRA-4064: API Integration	CLOSED	3.681102216737867	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	48aecaf6-373f-4012-9f9b-fae916047cc4	2026-04-16 00:06:08.202	2026-04-15 18:36:08.205
+e07e1dc8-b4e6-4fc5-93d5-79393b744721	JIRA-5887: API Integration	OPEN	4.800382525986979	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:08.207
+3d2f4578-44c6-4e9b-9cd1-c4609ac36c25	JIRA-2137: API Integration	CLOSED	2.8955608199314	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	48aecaf6-373f-4012-9f9b-fae916047cc4	2026-04-16 00:06:08.207	2026-04-15 18:36:08.209
+e18c6f2c-8fa5-40ff-be49-b2c6232a6453	JIRA-2321: API Integration	CLOSED	4.108316182376234	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	48aecaf6-373f-4012-9f9b-fae916047cc4	2026-04-16 00:06:08.21	2026-04-15 18:36:08.211
+6f17b038-bf83-4b27-9e7f-792982048500	JIRA-7257: API Integration	CLOSED	2.380568404666185	551a836f-c2c2-4418-a73c-76dbfafd8442	48aecaf6-373f-4012-9f9b-fae916047cc4	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	48aecaf6-373f-4012-9f9b-fae916047cc4	2026-04-16 00:06:08.21	2026-04-15 18:36:08.213
+2cfc3b07-265d-4a2c-a4d3-459d46e253ba	JIRA-5511: API Integration	OPEN	3.137361759086606	176cf575-1e8f-4447-93d3-2999415d2173	100173fc-a655-4859-8bdb-33e695033fbf	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:08.275
+45c59d18-254d-4897-bdd7-af9ed17c654d	JIRA-9015: API Integration	OPEN	2.157978727846791	176cf575-1e8f-4447-93d3-2999415d2173	100173fc-a655-4859-8bdb-33e695033fbf	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:08.277
+b888906e-6d7f-4525-8a68-b55aa3825b6f	JIRA-9092: API Integration	OPEN	3.895166284514241	176cf575-1e8f-4447-93d3-2999415d2173	100173fc-a655-4859-8bdb-33e695033fbf	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:08.28
+4eaa9b05-54f6-44d8-aa3d-d85dcfa14ab8	JIRA-1221: API Integration	OPEN	3.116867499758841	176cf575-1e8f-4447-93d3-2999415d2173	100173fc-a655-4859-8bdb-33e695033fbf	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:08.282
+414a441a-4830-4b56-9c5e-af5b6f46b434	JIRA-3952: API Integration	OPEN	2.746678751084668	176cf575-1e8f-4447-93d3-2999415d2173	100173fc-a655-4859-8bdb-33e695033fbf	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:08.284
+84a77c69-450a-44bb-ae19-a1dfb588560c	JIRA-2080: API Integration	OPEN	4.012293382897592	176cf575-1e8f-4447-93d3-2999415d2173	100173fc-a655-4859-8bdb-33e695033fbf	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:08.287
+cf6efc41-f0e1-4816-a688-2fd71f4ffc2b	JIRA-8984: API Integration	CLOSED	4.178523435154245	176cf575-1e8f-4447-93d3-2999415d2173	100173fc-a655-4859-8bdb-33e695033fbf	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	100173fc-a655-4859-8bdb-33e695033fbf	2026-04-16 00:06:08.287	2026-04-15 18:36:08.289
+de1e9a89-235e-4fd7-a52e-01f3fed04077	JIRA-8096: API Integration	CLOSED	4.176819373684213	176cf575-1e8f-4447-93d3-2999415d2173	100173fc-a655-4859-8bdb-33e695033fbf	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	100173fc-a655-4859-8bdb-33e695033fbf	2026-04-16 00:06:08.289	2026-04-15 18:36:08.291
+edc49791-0a08-448d-b33a-e10d957c09fb	JIRA-3649: API Integration	CLOSED	3.432751348111576	176cf575-1e8f-4447-93d3-2999415d2173	100173fc-a655-4859-8bdb-33e695033fbf	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	100173fc-a655-4859-8bdb-33e695033fbf	2026-04-16 00:06:08.291	2026-04-15 18:36:08.294
+f74c7393-0cee-4d6a-80b0-9f7d34821735	JIRA-2508: API Integration	CLOSED	4.292258018001895	176cf575-1e8f-4447-93d3-2999415d2173	100173fc-a655-4859-8bdb-33e695033fbf	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	100173fc-a655-4859-8bdb-33e695033fbf	2026-04-16 00:06:08.293	2026-04-15 18:36:08.296
+e00f495f-4001-47ef-940f-90fb545aae3d	JIRA-6943: API Integration	OPEN	1.558347164118999	176cf575-1e8f-4447-93d3-2999415d2173	100173fc-a655-4859-8bdb-33e695033fbf	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:08.298
+51cc49be-26ca-456c-ab98-5546f63d69ea	JIRA-2369: API Integration	CLOSED	3.555558362176636	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	4638bdfb-2236-4901-8642-fc22bb4b936d	2026-04-16 00:06:08.373	2026-04-15 18:36:08.375
+ec8e0a7f-fd25-4442-b59d-1c4ef409f661	JIRA-9761: API Integration	OPEN	1.091863915153193	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:08.378
+0e387533-8b34-47be-9a4d-27d082f7ac23	JIRA-1426: API Integration	CLOSED	4.643590056626758	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	4638bdfb-2236-4901-8642-fc22bb4b936d	2026-04-16 00:06:08.378	2026-04-15 18:36:08.38
+dfcd1cf8-7e91-40cf-a15e-fd8d4b7014cd	JIRA-7169: API Integration	OPEN	2.045383994114391	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:08.382
+acf87ee0-1090-4ba2-bc9f-b9d8ec0ddcb0	JIRA-8213: API Integration	OPEN	4.212293170144003	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:08.384
+509f3d5b-68d8-4f36-b488-da3312d5a3d8	JIRA-7092: API Integration	OPEN	2.963954431503147	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:08.386
+9e77c353-3cad-498b-8f50-86dcc21a3f54	JIRA-4624: API Integration	CLOSED	3.575096118725378	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	4638bdfb-2236-4901-8642-fc22bb4b936d	2026-04-16 00:06:08.386	2026-04-15 18:36:08.388
+d842b9c8-a30d-481e-b346-cd09c5a00df4	JIRA-7467: API Integration	CLOSED	1.404691553243931	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	4638bdfb-2236-4901-8642-fc22bb4b936d	2026-04-16 00:06:08.388	2026-04-15 18:36:08.391
+32c154b2-7bee-40fb-9ab9-b8e703328a10	JIRA-2035: API Integration	OPEN	4.915382224228773	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:08.393
+f7ee5315-493d-4f9c-8248-142272f02e14	JIRA-2229: API Integration	CLOSED	4.400348586065068	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	4638bdfb-2236-4901-8642-fc22bb4b936d	2026-04-16 00:06:08.393	2026-04-15 18:36:08.395
+59524f99-8fa9-46be-90c9-0cc7c43312fa	JIRA-8117: API Integration	CLOSED	4.7175481770715	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	4638bdfb-2236-4901-8642-fc22bb4b936d	2026-04-16 00:06:08.395	2026-04-15 18:36:08.397
+fc16a3a9-f043-4726-afa0-07de38d1909d	JIRA-8742: API Integration	CLOSED	3.238191062543179	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	4638bdfb-2236-4901-8642-fc22bb4b936d	2026-04-16 00:06:08.398	2026-04-15 18:36:08.399
+ea24c7de-8cd5-43fe-97da-8eea796160ed	JIRA-9664: API Integration	OPEN	1.476711097008537	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	\N	\N	2026-04-15 18:36:08.402
+a171ef1f-f9b0-4dc9-9ea6-1f55c0dc4466	JIRA-1991: API Integration	CLOSED	1.020681242203841	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	4638bdfb-2236-4901-8642-fc22bb4b936d	2026-04-16 00:06:08.401	2026-04-15 18:36:08.404
+f6d05815-f0b5-4e54-ae64-6676e8b6e5a6	JIRA-1597: API Integration	CLOSED	2.156930219147999	c7599686-6b3b-44e0-b391-ea15e2e2823b	4638bdfb-2236-4901-8642-fc22bb4b936d	ad644a94-f98d-4e72-9fd0-c69447f09c61	4638bdfb-2236-4901-8642-fc22bb4b936d	2026-04-16 00:06:08.404	2026-04-15 18:36:08.406
+0d0c4f43-2f4c-44d1-a083-d51474500cf3	JIRA-1954: API Integration	CLOSED	3.144506733258137	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2026-04-16 00:06:08.494	2026-04-15 18:36:08.496
+0f65c016-a1fd-4953-8564-088b08dbaa62	JIRA-5269: API Integration	CLOSED	2.918012622066188	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2026-04-16 00:06:08.496	2026-04-15 18:36:08.499
+5859e40b-83d3-4e51-853e-235f63b432e0	JIRA-9397: API Integration	CLOSED	4.363695280616181	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2026-04-16 00:06:08.501	2026-04-15 18:36:08.502
+e1c95924-c16a-496f-bd8f-f6caad840753	JIRA-8767: API Integration	OPEN	1.164247323302487	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:08.505
+807fb514-8303-44fd-b742-e0c6b19f2053	JIRA-8039: API Integration	OPEN	1.532916127599466	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:08.51
+86f5e850-4656-4434-919a-a214146ed21e	JIRA-8851: API Integration	OPEN	3.368017606506958	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:08.514
+323efca3-8b29-4a66-8191-84b3be363f48	JIRA-4493: API Integration	OPEN	3.804548616654531	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:08.517
+0b0bca0b-d381-4858-8081-69239fc8e108	JIRA-2030: API Integration	OPEN	4.779323602290316	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:08.52
+c0a31f17-9d78-4db3-b571-0aecf865b3e5	JIRA-2529: API Integration	OPEN	3.011835031529692	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	\N	\N	2026-04-15 18:36:08.524
+c448c0ed-3d42-4576-89d2-2c8a1defccf6	JIRA-7454: API Integration	CLOSED	1.833093278265403	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2026-04-16 00:06:08.525	2026-04-15 18:36:08.527
+3d121fb7-1274-40c2-a716-66ed3746e003	JIRA-3278: API Integration	CLOSED	3.418206496833298	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	42f29983-6229-4f6c-9176-5aa6a1ba9f7c	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	2026-04-16 00:06:08.528	2026-04-15 18:36:08.53
+1602be1e-d871-439d-999d-0cf12164376d	JIRA-6594: API Integration	CLOSED	2.427460024559953	dd9b845e-7538-4306-b480-e9fbcd48b6f4	39312998-cf88-478d-a27a-a9a75787b9fe	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	39312998-cf88-478d-a27a-a9a75787b9fe	2026-04-16 00:06:08.607	2026-04-15 18:36:08.608
+c3af1ae2-f427-4347-a39e-bbc6f5ebea07	JIRA-2165: API Integration	OPEN	2.658792720130417	dd9b845e-7538-4306-b480-e9fbcd48b6f4	39312998-cf88-478d-a27a-a9a75787b9fe	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:08.61
+8e3800dd-aee1-4d0e-83b1-f11ecb0f7e8b	JIRA-5695: API Integration	OPEN	4.722119098282477	dd9b845e-7538-4306-b480-e9fbcd48b6f4	39312998-cf88-478d-a27a-a9a75787b9fe	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:08.613
+d0050769-66a5-4f65-9596-15dcb5b24a05	JIRA-4362: API Integration	CLOSED	4.541789407038737	dd9b845e-7538-4306-b480-e9fbcd48b6f4	39312998-cf88-478d-a27a-a9a75787b9fe	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	39312998-cf88-478d-a27a-a9a75787b9fe	2026-04-16 00:06:08.614	2026-04-15 18:36:08.616
+391b9e22-77be-49b6-b743-bdae003fe634	JIRA-3979: API Integration	CLOSED	4.004088903339239	dd9b845e-7538-4306-b480-e9fbcd48b6f4	39312998-cf88-478d-a27a-a9a75787b9fe	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	39312998-cf88-478d-a27a-a9a75787b9fe	2026-04-16 00:06:08.618	2026-04-15 18:36:08.62
+26879921-c104-44ca-97b5-ca5ede31054a	JIRA-7695: API Integration	OPEN	2.224211851580848	dd9b845e-7538-4306-b480-e9fbcd48b6f4	39312998-cf88-478d-a27a-a9a75787b9fe	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:08.624
+a4a6b7b8-1ff5-4973-a40a-ad014e3e32b1	JIRA-5003: API Integration	CLOSED	2.242336622481564	dd9b845e-7538-4306-b480-e9fbcd48b6f4	39312998-cf88-478d-a27a-a9a75787b9fe	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	39312998-cf88-478d-a27a-a9a75787b9fe	2026-04-16 00:06:08.628	2026-04-15 18:36:08.632
+fcddb9e5-ee98-4edf-9ce1-3991629866dd	JIRA-6876: API Integration	CLOSED	2.285774801368388	dd9b845e-7538-4306-b480-e9fbcd48b6f4	39312998-cf88-478d-a27a-a9a75787b9fe	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	39312998-cf88-478d-a27a-a9a75787b9fe	2026-04-16 00:06:08.633	2026-04-15 18:36:08.635
+171d5ee3-9bf8-4461-bddb-e7d30219dcd4	JIRA-6632: API Integration	CLOSED	1.928800031715318	dd9b845e-7538-4306-b480-e9fbcd48b6f4	39312998-cf88-478d-a27a-a9a75787b9fe	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	39312998-cf88-478d-a27a-a9a75787b9fe	2026-04-16 00:06:08.636	2026-04-15 18:36:08.638
+7bb92b39-c302-4afe-935f-784551110f5c	JIRA-9164: API Integration	CLOSED	1.095518688082041	dd9b845e-7538-4306-b480-e9fbcd48b6f4	39312998-cf88-478d-a27a-a9a75787b9fe	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	39312998-cf88-478d-a27a-a9a75787b9fe	2026-04-16 00:06:08.638	2026-04-15 18:36:08.641
+67ac2de4-1b77-4c7e-89a5-de5846b9db86	JIRA-1486: API Integration	OPEN	2.159816514277025	dd9b845e-7538-4306-b480-e9fbcd48b6f4	39312998-cf88-478d-a27a-a9a75787b9fe	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:08.644
+5683769f-b02f-4ba0-9f0e-f22da125731f	JIRA-4543: API Integration	OPEN	3.211456752533204	dd9b845e-7538-4306-b480-e9fbcd48b6f4	39312998-cf88-478d-a27a-a9a75787b9fe	4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	\N	\N	2026-04-15 18:36:08.647
+8d0c5d5f-c8cf-4e2e-9a23-1a871988d92b	JIRA-8112: API Integration	CLOSED	4.452922375284883	594e286f-cc69-49da-883b-7ff2fcc87061	06268a07-934e-41e5-9526-15687e490453	aa7cccf3-4edb-4a42-87df-41261f3b77b2	06268a07-934e-41e5-9526-15687e490453	2026-04-16 00:06:08.761	2026-04-15 18:36:08.764
+499d8bf5-0f7d-40dc-9048-837fd1ca9553	JIRA-5435: API Integration	CLOSED	4.075401247853254	594e286f-cc69-49da-883b-7ff2fcc87061	06268a07-934e-41e5-9526-15687e490453	aa7cccf3-4edb-4a42-87df-41261f3b77b2	06268a07-934e-41e5-9526-15687e490453	2026-04-16 00:06:08.765	2026-04-15 18:36:08.767
+97aae620-3572-4a58-b7dd-d5ffa09e21f1	JIRA-6496: API Integration	CLOSED	3.569775806997717	594e286f-cc69-49da-883b-7ff2fcc87061	06268a07-934e-41e5-9526-15687e490453	aa7cccf3-4edb-4a42-87df-41261f3b77b2	06268a07-934e-41e5-9526-15687e490453	2026-04-16 00:06:08.768	2026-04-15 18:36:08.77
+db4ca3f9-03f6-4677-b338-21ba871d8fca	JIRA-5456: API Integration	OPEN	3.482259470800761	594e286f-cc69-49da-883b-7ff2fcc87061	06268a07-934e-41e5-9526-15687e490453	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:08.773
+a92fd825-7b08-4280-bc1c-f596c5d3d212	JIRA-7465: API Integration	CLOSED	2.365573156481528	594e286f-cc69-49da-883b-7ff2fcc87061	06268a07-934e-41e5-9526-15687e490453	aa7cccf3-4edb-4a42-87df-41261f3b77b2	06268a07-934e-41e5-9526-15687e490453	2026-04-16 00:06:08.774	2026-04-15 18:36:08.776
+915e2ee1-0e94-41ad-9eb9-9083eef1d330	JIRA-3936: API Integration	OPEN	1.655563990455823	594e286f-cc69-49da-883b-7ff2fcc87061	06268a07-934e-41e5-9526-15687e490453	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:08.779
+7c0774fb-f973-43f7-a47f-19690e24a461	JIRA-1871: API Integration	CLOSED	2.660522298532767	594e286f-cc69-49da-883b-7ff2fcc87061	06268a07-934e-41e5-9526-15687e490453	aa7cccf3-4edb-4a42-87df-41261f3b77b2	06268a07-934e-41e5-9526-15687e490453	2026-04-16 00:06:08.779	2026-04-15 18:36:08.782
+8261a2af-a7bb-4f00-a69b-32c041c9030b	JIRA-9979: API Integration	CLOSED	2.206863932029321	594e286f-cc69-49da-883b-7ff2fcc87061	06268a07-934e-41e5-9526-15687e490453	aa7cccf3-4edb-4a42-87df-41261f3b77b2	06268a07-934e-41e5-9526-15687e490453	2026-04-16 00:06:08.783	2026-04-15 18:36:08.785
+1c9f2395-5dc1-4394-ab0b-f0ff0fb2ec8f	JIRA-4472: API Integration	OPEN	2.246196893786836	594e286f-cc69-49da-883b-7ff2fcc87061	06268a07-934e-41e5-9526-15687e490453	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:08.788
+22b4ebf2-1209-4dfd-8c11-e0b9d42b3c19	JIRA-1705: API Integration	OPEN	3.606937897190869	594e286f-cc69-49da-883b-7ff2fcc87061	06268a07-934e-41e5-9526-15687e490453	aa7cccf3-4edb-4a42-87df-41261f3b77b2	\N	\N	2026-04-15 18:36:08.791
+5cdd4491-6a20-470b-8fa8-a4389f562977	JIRA-2136: API Integration	CLOSED	4.835070237305	594e286f-cc69-49da-883b-7ff2fcc87061	06268a07-934e-41e5-9526-15687e490453	aa7cccf3-4edb-4a42-87df-41261f3b77b2	06268a07-934e-41e5-9526-15687e490453	2026-04-16 00:06:08.792	2026-04-15 18:36:08.794
+1237a16f-a717-4c4c-9520-aee6851ef934	JIRA-1106: API Integration	OPEN	4.976842526410758	6e156838-4c84-457f-a32a-06e9f55602b9	5229418e-accc-47a3-aa8e-e630ecb2df9d	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:08.887
+d801a0ef-1a81-4130-833f-4dd3a374fdd1	JIRA-5483: API Integration	OPEN	2.346431514190765	6e156838-4c84-457f-a32a-06e9f55602b9	5229418e-accc-47a3-aa8e-e630ecb2df9d	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:08.889
+feab2058-2a4b-4dcf-a7be-bf4ec7cde328	JIRA-3899: API Integration	OPEN	4.943807796488306	6e156838-4c84-457f-a32a-06e9f55602b9	5229418e-accc-47a3-aa8e-e630ecb2df9d	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:08.892
+eb189215-0317-41d2-96b5-6b7ce825dcd3	JIRA-9373: API Integration	OPEN	1.976456172004405	6e156838-4c84-457f-a32a-06e9f55602b9	5229418e-accc-47a3-aa8e-e630ecb2df9d	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:08.894
+30b9f839-63ac-4a78-8e03-4ee5472b6534	JIRA-6413: API Integration	CLOSED	3.534085211474482	6e156838-4c84-457f-a32a-06e9f55602b9	5229418e-accc-47a3-aa8e-e630ecb2df9d	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	5229418e-accc-47a3-aa8e-e630ecb2df9d	2026-04-16 00:06:08.895	2026-04-15 18:36:08.897
+fc517ddf-65dc-465c-a20d-200ce1b80f5c	JIRA-7763: API Integration	OPEN	2.61217126561433	6e156838-4c84-457f-a32a-06e9f55602b9	5229418e-accc-47a3-aa8e-e630ecb2df9d	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:08.901
+75ac8d4b-2aac-4f4f-beba-720a1b03a0b7	JIRA-5998: API Integration	OPEN	3.435987908588801	6e156838-4c84-457f-a32a-06e9f55602b9	5229418e-accc-47a3-aa8e-e630ecb2df9d	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:08.908
+7dc211f0-d2e1-4915-9f2d-adfce2cdcc75	JIRA-9801: API Integration	OPEN	1.158609644792902	6e156838-4c84-457f-a32a-06e9f55602b9	5229418e-accc-47a3-aa8e-e630ecb2df9d	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:08.913
+82fc2f03-c49b-44ab-9394-9580f35b8ab8	JIRA-6770: API Integration	OPEN	2.93652700559913	6e156838-4c84-457f-a32a-06e9f55602b9	5229418e-accc-47a3-aa8e-e630ecb2df9d	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:08.917
+f2274340-ca63-4002-916f-877382d5288e	JIRA-1134: API Integration	OPEN	1.53056514664273	6e156838-4c84-457f-a32a-06e9f55602b9	5229418e-accc-47a3-aa8e-e630ecb2df9d	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:08.921
+00857160-3c60-4a0a-94bf-0331410ce0d3	JIRA-7789: API Integration	OPEN	2.820699465157557	6e156838-4c84-457f-a32a-06e9f55602b9	5229418e-accc-47a3-aa8e-e630ecb2df9d	d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	\N	\N	2026-04-15 18:36:08.923
+08b4f2c8-1b92-405b-a711-86e2d9c91d50	JIRA-7276: API Integration	CLOSED	1.535624625841246	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	2026-04-16 00:06:09.007	2026-04-15 18:36:09.01
+1ec4c763-252d-49aa-9c52-020cfd42a7bc	JIRA-8436: API Integration	CLOSED	4.992634797568655	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	2026-04-16 00:06:09.011	2026-04-15 18:36:09.013
+bfa11c8a-b2e0-4b32-897a-71ea2a473d1d	JIRA-6351: API Integration	CLOSED	2.849843334312803	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	2026-04-16 00:06:09.014	2026-04-15 18:36:09.016
+f2190c49-6774-4a9a-9e56-28c79da08ebf	JIRA-7333: API Integration	OPEN	4.932881955439589	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:09.02
+9a54d6dc-3d8a-440f-b408-a844b935b25d	JIRA-6624: API Integration	OPEN	1.535914849385569	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:09.023
+a50390a5-82e1-45f7-8c69-182a91c3824f	JIRA-9570: API Integration	OPEN	1.684574891588245	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	\N	\N	2026-04-15 18:36:09.026
+e8fd2f8a-e67c-4fa4-be61-dd9f3d63ac38	JIRA-9428: API Integration	CLOSED	2.162672329747635	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	2026-04-16 00:06:09.027	2026-04-15 18:36:09.03
+a75bc7ed-fc01-41c2-a15a-c35a12bbed52	JIRA-9410: API Integration	CLOSED	1.853355447485674	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	2026-04-16 00:06:09.031	2026-04-15 18:36:09.033
+01f5bffd-5a3c-4f63-9a52-3e5cc6673b6c	JIRA-6388: API Integration	CLOSED	1.301941483624882	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	2026-04-16 00:06:09.034	2026-04-15 18:36:09.036
+3dcd5811-73b2-49e9-90b5-931865cfc59e	JIRA-1081: API Integration	CLOSED	3.062490351471372	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	2026-04-16 00:06:09.036	2026-04-15 18:36:09.039
+6fc259b1-1f73-4e57-859d-817995f6c2b3	JIRA-3025: API Integration	CLOSED	2.901589742019264	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	2026-04-16 00:06:09.04	2026-04-15 18:36:09.043
+857a55b9-fbb7-4045-92c8-ffcda601b3a6	JIRA-8871: API Integration	CLOSED	4.034258274380276	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	d5afc715-6859-4fb4-a128-b535547d272e	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-16 00:06:09.118	2026-04-15 18:36:09.12
+2b157662-fc8d-41c8-9354-0059238c8367	JIRA-1301: API Integration	OPEN	4.635997058485321	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	d5afc715-6859-4fb4-a128-b535547d272e	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:09.122
+aa289cb2-83e7-466f-8707-2e503aa62df5	JIRA-7104: API Integration	CLOSED	1.332338538759726	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	d5afc715-6859-4fb4-a128-b535547d272e	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-16 00:06:09.124	2026-04-15 18:36:09.125
+fb592a0b-0306-482f-95c0-c30206cef3d6	JIRA-3692: API Integration	CLOSED	4.666369415340482	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	d5afc715-6859-4fb4-a128-b535547d272e	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-16 00:06:09.125	2026-04-15 18:36:09.127
+3c3d834a-30fd-44d9-afe2-78e01ff9a409	JIRA-6139: API Integration	OPEN	4.520603344889644	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	d5afc715-6859-4fb4-a128-b535547d272e	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:09.129
+1f497d8f-918e-4eb3-8252-9f86e186023a	JIRA-7811: API Integration	OPEN	4.204359307994403	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	d5afc715-6859-4fb4-a128-b535547d272e	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:09.131
+961f7140-87a1-48cc-8059-0db467566f12	JIRA-8404: API Integration	OPEN	2.877106191328833	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	d5afc715-6859-4fb4-a128-b535547d272e	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:09.133
+ec4252ed-b9ba-468e-8917-2e82a7a6a5f5	JIRA-9228: API Integration	OPEN	3.119317017092782	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	d5afc715-6859-4fb4-a128-b535547d272e	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:09.136
+085890bc-3c9f-438a-9652-eaf4207262a6	JIRA-2590: API Integration	OPEN	2.057961963972845	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	d5afc715-6859-4fb4-a128-b535547d272e	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:09.138
+30edd172-242a-4aab-a8f8-79a800d52bd3	JIRA-6679: API Integration	OPEN	1.520651127061455	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	d5afc715-6859-4fb4-a128-b535547d272e	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:09.14
+b4c83791-647b-416e-b867-f9a9f34e390b	JIRA-8896: API Integration	OPEN	3.788243645987154	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	d5afc715-6859-4fb4-a128-b535547d272e	a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	\N	\N	2026-04-15 18:36:09.142
+a2d6bd1f-40a3-4d63-be0d-0152a43826a6	JIRA-3214: API Integration	OPEN	3.923308476237525	e7029756-37b0-4692-bb55-7339e3b9a0bf	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:09.221
+4d077a48-4ec0-4ccf-aea0-bf8a387bbd89	JIRA-2066: API Integration	OPEN	1.007648645093616	e7029756-37b0-4692-bb55-7339e3b9a0bf	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:09.224
+67408fbb-1e87-42ca-ba01-03d4794c1870	JIRA-6447: API Integration	OPEN	4.884427460105414	e7029756-37b0-4692-bb55-7339e3b9a0bf	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:09.227
+17671d38-0458-43e1-8008-c96931b87075	JIRA-5272: API Integration	CLOSED	4.784392014433929	e7029756-37b0-4692-bb55-7339e3b9a0bf	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	2026-04-16 00:06:09.228	2026-04-15 18:36:09.23
+6b37b710-82b7-4221-be25-e9dd6b15d8d1	JIRA-1408: API Integration	CLOSED	4.972858268759351	e7029756-37b0-4692-bb55-7339e3b9a0bf	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	2026-04-16 00:06:09.231	2026-04-15 18:36:09.233
+ed60f3d6-a6ac-4e3e-a025-eff9b6cabeaf	JIRA-7459: API Integration	CLOSED	4.670965433798091	e7029756-37b0-4692-bb55-7339e3b9a0bf	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	2026-04-16 00:06:09.234	2026-04-15 18:36:09.235
+4486a7bd-0701-4015-ace4-f011591e8390	JIRA-5848: API Integration	CLOSED	4.11747679143506	e7029756-37b0-4692-bb55-7339e3b9a0bf	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	2026-04-16 00:06:09.236	2026-04-15 18:36:09.238
+809f6e0d-0b64-423d-9c47-b09811e12e8b	JIRA-1986: API Integration	CLOSED	3.164106781413674	e7029756-37b0-4692-bb55-7339e3b9a0bf	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	2026-04-16 00:06:09.238	2026-04-15 18:36:09.24
+289a4a3a-408d-4fd7-9c51-36838ab1d5e4	JIRA-3607: API Integration	CLOSED	3.154681347410808	e7029756-37b0-4692-bb55-7339e3b9a0bf	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	2026-04-16 00:06:09.241	2026-04-15 18:36:09.243
+a96762c6-ee83-4b62-8663-52aabfe7fd1c	JIRA-2650: API Integration	OPEN	4.683597314196119	e7029756-37b0-4692-bb55-7339e3b9a0bf	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:09.246
+2cf04376-ee42-4bac-ac81-ef67e6b5af5a	JIRA-6916: API Integration	OPEN	2.994572871454812	e7029756-37b0-4692-bb55-7339e3b9a0bf	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:09.249
+16112f27-5409-4227-96f0-ec1585c9ad3c	JIRA-9811: API Integration	OPEN	1.741020079952936	e7029756-37b0-4692-bb55-7339e3b9a0bf	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	\N	\N	2026-04-15 18:36:09.252
+89a71c03-bc0b-45f4-bc76-f395624539ce	JIRA-7242: API Integration	OPEN	3.36277408574441	28f462ff-0757-44ce-92c2-b0864a8f4500	c6b5fe02-5974-4c38-8eee-62fec0916b76	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:09.304
+d9256afe-b7a9-4966-a3e8-167831ae7854	JIRA-3044: API Integration	OPEN	2.857665732787911	28f462ff-0757-44ce-92c2-b0864a8f4500	c6b5fe02-5974-4c38-8eee-62fec0916b76	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:09.306
+b5a6bec1-6501-4db6-9718-9f9f61d573b7	JIRA-8925: API Integration	CLOSED	2.842586914840649	28f462ff-0757-44ce-92c2-b0864a8f4500	c6b5fe02-5974-4c38-8eee-62fec0916b76	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	c6b5fe02-5974-4c38-8eee-62fec0916b76	2026-04-16 00:06:09.307	2026-04-15 18:36:09.308
+54e4dd77-4b65-41fc-9b5c-1f024411f4bf	JIRA-2745: API Integration	CLOSED	2.892096896257509	28f462ff-0757-44ce-92c2-b0864a8f4500	c6b5fe02-5974-4c38-8eee-62fec0916b76	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	c6b5fe02-5974-4c38-8eee-62fec0916b76	2026-04-16 00:06:09.309	2026-04-15 18:36:09.311
+d944e7fb-942b-40f0-826a-73413a246cc2	JIRA-4955: API Integration	CLOSED	3.98951361400406	28f462ff-0757-44ce-92c2-b0864a8f4500	c6b5fe02-5974-4c38-8eee-62fec0916b76	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	c6b5fe02-5974-4c38-8eee-62fec0916b76	2026-04-16 00:06:09.311	2026-04-15 18:36:09.313
+c52ea2c3-fe84-421f-98a9-5fa18f53ef06	JIRA-5399: API Integration	OPEN	2.552063398983793	28f462ff-0757-44ce-92c2-b0864a8f4500	c6b5fe02-5974-4c38-8eee-62fec0916b76	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:09.315
+e12a398c-0fb8-4a66-973f-41a8ea403cdb	JIRA-1588: API Integration	CLOSED	3.62395000589759	28f462ff-0757-44ce-92c2-b0864a8f4500	c6b5fe02-5974-4c38-8eee-62fec0916b76	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	c6b5fe02-5974-4c38-8eee-62fec0916b76	2026-04-16 00:06:09.315	2026-04-15 18:36:09.317
+f1ea5ca3-0854-4d42-a33c-e764dacb3b59	JIRA-6101: API Integration	CLOSED	2.547685056853819	28f462ff-0757-44ce-92c2-b0864a8f4500	c6b5fe02-5974-4c38-8eee-62fec0916b76	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	c6b5fe02-5974-4c38-8eee-62fec0916b76	2026-04-16 00:06:09.318	2026-04-15 18:36:09.319
+d609584b-b07d-40db-9366-87e6c20dfb1a	JIRA-1603: API Integration	OPEN	4.64210212745096	28f462ff-0757-44ce-92c2-b0864a8f4500	c6b5fe02-5974-4c38-8eee-62fec0916b76	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:09.322
+c0ceba55-4be4-495e-8ebf-abc8139a0b95	JIRA-2268: API Integration	CLOSED	3.833687837236878	28f462ff-0757-44ce-92c2-b0864a8f4500	c6b5fe02-5974-4c38-8eee-62fec0916b76	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	c6b5fe02-5974-4c38-8eee-62fec0916b76	2026-04-16 00:06:09.322	2026-04-15 18:36:09.324
+1c9e491a-c828-4108-94d0-7b7e63d35d72	JIRA-5685: API Integration	OPEN	1.014051931245007	28f462ff-0757-44ce-92c2-b0864a8f4500	c6b5fe02-5974-4c38-8eee-62fec0916b76	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:09.326
+1ff85cc5-524c-4ebe-bab1-9cf21468ef83	JIRA-7029: API Integration	OPEN	3.977498727393364	28f462ff-0757-44ce-92c2-b0864a8f4500	c6b5fe02-5974-4c38-8eee-62fec0916b76	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:09.329
+aedcc47a-6dcf-406d-90c9-101b417706b6	JIRA-1238: API Integration	OPEN	2.373690842818162	28f462ff-0757-44ce-92c2-b0864a8f4500	c6b5fe02-5974-4c38-8eee-62fec0916b76	e8c1ccbd-3722-4f57-83bf-e55806ee88c6	\N	\N	2026-04-15 18:36:09.331
+4366466d-40cf-4b1e-99f5-ff08b80bb35f	JIRA-6340: API Integration	OPEN	3.750501588249816	13d1dadd-cbab-4aa6-873c-824524126cdd	ace90216-fa2c-4ac5-ad89-645cb71736d0	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:09.393
+32620600-e09c-49bb-9ab6-cec65455a9ae	JIRA-9068: API Integration	OPEN	2.279875346531133	13d1dadd-cbab-4aa6-873c-824524126cdd	ace90216-fa2c-4ac5-ad89-645cb71736d0	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:09.395
+9806087d-b123-446f-b955-d91fb2eea62c	JIRA-6059: API Integration	OPEN	4.849090284603605	13d1dadd-cbab-4aa6-873c-824524126cdd	ace90216-fa2c-4ac5-ad89-645cb71736d0	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:09.397
+dc4e5d5f-c6f1-4ac1-86d4-1ecdeef3ee66	JIRA-6222: API Integration	CLOSED	3.331523470863394	13d1dadd-cbab-4aa6-873c-824524126cdd	ace90216-fa2c-4ac5-ad89-645cb71736d0	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	ace90216-fa2c-4ac5-ad89-645cb71736d0	2026-04-16 00:06:09.398	2026-04-15 18:36:09.399
+a0102552-53e7-4b03-881f-ede65ebc19da	JIRA-9462: API Integration	OPEN	2.855851626712817	13d1dadd-cbab-4aa6-873c-824524126cdd	ace90216-fa2c-4ac5-ad89-645cb71736d0	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:09.401
+45fb5dbd-9f4c-48eb-8c68-731f1ed1eb0b	JIRA-9458: API Integration	CLOSED	2.898179511448876	13d1dadd-cbab-4aa6-873c-824524126cdd	ace90216-fa2c-4ac5-ad89-645cb71736d0	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	ace90216-fa2c-4ac5-ad89-645cb71736d0	2026-04-16 00:06:09.403	2026-04-15 18:36:09.404
+ca235827-baf6-4c73-9cd3-93c601e92ba8	JIRA-4126: API Integration	CLOSED	3.836508087532213	13d1dadd-cbab-4aa6-873c-824524126cdd	ace90216-fa2c-4ac5-ad89-645cb71736d0	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	ace90216-fa2c-4ac5-ad89-645cb71736d0	2026-04-16 00:06:09.404	2026-04-15 18:36:09.406
+aa243e8d-75d8-4839-ba65-e46add4da2a5	JIRA-3751: API Integration	OPEN	2.288679550246432	13d1dadd-cbab-4aa6-873c-824524126cdd	ace90216-fa2c-4ac5-ad89-645cb71736d0	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:09.408
+78313fb5-56d2-47ae-96f6-501866e2177e	JIRA-6975: API Integration	OPEN	2.8150892405429	13d1dadd-cbab-4aa6-873c-824524126cdd	ace90216-fa2c-4ac5-ad89-645cb71736d0	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:09.41
+b6449833-923f-4a05-87cc-82ef853b210b	JIRA-2058: API Integration	CLOSED	1.711174481161861	13d1dadd-cbab-4aa6-873c-824524126cdd	ace90216-fa2c-4ac5-ad89-645cb71736d0	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	ace90216-fa2c-4ac5-ad89-645cb71736d0	2026-04-16 00:06:09.411	2026-04-15 18:36:09.412
+59fde859-0f67-4e8f-a13c-d45c02f6e668	JIRA-9001: API Integration	OPEN	2.583927768750863	13d1dadd-cbab-4aa6-873c-824524126cdd	ace90216-fa2c-4ac5-ad89-645cb71736d0	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	\N	\N	2026-04-15 18:36:09.414
+c2f8816b-2d3d-4e47-b2ec-1cd3a8438ece	JIRA-2642: API Integration	CLOSED	2.801070810671665	13d1dadd-cbab-4aa6-873c-824524126cdd	ace90216-fa2c-4ac5-ad89-645cb71736d0	b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	ace90216-fa2c-4ac5-ad89-645cb71736d0	2026-04-16 00:06:09.414	2026-04-15 18:36:09.416
+9c1c880f-d827-421f-aa26-c10e359933cc	Fix: CSS alignment bug 0	CLOSED	3.344365458862451	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	2026-04-14 01:10:58.754	2026-04-15 19:40:58.757
+a600ff68-9773-43a1-8afc-0d056607a563	Fix: CSS alignment bug 1	CLOSED	2.61522180814091	e38149de-145b-4edb-9dae-f8b887cf1292	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	2026-04-06 01:10:58.785	2026-04-15 19:40:58.791
+42ff68cb-e9a2-472d-87de-63fba0112d4c	Fix: CSS alignment bug 2	CLOSED	1.130319045974303	c7599686-6b3b-44e0-b391-ea15e2e2823b	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	2026-04-09 01:10:58.794	2026-04-15 19:40:58.798
+7b505a33-b0d3-43a6-b634-76ae8108e8c4	Fix: CSS alignment bug 3	CLOSED	1.244846099456336	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	2026-04-01 01:10:58.803	2026-04-15 19:40:58.809
+fdd8c531-64b4-4e50-936d-574cb3f5c8a0	Fix: CSS alignment bug 4	CLOSED	1.944839927119117	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	2026-04-12 01:10:58.814	2026-04-15 19:40:58.818
+841fb374-9d09-4369-8916-680a6bda1363	Fix: CSS alignment bug 5	CLOSED	1.594716125882463	c7599686-6b3b-44e0-b391-ea15e2e2823b	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	2026-04-14 01:10:58.824	2026-04-15 19:40:58.826
+f27cedf6-3959-4bf5-9e1b-ffe5c9a20885	Fix: CSS alignment bug 6	CLOSED	1.623939085835573	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	2026-04-05 01:10:58.829	2026-04-15 19:40:58.832
+8f9dc4a4-d8d4-464e-9d2a-b0ef2bbec1ce	Fix: CSS alignment bug 7	CLOSED	3.556379856655302	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	8929de17-01c9-4486-bde1-caec1ed32ef2	2026-04-05 01:10:58.833	2026-04-15 19:40:58.835
+457bb810-0087-44c8-89dd-418a21081bbe	Fix: CSS alignment bug 0	CLOSED	3.445046828500305	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	2026-04-10 01:10:58.91	2026-04-15 19:40:58.915
+639086af-dd2a-43e3-94a3-4f951c4dcb71	Fix: CSS alignment bug 1	CLOSED	1.897308852937124	bb8fec06-89cc-4a76-8065-e5f87a51ffac	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	2026-04-08 01:10:58.916	2026-04-15 19:40:58.919
+06099a80-e6eb-4820-a36d-1cc2f7a1f907	Fix: CSS alignment bug 2	CLOSED	2.173126324329538	c7599686-6b3b-44e0-b391-ea15e2e2823b	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	2026-04-04 01:10:58.921	2026-04-15 19:40:58.924
+6689eee2-cf93-4780-9734-b3158b4d8908	Fix: CSS alignment bug 3	CLOSED	3.364150629783491	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	2026-04-10 01:10:58.926	2026-04-15 19:40:58.93
+570e38ea-b6fd-4e22-bd10-07b5ee1d7aae	Fix: CSS alignment bug 4	CLOSED	2.465531334336671	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	2026-04-12 01:10:58.936	2026-04-15 19:40:58.938
+be59da9c-492b-45f4-baf5-21f0947e4e64	Fix: CSS alignment bug 5	CLOSED	4.114927919273744	8465e894-e6c3-4919-a3df-6f4d857f30d7	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	2026-04-01 01:10:58.942	2026-04-15 19:40:58.945
+5b8ba302-9a14-4627-a8ac-169070b1cec9	Fix: CSS alignment bug 6	CLOSED	2.17579433923402	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	2026-04-08 01:10:58.947	2026-04-15 19:40:58.95
+13e554d5-eddd-4b6e-9177-0826a840e97e	Fix: CSS alignment bug 7	CLOSED	2.101090295122548	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	bd6f42c0-60c5-4b7e-894a-524c311d026f	2026-04-14 01:10:58.951	2026-04-15 19:40:58.955
+4b14ae91-4d6d-45e2-8426-3dc06394d691	Fix: CSS alignment bug 0	CLOSED	4.640129486708005	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	2026-04-02 01:10:58.998	2026-04-15 19:40:59.001
+95473238-93f3-4e36-8b52-dbfc2cb68661	Fix: CSS alignment bug 1	CLOSED	4.25834861985045	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	2026-04-15 01:10:59.003	2026-04-15 19:40:59.006
+06173cb8-3653-4c12-80c8-68ff1fae05d5	Fix: CSS alignment bug 2	CLOSED	1.871245421414859	6e156838-4c84-457f-a32a-06e9f55602b9	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	2026-04-06 01:10:59.007	2026-04-15 19:40:59.011
+068c1205-fbf7-49a7-8b74-903e849a6c95	Fix: CSS alignment bug 3	CLOSED	1.094146094421374	6e156838-4c84-457f-a32a-06e9f55602b9	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	2026-04-14 01:10:59.013	2026-04-15 19:40:59.017
+c546db14-fe76-45b8-9990-4626273a5f97	Fix: CSS alignment bug 4	CLOSED	2.765446976472798	551a836f-c2c2-4418-a73c-76dbfafd8442	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	2026-04-09 01:10:59.019	2026-04-15 19:40:59.022
+302d243c-a7cc-448f-99ec-164603e0eea3	Fix: CSS alignment bug 5	CLOSED	4.889214005734889	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	2026-04-05 01:10:59.024	2026-04-15 19:40:59.027
+9f90571b-6a9d-448c-a133-5aa6c14af317	Fix: CSS alignment bug 6	CLOSED	4.214154599576206	8465e894-e6c3-4919-a3df-6f4d857f30d7	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	2026-04-02 01:10:59.028	2026-04-15 19:40:59.031
+ca87ae8f-031a-4fd4-9543-aef36a11b591	Fix: CSS alignment bug 7	CLOSED	4.36246765919595	e38149de-145b-4edb-9dae-f8b887cf1292	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	f563015a-2a62-4e5d-b494-e76712c3fc00	2026-04-06 01:10:59.032	2026-04-15 19:40:59.036
+a61526e9-cdbd-4057-a674-8492f867dcaa	Fix: CSS alignment bug 0	CLOSED	4.416334700371989	8465e894-e6c3-4919-a3df-6f4d857f30d7	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	2026-04-15 01:10:59.074	2026-04-15 19:40:59.076
+8d2cb670-e43f-499b-88fd-25ac83a97a13	Fix: CSS alignment bug 1	CLOSED	1.19510866740113	5a4726cc-a1c4-4d72-8552-ec91ba0cbc60	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	2026-04-07 01:10:59.077	2026-04-15 19:40:59.08
+d057aae9-a120-46f2-b9b0-525fa12c03bf	Fix: CSS alignment bug 2	CLOSED	3.078626028197626	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	2026-04-03 01:10:59.083	2026-04-15 19:40:59.088
+c96c99e6-f49f-4dbc-99f6-7208b4009c9f	Fix: CSS alignment bug 3	CLOSED	4.756874563380945	dd9b845e-7538-4306-b480-e9fbcd48b6f4	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	2026-04-13 01:10:59.09	2026-04-15 19:40:59.092
+902932a9-bff2-47ba-bf20-23ae403fa6f0	Fix: CSS alignment bug 4	CLOSED	3.055513937246835	c7599686-6b3b-44e0-b391-ea15e2e2823b	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	2026-04-15 01:10:59.095	2026-04-15 19:40:59.098
+8b138c63-9c8c-4a23-8d07-be9421be3462	Fix: CSS alignment bug 5	CLOSED	2.558959330024924	acba5d7a-8ab3-41d8-80b9-f8b44f6ce259	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	2026-04-05 01:10:59.101	2026-04-15 19:40:59.104
+51273f02-ebe2-4c7a-befb-8cff250fab19	Fix: CSS alignment bug 6	CLOSED	4.779996736140752	176cf575-1e8f-4447-93d3-2999415d2173	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	2026-04-01 01:10:59.105	2026-04-15 19:40:59.109
+66576a5c-cd14-497d-a73d-0daf60201e02	Fix: CSS alignment bug 7	CLOSED	1.404485017441804	28f462ff-0757-44ce-92c2-b0864a8f4500	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	895f4fc3-59f8-4aea-870f-b20abc918ffe	2026-04-13 01:10:59.112	2026-04-15 19:40:59.116
+5b82bb2c-3c77-4f29-af66-cc21777bc68a	Fix: CSS alignment bug 0	CLOSED	2.99825987060735	28f462ff-0757-44ce-92c2-b0864a8f4500	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	2026-04-03 01:10:59.261	2026-04-15 19:40:59.265
+ce8bc54b-99f8-416f-af3a-2c7a238105bc	Fix: CSS alignment bug 1	CLOSED	3.310080905695826	bb8fec06-89cc-4a76-8065-e5f87a51ffac	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	2026-04-05 01:10:59.271	2026-04-15 19:40:59.275
+5b0499e9-85c2-41ea-a0bb-e8b50591a606	Fix: CSS alignment bug 2	CLOSED	1.050631377636313	176cf575-1e8f-4447-93d3-2999415d2173	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	2026-04-05 01:10:59.28	2026-04-15 19:40:59.283
+7cc6c6b9-8483-4fd4-a2b6-e3c9c5b0bd77	Fix: CSS alignment bug 3	CLOSED	2.993497459223027	13d1dadd-cbab-4aa6-873c-824524126cdd	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	2026-04-07 01:10:59.286	2026-04-15 19:40:59.29
+2ce19184-9d2c-4f26-996d-60a7ac004f2e	Fix: CSS alignment bug 4	CLOSED	1.258086274692162	bb8fec06-89cc-4a76-8065-e5f87a51ffac	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	2026-04-05 01:10:59.292	2026-04-15 19:40:59.298
+2944eb76-a3e5-41bf-abcc-6e569b76a1f8	Fix: CSS alignment bug 5	CLOSED	2.629349220519345	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	2026-04-02 01:10:59.302	2026-04-15 19:40:59.306
+cfc4a381-be79-43a5-a32d-de0fa53a46af	Fix: CSS alignment bug 6	CLOSED	2.409898325257609	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	2026-04-02 01:10:59.311	2026-04-15 19:40:59.315
+468c2cb3-3f4e-41b2-a73e-2426ce08c83e	Fix: CSS alignment bug 7	CLOSED	4.757863576571292	176cf575-1e8f-4447-93d3-2999415d2173	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	4aec8e3d-20c3-43c2-84e8-2c04e4f37436	2026-04-07 01:10:59.319	2026-04-15 19:40:59.324
+46e77094-0699-4630-8112-c0aea0829ef0	Fix: CSS alignment bug 0	CLOSED	3.4935333563182	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	2026-04-11 01:10:59.405	2026-04-15 19:40:59.409
+6a946ed4-740f-45fb-8080-22ef41134ef2	Fix: CSS alignment bug 1	CLOSED	4.245190520466229	8465e894-e6c3-4919-a3df-6f4d857f30d7	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	2026-04-05 01:10:59.41	2026-04-15 19:40:59.414
+da8bf22e-e95c-453c-9133-b8fd13944874	Fix: CSS alignment bug 2	CLOSED	3.57501965225535	bb8fec06-89cc-4a76-8065-e5f87a51ffac	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	2026-04-15 01:10:59.415	2026-04-15 19:40:59.419
+439f1715-ae2b-48ac-a3d2-521d38ac822f	Fix: CSS alignment bug 3	CLOSED	4.640752847459202	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	2026-04-12 01:10:59.422	2026-04-15 19:40:59.426
+bfdf7ce2-6ea9-49b0-b353-7dd9a5b56816	Fix: CSS alignment bug 4	CLOSED	4.25742957197455	13d1dadd-cbab-4aa6-873c-824524126cdd	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	2026-04-08 01:10:59.431	2026-04-15 19:40:59.435
+5a3531b3-ccb3-4850-bb4f-849556374168	Fix: CSS alignment bug 5	CLOSED	1.441454230453158	6e156838-4c84-457f-a32a-06e9f55602b9	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	2026-04-04 01:10:59.437	2026-04-15 19:40:59.441
+3d14ed9d-97f9-4db5-b237-9a5056b677a4	Fix: CSS alignment bug 6	CLOSED	2.033354008907067	d98e6c70-40d0-4a35-b57e-89e97e3c43cd	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	2026-04-14 01:10:59.444	2026-04-15 19:40:59.448
+9e91e3d2-c951-4541-96bd-5c74c76d1cb3	Fix: CSS alignment bug 7	CLOSED	3.826868087276359	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	714c5335-de73-4dd7-87bb-e59cfd464af1	2026-04-08 01:10:59.451	2026-04-15 19:40:59.456
+66f5f1e0-a47f-4c19-a742-16c9968adace	Fix: CSS alignment bug 0	CLOSED	4.649065952423603	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	2026-04-08 01:10:59.943	2026-04-15 19:40:59.945
+d37e69a3-2837-4daf-b7df-fcb36ee9ee07	Fix: CSS alignment bug 1	CLOSED	2.444903084533339	2b6f9469-7c6f-4d7b-a154-2c7ddfc3e6d3	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	2026-04-05 01:10:59.947	2026-04-15 19:40:59.949
+d9b0aa9f-dde5-488d-9fbd-dfc55fa5357c	Fix: CSS alignment bug 2	CLOSED	2.403813935159089	6559b773-f734-4a70-b3c6-e1ad97ddc242	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	2026-04-05 01:10:59.95	2026-04-15 19:40:59.952
+b1f09dc9-f265-4f78-96cd-07c5cb5ac474	Fix: CSS alignment bug 3	CLOSED	2.32061344200664	6e156838-4c84-457f-a32a-06e9f55602b9	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	2026-04-07 01:10:59.955	2026-04-15 19:40:59.958
+7449a35e-efe5-4552-af79-3bedee2cf550	Fix: CSS alignment bug 4	CLOSED	3.050839962966616	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	2026-04-01 01:10:59.961	2026-04-15 19:40:59.964
+48f7bce8-35c0-4ab4-8a81-6f30487b869e	Fix: CSS alignment bug 5	CLOSED	1.105505826908348	1299297f-e8cf-43e4-8ac5-dfcf52edc6e8	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	2026-04-08 01:10:59.965	2026-04-15 19:40:59.969
+1e2cea67-a066-45ce-a6ac-4b6f36fe6237	Fix: CSS alignment bug 6	CLOSED	2.069209054103775	594e286f-cc69-49da-883b-7ff2fcc87061	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	2026-04-07 01:10:59.97	2026-04-15 19:40:59.973
+44020fb9-8ff8-48c6-b791-0699f137e4d7	Fix: CSS alignment bug 7	CLOSED	3.859071714691387	28f462ff-0757-44ce-92c2-b0864a8f4500	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	100173fc-a655-4859-8bdb-33e695033fbf	2026-04-04 01:10:59.975	2026-04-15 19:40:59.978
+fcbd6acf-af38-47cc-aef2-74dd1b9d6285	Fix: CSS alignment bug 0	CLOSED	3.808079612619255	176cf575-1e8f-4447-93d3-2999415d2173	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	2026-04-14 01:11:00.103	2026-04-15 19:41:00.105
+0e3ad09a-58b6-403c-aae1-42a620157381	Fix: CSS alignment bug 1	CLOSED	1.319350794238414	6559b773-f734-4a70-b3c6-e1ad97ddc242	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	2026-04-06 01:11:00.107	2026-04-15 19:41:00.111
+fe638397-8ec5-4193-bc7f-55b7b567c907	Fix: CSS alignment bug 2	CLOSED	4.958577233407228	594e286f-cc69-49da-883b-7ff2fcc87061	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	2026-04-05 01:11:00.114	2026-04-15 19:41:00.118
+4076d7c8-75f5-4b99-9117-0311195521c8	Fix: CSS alignment bug 3	CLOSED	1.487856032947958	594e286f-cc69-49da-883b-7ff2fcc87061	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	2026-04-13 01:11:00.12	2026-04-15 19:41:00.123
+3c7abd91-abce-4ea2-8679-8d2e4506b6d7	Fix: CSS alignment bug 4	CLOSED	1.00135206714264	6e156838-4c84-457f-a32a-06e9f55602b9	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	2026-04-09 01:11:00.125	2026-04-15 19:41:00.127
+d17272de-4cf3-43fa-b0f2-5c894fb7faeb	Fix: CSS alignment bug 5	CLOSED	3.039674848335232	8e9bf60b-ba2c-479c-ab4e-670b0ed0ba1d	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	2026-04-03 01:11:00.129	2026-04-15 19:41:00.131
+7b52465a-3b70-4ea3-94ed-197cbc8cf9f6	Fix: CSS alignment bug 6	CLOSED	4.520734510008245	8465e894-e6c3-4919-a3df-6f4d857f30d7	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	2026-04-03 01:11:00.133	2026-04-15 19:41:00.137
+ee73c0d3-9443-494d-aabb-6df676f84f80	Fix: CSS alignment bug 7	CLOSED	3.026497779871423	551a836f-c2c2-4418-a73c-76dbfafd8442	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	2026-04-01 01:11:00.139	2026-04-15 19:41:00.142
+17cbb158-7d2e-4cfd-9918-24f4483ce80c	Fix: CSS alignment bug 0	CLOSED	3.469335471864686	dd9b845e-7538-4306-b480-e9fbcd48b6f4	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-09 01:11:00.197	2026-04-15 19:41:00.2
+5f27fb98-1237-40ca-8629-cb550e6cd2ec	Fix: CSS alignment bug 1	CLOSED	3.73683522294204	551a836f-c2c2-4418-a73c-76dbfafd8442	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-02 01:11:00.201	2026-04-15 19:41:00.204
+6d4aaf11-aa4e-4f36-ba6b-b69501a911e0	Fix: CSS alignment bug 2	CLOSED	1.70286674571585	dd9b845e-7538-4306-b480-e9fbcd48b6f4	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-12 01:11:00.206	2026-04-15 19:41:00.209
+f8801c45-ffaf-453d-957b-c30e59068901	Fix: CSS alignment bug 3	CLOSED	3.244392649189287	551a836f-c2c2-4418-a73c-76dbfafd8442	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-07 01:11:00.211	2026-04-15 19:41:00.214
+64fe1e9d-f7ff-4055-b259-1d340d6bce62	Fix: CSS alignment bug 4	CLOSED	4.909208302718088	551a836f-c2c2-4418-a73c-76dbfafd8442	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-03 01:11:00.216	2026-04-15 19:41:00.219
+28ba9419-1979-4b54-94c7-dc1c557f438e	Fix: CSS alignment bug 5	CLOSED	1.929078217914171	6559b773-f734-4a70-b3c6-e1ad97ddc242	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-08 01:11:00.22	2026-04-15 19:41:00.223
+864f73d7-1aab-45c9-9df0-0505ae1ceef2	Fix: CSS alignment bug 6	CLOSED	2.101928948659139	dd9b845e-7538-4306-b480-e9fbcd48b6f4	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-05 01:11:00.227	2026-04-15 19:41:00.23
+e0f1adba-8016-45b1-8cc3-65255137c374	Fix: CSS alignment bug 7	CLOSED	3.833383567181123	13d1dadd-cbab-4aa6-873c-824524126cdd	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	d5afc715-6859-4fb4-a128-b535547d272e	2026-04-06 01:11:00.233	2026-04-15 19:41:00.236
+f96af48e-5991-4fbc-802b-74937a145a85	Fix: Production bug resoltuion	CLOSED	4.706641627725689	\N	247df865-0802-450f-994b-a7c9581f7a87	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-13 01:44:06.065	2026-04-15 20:14:06.07
+d8a61df6-1cce-4a0b-9279-19b12ea39efc	Fix: Production bug resoltuion	CLOSED	3.037438670154091	\N	247df865-0802-450f-994b-a7c9581f7a87	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-12 01:44:06.086	2026-04-15 20:14:06.088
+a1f4e72a-cd41-4f1f-afcf-8f8185f7aa81	Fix: Production bug resoltuion	CLOSED	2.586482542700536	\N	247df865-0802-450f-994b-a7c9581f7a87	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-11 01:44:06.089	2026-04-15 20:14:06.094
+c3f2b548-6da2-4f1b-842b-16052adce51a	Fix: Production bug resoltuion	CLOSED	4.832638768692086	\N	247df865-0802-450f-994b-a7c9581f7a87	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-14 01:44:06.097	2026-04-15 20:14:06.1
+4682bc4c-9187-4772-ba90-9dfce929d50a	Fix: Production bug resoltuion	CLOSED	4.873980578256133	\N	247df865-0802-450f-994b-a7c9581f7a87	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-11 01:44:06.103	2026-04-15 20:14:06.105
+f5ccb678-a070-4efc-a07d-85614a3e5b86	Fix: Production bug resoltuion	CLOSED	3.877399173739103	\N	247df865-0802-450f-994b-a7c9581f7a87	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-10 01:44:06.107	2026-04-15 20:14:06.11
+a1542542-f1fb-4116-9ac2-a4ecff3f053e	Fix: Production bug resoltuion	CLOSED	3.304487301433532	\N	247df865-0802-450f-994b-a7c9581f7a87	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-12 01:44:06.113	2026-04-15 20:14:06.115
+24b5e4c7-e3ae-4719-bfee-7c6182aa6afc	Fix: Production bug resoltuion	CLOSED	4.7468384728468	\N	247df865-0802-450f-994b-a7c9581f7a87	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-10 01:44:06.116	2026-04-15 20:14:06.119
+5d9a904d-b718-492a-b91a-40c1f5181e18	Fix: Production bug resoltuion	CLOSED	3.163840296347519	\N	247df865-0802-450f-994b-a7c9581f7a87	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-06 01:44:06.122	2026-04-15 20:14:06.126
+5a8b8eac-ee37-4828-983e-422b61d08da0	Fix: Production bug resoltuion	CLOSED	2.637439680294593	\N	247df865-0802-450f-994b-a7c9581f7a87	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-10 01:44:06.129	2026-04-15 20:14:06.135
+766c0f62-de51-4815-8474-23f86ea5b1c4	Fix: Production bug resoltuion	CLOSED	3.537338703966256	\N	247df865-0802-450f-994b-a7c9581f7a87	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-12 01:44:06.139	2026-04-15 20:14:06.144
+d5a62504-3ef0-4b87-bcaf-4b688af1a217	Fix: Production bug resoltuion	CLOSED	2.39144258096944	\N	247df865-0802-450f-994b-a7c9581f7a87	247df865-0802-450f-994b-a7c9581f7a87	\N	2026-04-08 01:44:06.145	2026-04-15 20:14:06.148
+f03ea961-06e2-4f33-a369-34da3ad25ff3	Fix: Production bug resoltuion	CLOSED	4.319498723435467	\N	20e1523e-19b0-4103-b411-c65151555e82	20e1523e-19b0-4103-b411-c65151555e82	\N	2026-04-07 01:44:06.169	2026-04-15 20:14:06.174
+0787bb78-1668-4f23-a419-274fed5191e9	Fix: Production bug resoltuion	CLOSED	4.614997794875761	\N	20e1523e-19b0-4103-b411-c65151555e82	20e1523e-19b0-4103-b411-c65151555e82	\N	2026-04-09 01:44:06.178	2026-04-15 20:14:06.182
+cd45283d-35be-4bba-aeaf-52ed32383623	Fix: Production bug resoltuion	CLOSED	3.55062343405871	\N	20e1523e-19b0-4103-b411-c65151555e82	20e1523e-19b0-4103-b411-c65151555e82	\N	2026-04-13 01:44:06.187	2026-04-15 20:14:06.191
+75d6b05a-68ab-4eab-af26-641158a9c691	Fix: Production bug resoltuion	CLOSED	3.534970395676093	\N	20e1523e-19b0-4103-b411-c65151555e82	20e1523e-19b0-4103-b411-c65151555e82	\N	2026-04-08 01:44:06.193	2026-04-15 20:14:06.196
+3158923d-c495-49cc-9a50-cb8f02ad1e35	Fix: Production bug resoltuion	CLOSED	2.716464451883616	\N	20e1523e-19b0-4103-b411-c65151555e82	20e1523e-19b0-4103-b411-c65151555e82	\N	2026-04-10 01:44:06.199	2026-04-15 20:14:06.201
+e141a3f6-ce73-4c67-9ab3-abbb732530de	Fix: Production bug resoltuion	CLOSED	4.479382610906333	\N	20e1523e-19b0-4103-b411-c65151555e82	20e1523e-19b0-4103-b411-c65151555e82	\N	2026-04-14 01:44:06.204	2026-04-15 20:14:06.207
+edd3786d-813a-48dc-b02e-50a2e9f1b6ee	Fix: Production bug resoltuion	CLOSED	2.702999841246838	\N	20e1523e-19b0-4103-b411-c65151555e82	20e1523e-19b0-4103-b411-c65151555e82	\N	2026-04-06 01:44:06.208	2026-04-15 20:14:06.212
+1f612ba3-26a2-4bc6-8917-28909429b434	Fix: Production bug resoltuion	CLOSED	3.979205118661923	\N	20e1523e-19b0-4103-b411-c65151555e82	20e1523e-19b0-4103-b411-c65151555e82	\N	2026-04-12 01:44:06.214	2026-04-15 20:14:06.216
+7da65d51-0b39-40ca-8480-79d048f4b68e	Fix: Production bug resoltuion	CLOSED	3.227101910174292	\N	20e1523e-19b0-4103-b411-c65151555e82	20e1523e-19b0-4103-b411-c65151555e82	\N	2026-04-14 01:44:06.218	2026-04-15 20:14:06.222
+e055c6c8-d934-4a78-a9ff-940ccd24f5b3	Fix: Production bug resoltuion	CLOSED	2.121462643317819	\N	20e1523e-19b0-4103-b411-c65151555e82	20e1523e-19b0-4103-b411-c65151555e82	\N	2026-04-07 01:44:06.224	2026-04-15 20:14:06.227
+c7129263-6bc5-4391-8016-2d8d85d37f03	Fix: Production bug resoltuion	CLOSED	3.710973465102338	\N	20e1523e-19b0-4103-b411-c65151555e82	20e1523e-19b0-4103-b411-c65151555e82	\N	2026-04-14 01:44:06.229	2026-04-15 20:14:06.232
+e4e21878-a51b-443e-ab2d-930ff517b3d2	Fix: Production bug resoltuion	CLOSED	4.413066609460278	\N	20e1523e-19b0-4103-b411-c65151555e82	20e1523e-19b0-4103-b411-c65151555e82	\N	2026-04-08 01:44:06.235	2026-04-15 20:14:06.238
+39c14eac-9b8e-4052-a628-d3bb3978b43c	Fix: Production bug resoltuion	CLOSED	4.752192506352392	\N	b39ddc58-6212-46bb-9cab-e59568337275	b39ddc58-6212-46bb-9cab-e59568337275	\N	2026-04-07 01:44:06.281	2026-04-15 20:14:06.283
+8fba5e0c-63eb-472f-8ac7-cc4360795d29	Fix: Production bug resoltuion	CLOSED	3.604154106968692	\N	b39ddc58-6212-46bb-9cab-e59568337275	b39ddc58-6212-46bb-9cab-e59568337275	\N	2026-04-13 01:44:06.284	2026-04-15 20:14:06.288
+50ed372e-4214-426e-8bb7-60854bf3fe52	Fix: Production bug resoltuion	CLOSED	2.298943986398466	\N	b39ddc58-6212-46bb-9cab-e59568337275	b39ddc58-6212-46bb-9cab-e59568337275	\N	2026-04-09 01:44:06.289	2026-04-15 20:14:06.297
+5e2995a5-2437-48ed-9cc8-535a5427a2fe	Fix: Production bug resoltuion	CLOSED	4.876162305944271	\N	b39ddc58-6212-46bb-9cab-e59568337275	b39ddc58-6212-46bb-9cab-e59568337275	\N	2026-04-07 01:44:06.3	2026-04-15 20:14:06.305
+30cac60b-c6c8-4b75-bb31-8020d66e462d	Fix: Production bug resoltuion	CLOSED	3.764385035831523	\N	b39ddc58-6212-46bb-9cab-e59568337275	b39ddc58-6212-46bb-9cab-e59568337275	\N	2026-04-06 01:44:06.31	2026-04-15 20:14:06.314
+e97413f7-e8ab-4733-babc-a46eedec1097	Fix: Production bug resoltuion	CLOSED	3.161189199540742	\N	b39ddc58-6212-46bb-9cab-e59568337275	b39ddc58-6212-46bb-9cab-e59568337275	\N	2026-04-07 01:44:06.317	2026-04-15 20:14:06.319
+4de29f5a-8aa8-4928-bd56-cea7a63b2f01	Fix: Production bug resoltuion	CLOSED	3.575547330714555	\N	b39ddc58-6212-46bb-9cab-e59568337275	b39ddc58-6212-46bb-9cab-e59568337275	\N	2026-04-09 01:44:06.323	2026-04-15 20:14:06.325
+078eefa9-9f16-4ce6-8b77-d5fe587a4615	Fix: Production bug resoltuion	CLOSED	3.282816257378613	\N	b39ddc58-6212-46bb-9cab-e59568337275	b39ddc58-6212-46bb-9cab-e59568337275	\N	2026-04-09 01:44:06.327	2026-04-15 20:14:06.33
+d89b24d2-b903-43b1-82a1-06b6608c1654	Fix: Production bug resoltuion	CLOSED	4.956997252693881	\N	b39ddc58-6212-46bb-9cab-e59568337275	b39ddc58-6212-46bb-9cab-e59568337275	\N	2026-04-14 01:44:06.333	2026-04-15 20:14:06.336
+27e374d2-06ee-48a4-a6d7-d1cdd673f90b	Fix: Production bug resoltuion	CLOSED	2.466487249535854	\N	b39ddc58-6212-46bb-9cab-e59568337275	b39ddc58-6212-46bb-9cab-e59568337275	\N	2026-04-15 01:44:06.338	2026-04-15 20:14:06.341
+0da50160-83e3-456d-912b-3c98a9db550d	Fix: Production bug resoltuion	CLOSED	3.075212735243618	\N	af0bbab8-3b33-4ff7-b88e-11c4699da50b	af0bbab8-3b33-4ff7-b88e-11c4699da50b	\N	2026-04-15 01:44:06.36	2026-04-15 20:14:06.362
+3d4eb135-fae3-4237-a99d-3db851536d51	Fix: Production bug resoltuion	CLOSED	2.747849161450713	\N	af0bbab8-3b33-4ff7-b88e-11c4699da50b	af0bbab8-3b33-4ff7-b88e-11c4699da50b	\N	2026-04-11 01:44:06.365	2026-04-15 20:14:06.369
+69abb4ab-f01a-41ed-a607-4681dca97237	Fix: Production bug resoltuion	CLOSED	3.587115748801446	\N	af0bbab8-3b33-4ff7-b88e-11c4699da50b	af0bbab8-3b33-4ff7-b88e-11c4699da50b	\N	2026-04-15 01:44:06.373	2026-04-15 20:14:06.375
+49525ceb-e3b7-450b-b942-6c0825e7adfe	Fix: Production bug resoltuion	CLOSED	4.880640753052708	\N	af0bbab8-3b33-4ff7-b88e-11c4699da50b	af0bbab8-3b33-4ff7-b88e-11c4699da50b	\N	2026-04-14 01:44:06.378	2026-04-15 20:14:06.38
+19c0ca17-3f3c-4170-b52d-5c2eb4acdea3	Fix: Production bug resoltuion	CLOSED	2.011738254288429	\N	af0bbab8-3b33-4ff7-b88e-11c4699da50b	af0bbab8-3b33-4ff7-b88e-11c4699da50b	\N	2026-04-13 01:44:06.385	2026-04-15 20:14:06.389
+3399c521-d2fd-4cfe-b98a-ec233b2a008c	Fix: Production bug resoltuion	CLOSED	4.995419603764939	\N	af0bbab8-3b33-4ff7-b88e-11c4699da50b	af0bbab8-3b33-4ff7-b88e-11c4699da50b	\N	2026-04-12 01:44:06.394	2026-04-15 20:14:06.396
+8a794b63-42fa-48e0-8d15-5396ef4e698d	Fix: Production bug resoltuion	CLOSED	3.810801521586331	\N	af0bbab8-3b33-4ff7-b88e-11c4699da50b	af0bbab8-3b33-4ff7-b88e-11c4699da50b	\N	2026-04-12 01:44:06.399	2026-04-15 20:14:06.403
+d441dc43-78c3-4ff6-a19c-7fcbb4ab2c8d	Fix: Production bug resoltuion	CLOSED	4.607021413522469	\N	af0bbab8-3b33-4ff7-b88e-11c4699da50b	af0bbab8-3b33-4ff7-b88e-11c4699da50b	\N	2026-04-15 01:44:06.406	2026-04-15 20:14:06.409
+db9fc818-5d54-4d55-a718-adb931bc9d66	Fix: Production bug resoltuion	CLOSED	4.560101123475009	\N	af0bbab8-3b33-4ff7-b88e-11c4699da50b	af0bbab8-3b33-4ff7-b88e-11c4699da50b	\N	2026-04-14 01:44:06.412	2026-04-15 20:14:06.416
+e66ac6c9-765d-49c8-a098-e03e6da59605	Fix: Production bug resoltuion	CLOSED	4.937711781444684	\N	af0bbab8-3b33-4ff7-b88e-11c4699da50b	af0bbab8-3b33-4ff7-b88e-11c4699da50b	\N	2026-04-14 01:44:06.418	2026-04-15 20:14:06.421
+c1640f57-2c47-409f-96a2-29050d5e6ca5	Fix: Production bug resoltuion	CLOSED	3.106559492444287	\N	af0bbab8-3b33-4ff7-b88e-11c4699da50b	af0bbab8-3b33-4ff7-b88e-11c4699da50b	\N	2026-04-09 01:44:06.424	2026-04-15 20:14:06.427
+a447b447-153b-490c-b4a7-7edcb032c42b	Fix: Production bug resoltuion	CLOSED	2.801992229518863	\N	af0bbab8-3b33-4ff7-b88e-11c4699da50b	af0bbab8-3b33-4ff7-b88e-11c4699da50b	\N	2026-04-07 01:44:06.43	2026-04-15 20:14:06.434
+ae0b8a52-5870-4357-9a17-e43b7800f198	Fix: Production bug resoltuion	CLOSED	4.79678070072819	\N	d674df84-6046-430c-9694-b2f7516f202c	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-11 01:44:06.651	2026-04-15 20:14:06.654
+f39a7afc-f40a-4fec-ad6c-cda5642e6ba6	Fix: Production bug resoltuion	CLOSED	2.14149990091835	\N	d674df84-6046-430c-9694-b2f7516f202c	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-09 01:44:06.656	2026-04-15 20:14:06.659
+5a4cbb39-3f5d-477a-bc9a-725a6c983a5e	Fix: Production bug resoltuion	CLOSED	3.777697951686039	\N	d674df84-6046-430c-9694-b2f7516f202c	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-06 01:44:06.662	2026-04-15 20:14:06.667
+0f719782-3f50-4583-8936-354a7623c567	Fix: Production bug resoltuion	CLOSED	2.205999426957424	\N	d674df84-6046-430c-9694-b2f7516f202c	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-11 01:44:06.669	2026-04-15 20:14:06.672
+63bd798c-0c04-442d-b082-fbe4dd1393c3	Fix: Production bug resoltuion	CLOSED	4.821168075289712	\N	d674df84-6046-430c-9694-b2f7516f202c	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-12 01:44:06.675	2026-04-15 20:14:06.678
+9b0816a3-3fef-43fb-beee-9abfae23bc00	Fix: Production bug resoltuion	CLOSED	2.848958453610584	\N	d674df84-6046-430c-9694-b2f7516f202c	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-07 01:44:06.679	2026-04-15 20:14:06.684
+5b45a73e-22fb-4daa-85c6-ab5b5f44b315	Fix: Production bug resoltuion	CLOSED	2.548466258772573	\N	d674df84-6046-430c-9694-b2f7516f202c	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-14 01:44:06.687	2026-04-15 20:14:06.69
+386033f6-53d3-42df-97e7-a9caff1266b5	Fix: Production bug resoltuion	CLOSED	4.04425735637932	\N	d674df84-6046-430c-9694-b2f7516f202c	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-08 01:44:06.694	2026-04-15 20:14:06.698
+9a71b663-beaf-49b8-8ff4-e857275abcb4	Fix: Production bug resoltuion	CLOSED	4.903819405236811	\N	d674df84-6046-430c-9694-b2f7516f202c	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-12 01:44:06.7	2026-04-15 20:14:06.702
+2721e089-5681-4af2-a003-d51504053917	Fix: Production bug resoltuion	CLOSED	3.891656510217533	\N	d674df84-6046-430c-9694-b2f7516f202c	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-15 01:44:06.704	2026-04-15 20:14:06.709
+865d6e4d-8e56-4a8e-bae1-acd3cc25e7a2	Fix: Production bug resoltuion	CLOSED	2.056189151841316	\N	d674df84-6046-430c-9694-b2f7516f202c	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-15 01:44:06.714	2026-04-15 20:14:06.718
+2f740cba-06d9-4b36-a42b-059f5835c484	Fix: Production bug resoltuion	CLOSED	4.844451573515501	\N	d674df84-6046-430c-9694-b2f7516f202c	d674df84-6046-430c-9694-b2f7516f202c	\N	2026-04-12 01:44:06.723	2026-04-15 20:14:06.728
+940eaa0c-f684-47f3-9353-d8f47fe62baf	Fix: Production bug resoltuion	CLOSED	3.60516039635002	\N	da706c4a-8b92-4d33-8975-a97639743688	da706c4a-8b92-4d33-8975-a97639743688	\N	2026-04-09 01:44:06.745	2026-04-15 20:14:06.748
+baa6dfa6-f927-4fae-a48b-70c8026a4f37	Fix: Production bug resoltuion	CLOSED	2.703981019239892	\N	da706c4a-8b92-4d33-8975-a97639743688	da706c4a-8b92-4d33-8975-a97639743688	\N	2026-04-06 01:44:06.749	2026-04-15 20:14:06.752
+ee09d1d6-3f33-4f25-836c-afdc736d3e9b	Fix: Production bug resoltuion	CLOSED	4.664039891179543	\N	da706c4a-8b92-4d33-8975-a97639743688	da706c4a-8b92-4d33-8975-a97639743688	\N	2026-04-10 01:44:06.754	2026-04-15 20:14:06.757
+20a2d358-ff82-4d46-b7fc-c71dd180303a	Fix: Production bug resoltuion	CLOSED	4.13990873721295	\N	da706c4a-8b92-4d33-8975-a97639743688	da706c4a-8b92-4d33-8975-a97639743688	\N	2026-04-14 01:44:06.759	2026-04-15 20:14:06.764
+0faeee70-2b30-478b-b209-a0716285d812	Fix: Production bug resoltuion	CLOSED	3.356005792260536	\N	da706c4a-8b92-4d33-8975-a97639743688	da706c4a-8b92-4d33-8975-a97639743688	\N	2026-04-06 01:44:06.769	2026-04-15 20:14:06.773
+37de4822-edbd-4493-8e81-1a9e95a40628	Fix: Production bug resoltuion	CLOSED	4.406030327098486	\N	da706c4a-8b92-4d33-8975-a97639743688	da706c4a-8b92-4d33-8975-a97639743688	\N	2026-04-09 01:44:06.777	2026-04-15 20:14:06.78
+c6722fdc-46af-48fb-998e-5d1fc8cfe39d	Fix: Production bug resoltuion	CLOSED	3.900546177576235	\N	da706c4a-8b92-4d33-8975-a97639743688	da706c4a-8b92-4d33-8975-a97639743688	\N	2026-04-11 01:44:06.784	2026-04-15 20:14:06.787
+0501679f-671f-4987-95f6-87622ba5877d	Fix: Production bug resoltuion	CLOSED	2.463007110895584	\N	da706c4a-8b92-4d33-8975-a97639743688	da706c4a-8b92-4d33-8975-a97639743688	\N	2026-04-11 01:44:06.789	2026-04-15 20:14:06.793
+3bd57d1f-3f5b-41d6-937c-c7a98d03894f	Fix: Production bug resoltuion	CLOSED	2.778014633424779	\N	da706c4a-8b92-4d33-8975-a97639743688	da706c4a-8b92-4d33-8975-a97639743688	\N	2026-04-08 01:44:06.796	2026-04-15 20:14:06.799
+16f38c97-dc7e-46d7-ad9d-e0b90f76b410	Fix: Production bug resoltuion	CLOSED	3.439503997658644	\N	da706c4a-8b92-4d33-8975-a97639743688	da706c4a-8b92-4d33-8975-a97639743688	\N	2026-04-12 01:44:06.804	2026-04-15 20:14:06.806
+643a6309-4e1f-4d56-95d9-a62788a8b5a0	Fix: Production bug resoltuion	CLOSED	3.117738608647465	\N	da706c4a-8b92-4d33-8975-a97639743688	da706c4a-8b92-4d33-8975-a97639743688	\N	2026-04-15 01:44:06.811	2026-04-15 20:14:06.813
+9c59328a-a7b8-4679-ac92-b018399143fd	Fix: Production bug resoltuion	CLOSED	3.283179749897147	\N	da706c4a-8b92-4d33-8975-a97639743688	da706c4a-8b92-4d33-8975-a97639743688	\N	2026-04-10 01:44:06.817	2026-04-15 20:14:06.82
+6c57fdea-0268-4814-b0eb-81de387c2cb2	Fix: Production bug resoltuion	CLOSED	3.801735377807758	\N	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-15 01:44:06.998	2026-04-15 20:14:07
+ecfdef12-162f-4497-a775-6ae7fcb0a816	Fix: Production bug resoltuion	CLOSED	4.707789035759011	\N	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-07 01:44:07.002	2026-04-15 20:14:07.006
+6ffc1b55-b291-4e02-8b2b-20d593bccb43	Fix: Production bug resoltuion	CLOSED	4.647550455380759	\N	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-13 01:44:07.006	2026-04-15 20:14:07.01
+1f909640-04c7-41f5-b6e6-d1c82d996e1d	Fix: Production bug resoltuion	CLOSED	2.93208536569469	\N	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-14 01:44:07.012	2026-04-15 20:14:07.016
+4b7bc2a6-6dfe-4bbe-926a-c8f14e5f375a	Fix: Production bug resoltuion	CLOSED	2.985302740772656	\N	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-12 01:44:07.019	2026-04-15 20:14:07.022
+25f7bb34-52df-439f-83da-489841daa688	Fix: Production bug resoltuion	CLOSED	3.548255562601735	\N	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-11 01:44:07.024	2026-04-15 20:14:07.027
+f9448c0a-ef03-4af6-87e7-0b1ac0bdeca2	Fix: Production bug resoltuion	CLOSED	2.139779667802171	\N	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-10 01:44:07.029	2026-04-15 20:14:07.032
+008bd321-fd06-4e46-9b88-41056808f569	Fix: Production bug resoltuion	CLOSED	2.284477063539717	\N	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-12 01:44:07.034	2026-04-15 20:14:07.038
+b71825d1-045c-4984-b44e-78797679b165	Fix: Production bug resoltuion	CLOSED	4.851913530960054	\N	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-14 01:44:07.04	2026-04-15 20:14:07.044
+489f51a0-6b94-4b64-aa5b-066027386b15	Fix: Production bug resoltuion	CLOSED	2.710709445780597	\N	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-15 01:44:07.048	2026-04-15 20:14:07.054
+11816660-1e54-41ca-ade1-22a3a7d6aa8c	Fix: Production bug resoltuion	CLOSED	3.71692482898694	\N	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-08 01:44:07.061	2026-04-15 20:14:07.066
+8ea3fb7d-cbec-4a4e-90b8-e2d52009fd9f	Fix: Production bug resoltuion	CLOSED	2.391958521662876	\N	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	1aa5f621-4a09-4117-b2b9-661d35c4d4bc	\N	2026-04-07 01:44:07.069	2026-04-15 20:14:07.075
+abd302d7-cff9-4453-96ab-0eec4bd88f48	Fix: Production bug resoltuion	CLOSED	2.683619576188318	\N	2a023e98-8c19-4530-9921-69200099e4e9	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-07 01:44:07.251	2026-04-15 20:14:07.255
+6c559ccf-cf70-40e8-9511-65901dd49da3	Fix: Production bug resoltuion	CLOSED	2.794193267841529	\N	2a023e98-8c19-4530-9921-69200099e4e9	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-07 01:44:07.26	2026-04-15 20:14:07.267
+b119dcc7-bd11-4e80-827e-bb90e390948d	Fix: Production bug resoltuion	CLOSED	2.631067439985384	\N	2a023e98-8c19-4530-9921-69200099e4e9	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-09 01:44:07.272	2026-04-15 20:14:07.275
+e3266c12-ce83-4ff6-a836-7b352cab8106	Fix: Production bug resoltuion	CLOSED	2.088577570464983	\N	2a023e98-8c19-4530-9921-69200099e4e9	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-09 01:44:07.277	2026-04-15 20:14:07.281
+e83cacb7-7839-418e-bc2a-f91ba6740d20	Fix: Production bug resoltuion	CLOSED	4.388193413513164	\N	2a023e98-8c19-4530-9921-69200099e4e9	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-14 01:44:07.285	2026-04-15 20:14:07.288
+1390891a-2ce1-4145-93f8-0600b94c86c2	Fix: Production bug resoltuion	CLOSED	4.383043746852337	\N	2a023e98-8c19-4530-9921-69200099e4e9	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-11 01:44:07.293	2026-04-15 20:14:07.297
+bb395c3f-c19c-440b-b41a-26a84d780540	Fix: Production bug resoltuion	CLOSED	3.150611386111201	\N	2a023e98-8c19-4530-9921-69200099e4e9	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-07 01:44:07.301	2026-04-15 20:14:07.305
+5c4264ae-dec0-4654-8c52-eb3bae00a422	Fix: Production bug resoltuion	CLOSED	3.119739926802872	\N	2a023e98-8c19-4530-9921-69200099e4e9	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-15 01:44:07.309	2026-04-15 20:14:07.313
+d13c2f85-2c14-445a-821e-0dc424c3871d	Fix: Production bug resoltuion	CLOSED	2.680773733571518	\N	2a023e98-8c19-4530-9921-69200099e4e9	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-14 01:44:07.318	2026-04-15 20:14:07.32
+82688228-67c1-45d1-a089-176b1362ce36	Fix: Production bug resoltuion	CLOSED	2.058270375655863	\N	2a023e98-8c19-4530-9921-69200099e4e9	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-08 01:44:07.323	2026-04-15 20:14:07.326
+7b36f063-1e9b-42c2-97aa-b5fc56abde5d	Fix: Production bug resoltuion	CLOSED	2.398345725523208	\N	2a023e98-8c19-4530-9921-69200099e4e9	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-13 01:44:07.327	2026-04-15 20:14:07.331
+eb22606a-3cef-48e8-a918-8e8fd61d536c	Fix: Production bug resoltuion	CLOSED	3.472156322420164	\N	2a023e98-8c19-4530-9921-69200099e4e9	2a023e98-8c19-4530-9921-69200099e4e9	\N	2026-04-12 01:44:07.334	2026-04-15 20:14:07.337
+e2cc338d-03d7-4329-8ac2-c8fcadb0e6e5	Fix: Production bug resoltuion	CLOSED	2.886455443579454	\N	85dea961-0141-4140-b9c6-f3dfd14e26a9	85dea961-0141-4140-b9c6-f3dfd14e26a9	\N	2026-04-11 01:44:07.369	2026-04-15 20:14:07.374
+2b78d81d-21a8-43c2-83e3-9df00d563467	Fix: Production bug resoltuion	CLOSED	3.553244265116475	\N	85dea961-0141-4140-b9c6-f3dfd14e26a9	85dea961-0141-4140-b9c6-f3dfd14e26a9	\N	2026-04-15 01:44:07.376	2026-04-15 20:14:07.379
+95e61066-c1cf-495d-9abf-c445fe5e3043	Fix: Production bug resoltuion	CLOSED	4.280406837286385	\N	85dea961-0141-4140-b9c6-f3dfd14e26a9	85dea961-0141-4140-b9c6-f3dfd14e26a9	\N	2026-04-07 01:44:07.382	2026-04-15 20:14:07.387
+1d0c04b5-7c2f-40fc-8ce8-ad0da219cffa	Fix: Production bug resoltuion	CLOSED	4.622612406002927	\N	85dea961-0141-4140-b9c6-f3dfd14e26a9	85dea961-0141-4140-b9c6-f3dfd14e26a9	\N	2026-04-07 01:44:07.391	2026-04-15 20:14:07.397
+51560662-970f-4af4-96ae-541441187aac	Fix: Production bug resoltuion	CLOSED	2.171202202548515	\N	85dea961-0141-4140-b9c6-f3dfd14e26a9	85dea961-0141-4140-b9c6-f3dfd14e26a9	\N	2026-04-06 01:44:07.405	2026-04-15 20:14:07.409
+4dcd3cdd-9acb-4ed9-b4fa-de0dac11cd7a	Fix: Production bug resoltuion	CLOSED	2.011931649107401	\N	85dea961-0141-4140-b9c6-f3dfd14e26a9	85dea961-0141-4140-b9c6-f3dfd14e26a9	\N	2026-04-11 01:44:07.413	2026-04-15 20:14:07.417
+cbddf53a-0e0e-4f66-ab04-c0ee0f9790fc	Fix: Production bug resoltuion	CLOSED	4.229334771916355	\N	85dea961-0141-4140-b9c6-f3dfd14e26a9	85dea961-0141-4140-b9c6-f3dfd14e26a9	\N	2026-04-14 01:44:07.421	2026-04-15 20:14:07.425
+a629c749-8788-437e-9754-8b7c0ee16bc5	Fix: Production bug resoltuion	CLOSED	3.548535986118245	\N	85dea961-0141-4140-b9c6-f3dfd14e26a9	85dea961-0141-4140-b9c6-f3dfd14e26a9	\N	2026-04-11 01:44:07.429	2026-04-15 20:14:07.432
+ebf34760-8d53-4c96-94a9-2b45c25c8216	Fix: Production bug resoltuion	CLOSED	4.87486225314933	\N	85dea961-0141-4140-b9c6-f3dfd14e26a9	85dea961-0141-4140-b9c6-f3dfd14e26a9	\N	2026-04-07 01:44:07.435	2026-04-15 20:14:07.439
+affba3a4-8a61-45c6-ba84-6d7b1c06e7aa	Fix: Production bug resoltuion	CLOSED	3.826666446512964	\N	85dea961-0141-4140-b9c6-f3dfd14e26a9	85dea961-0141-4140-b9c6-f3dfd14e26a9	\N	2026-04-08 01:44:07.441	2026-04-15 20:14:07.445
+28766410-cc11-4a91-bb0b-f98713b42816	Fix: Production bug resoltuion	CLOSED	3.147557151519334	\N	85dea961-0141-4140-b9c6-f3dfd14e26a9	85dea961-0141-4140-b9c6-f3dfd14e26a9	\N	2026-04-10 01:44:07.447	2026-04-15 20:14:07.45
+8b5e9540-8da8-4d7f-94d9-b5576d0648b7	Fix: Production bug resoltuion	CLOSED	3.866339130093622	\N	85dea961-0141-4140-b9c6-f3dfd14e26a9	85dea961-0141-4140-b9c6-f3dfd14e26a9	\N	2026-04-13 01:44:07.453	2026-04-15 20:14:07.455
+00b843da-bc53-430f-ada2-67c92df9782b	Fix: Production bug resoltuion	CLOSED	4.526975904419807	\N	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	\N	2026-04-07 01:44:07.47	2026-04-15 20:14:07.473
+712bd589-0722-43e5-a2b8-deec86e2a31e	Fix: Production bug resoltuion	CLOSED	3.543358601700129	\N	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	\N	2026-04-15 01:44:07.476	2026-04-15 20:14:07.479
+5df0042c-aa51-4757-a64c-3b982e40eb9c	Fix: Production bug resoltuion	CLOSED	2.345931814579943	\N	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	\N	2026-04-15 01:44:07.481	2026-04-15 20:14:07.483
+7778e19e-959f-4024-b796-aab65c140941	Fix: Production bug resoltuion	CLOSED	4.874252832411655	\N	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	\N	2026-04-06 01:44:07.484	2026-04-15 20:14:07.487
+34f84664-6c88-4541-b058-fb63a6fe06d7	Fix: Production bug resoltuion	CLOSED	4.867119692428492	\N	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	\N	2026-04-07 01:44:07.489	2026-04-15 20:14:07.491
+e8630ba1-f476-44a9-8885-fb651fe323e1	Fix: Production bug resoltuion	CLOSED	4.31768091346718	\N	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	\N	2026-04-07 01:44:07.493	2026-04-15 20:14:07.497
+989b8617-367c-4ccf-8bf0-75a8ac150d3f	Fix: Production bug resoltuion	CLOSED	4.793014844187933	\N	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	\N	2026-04-10 01:44:07.499	2026-04-15 20:14:07.503
+8947583c-e15f-497d-a1d5-0cc138e03250	Fix: Production bug resoltuion	CLOSED	3.688410372408569	\N	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	\N	2026-04-10 01:44:07.505	2026-04-15 20:14:07.508
+3a390693-9091-4b9d-a42e-2aaf51d94123	Fix: Production bug resoltuion	CLOSED	3.343885854754599	\N	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	\N	2026-04-13 01:44:07.509	2026-04-15 20:14:07.513
+5ce36362-f1e2-4257-a527-99cb0f2cdf1a	Fix: Production bug resoltuion	CLOSED	4.222472494494033	\N	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	\N	2026-04-13 01:44:07.515	2026-04-15 20:14:07.518
+dfd8a931-2fd7-4930-a37e-5ee34dff6767	Fix: Production bug resoltuion	CLOSED	3.9856346002129	\N	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	\N	2026-04-15 01:44:07.52	2026-04-15 20:14:07.522
+ef077061-590e-4018-863d-dccc6700ec73	Fix: Production bug resoltuion	CLOSED	3.871657243614441	\N	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	\N	2026-04-13 01:44:07.524	2026-04-15 20:14:07.527
+72b637ed-34fb-4bb2-b5d8-60a8af355809	Fix: Production bug resoltuion	CLOSED	4.685769107808779	\N	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-15 01:44:07.659	2026-04-15 20:14:07.664
+586f5e03-f28f-4fbe-abc4-b075892f8f23	Fix: Production bug resoltuion	CLOSED	3.072382996630001	\N	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-09 01:44:07.667	2026-04-15 20:14:07.67
+04004115-7aa0-40cb-b973-3af3de1c57ce	Fix: Production bug resoltuion	CLOSED	4.420458765917626	\N	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-13 01:44:07.674	2026-04-15 20:14:07.682
+1b9ec4d9-bb37-4365-95ee-f9831f9acbbe	Fix: Production bug resoltuion	CLOSED	4.511114164147308	\N	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-15 01:44:07.686	2026-04-15 20:14:07.689
+8264d512-37d3-4016-bc6f-ae613fdf879e	Fix: Production bug resoltuion	CLOSED	4.125554974946681	\N	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-10 01:44:07.692	2026-04-15 20:14:07.696
+e910420d-6929-40e6-bd4a-c1e530d3b551	Fix: Production bug resoltuion	CLOSED	2.299370122387957	\N	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-13 01:44:07.699	2026-04-15 20:14:07.702
+1957fd48-f8f6-4785-b066-7f3b0ec03c5c	Fix: Production bug resoltuion	CLOSED	4.429509793242339	\N	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-11 01:44:07.705	2026-04-15 20:14:07.709
+f6684ef7-6297-4b37-9040-bdecab54cbaa	Fix: Production bug resoltuion	CLOSED	2.975980616346761	\N	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-06 01:44:07.712	2026-04-15 20:14:07.717
+686c0ec3-87d3-46b9-a7df-40c67b7646b5	Fix: Production bug resoltuion	CLOSED	4.873487113502383	\N	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-13 01:44:07.723	2026-04-15 20:14:07.729
+d6f45420-cf13-45ce-a2ce-15778381f552	Fix: Production bug resoltuion	CLOSED	2.541939313958535	\N	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-14 01:44:07.732	2026-04-15 20:14:07.735
+8c5d266f-f61a-41dc-bea9-c356b38fd375	Fix: Production bug resoltuion	CLOSED	3.074825130075429	\N	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-07 01:44:07.739	2026-04-15 20:14:07.743
+e87a6f1e-433c-433b-a142-94718a29c524	Fix: Production bug resoltuion	CLOSED	2.04091630481455	\N	0b0f005d-3943-4384-8f1b-b6210e5071e5	0b0f005d-3943-4384-8f1b-b6210e5071e5	\N	2026-04-12 01:44:07.745	2026-04-15 20:14:07.748
+2888d9c9-b594-4837-8a3e-80a1ace65d9d	Fix: Production bug resoltuion	CLOSED	3.935691942786478	\N	e7d09ede-899c-4b1d-a224-98865fd411bd	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-11 01:44:07.881	2026-04-15 20:14:07.885
+6bb91e15-f9dd-4ae1-bbc3-0a833e0c98bf	Fix: Production bug resoltuion	CLOSED	3.128158546739287	\N	e7d09ede-899c-4b1d-a224-98865fd411bd	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-08 01:44:07.889	2026-04-15 20:14:07.894
+0a1b95d5-701a-4d0b-9671-67e953ec4d2d	Fix: Production bug resoltuion	CLOSED	4.102662096350193	\N	e7d09ede-899c-4b1d-a224-98865fd411bd	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-10 01:44:07.899	2026-04-15 20:14:07.904
+7b10789f-c68b-4a68-8d2f-8fde4e9f6d6f	Fix: Production bug resoltuion	CLOSED	2.428580827550249	\N	e7d09ede-899c-4b1d-a224-98865fd411bd	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-11 01:44:07.908	2026-04-15 20:14:07.912
+2a6440b4-0c1a-48c3-bfc6-c2975214a598	Fix: Production bug resoltuion	CLOSED	4.40208871651862	\N	e7d09ede-899c-4b1d-a224-98865fd411bd	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-10 01:44:07.916	2026-04-15 20:14:07.919
+bf437a13-fdc8-459c-a9c3-f473705a2fde	Fix: Production bug resoltuion	CLOSED	2.063077767714606	\N	e7d09ede-899c-4b1d-a224-98865fd411bd	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-14 01:44:07.921	2026-04-15 20:14:07.925
+778c4779-bdf7-4478-98f8-1ead3186cbc5	Fix: Production bug resoltuion	CLOSED	3.345160697292735	\N	e7d09ede-899c-4b1d-a224-98865fd411bd	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-08 01:44:07.931	2026-04-15 20:14:07.936
+6253057a-90c4-4404-8ddd-329ae05096f7	Fix: Production bug resoltuion	CLOSED	4.658160360010807	\N	e7d09ede-899c-4b1d-a224-98865fd411bd	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-14 01:44:07.938	2026-04-15 20:14:07.942
+77fd1d64-fb89-4eb9-83a0-a3f6642db599	Fix: Production bug resoltuion	CLOSED	3.216723485314681	\N	e7d09ede-899c-4b1d-a224-98865fd411bd	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-10 01:44:07.945	2026-04-15 20:14:07.949
+8d58b997-8beb-45e0-8ec9-8dd64731596d	Fix: Production bug resoltuion	CLOSED	2.81645225557994	\N	e7d09ede-899c-4b1d-a224-98865fd411bd	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-09 01:44:07.951	2026-04-15 20:14:07.955
+d7dde1f9-9649-4771-9853-967fb9e01fef	Fix: Production bug resoltuion	CLOSED	2.041234221342253	\N	e7d09ede-899c-4b1d-a224-98865fd411bd	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-08 01:44:07.958	2026-04-15 20:14:07.962
+944292d5-9613-4fac-a3ac-8696e10d2c52	Fix: Production bug resoltuion	CLOSED	3.659931716846734	\N	e7d09ede-899c-4b1d-a224-98865fd411bd	e7d09ede-899c-4b1d-a224-98865fd411bd	\N	2026-04-06 01:44:07.964	2026-04-15 20:14:07.969
+b929e646-4365-4585-9f8b-af8d2a10cf7d	Fix: Production bug resoltuion	CLOSED	4.112529481314319	\N	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-10 01:44:08.144	2026-04-15 20:14:08.147
+1b37aabc-cdc4-4924-a988-8b54074dd03e	Fix: Production bug resoltuion	CLOSED	4.02700366509932	\N	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-13 01:44:08.151	2026-04-15 20:14:08.155
+4eeac05f-5206-4cd6-b0dc-b7162e72965c	Fix: Production bug resoltuion	CLOSED	3.697578218646945	\N	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-11 01:44:08.158	2026-04-15 20:14:08.163
+96da6c69-f6fa-4dbf-b16b-842c2353942e	Fix: Production bug resoltuion	CLOSED	3.219461980764717	\N	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-10 01:44:08.169	2026-04-15 20:14:08.174
+7192f853-d101-4aec-bf51-e3bb966e736f	Fix: Production bug resoltuion	CLOSED	3.178493248128705	\N	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-12 01:44:08.179	2026-04-15 20:14:08.185
+2c34a420-7403-45cc-ad23-eda62263999f	Fix: Production bug resoltuion	CLOSED	2.866196165032555	\N	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-14 01:44:08.191	2026-04-15 20:14:08.197
+59b078fd-5950-46f4-b8c3-7e51cd9a8b6b	Fix: Production bug resoltuion	CLOSED	4.019487606856131	\N	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-12 01:44:08.2	2026-04-15 20:14:08.203
+d0e8af2e-0059-411f-bfcf-69f20729000e	Fix: Production bug resoltuion	CLOSED	3.608027545401172	\N	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-07 01:44:08.206	2026-04-15 20:14:08.209
+57c69bea-f054-4c0d-b4c1-349aa038a3de	Fix: Production bug resoltuion	CLOSED	4.866562014100664	\N	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-07 01:44:08.211	2026-04-15 20:14:08.214
+2452ca22-e1a3-42cd-8775-818b7f3c409a	Fix: Production bug resoltuion	CLOSED	3.695925470710375	\N	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-06 01:44:08.215	2026-04-15 20:14:08.219
+f60d01fe-2705-4943-9379-0a85ce5fc37f	Fix: Production bug resoltuion	CLOSED	3.926849972286403	\N	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-08 01:44:08.223	2026-04-15 20:14:08.227
+33d1cffb-a526-48b6-87f9-d8c164d68569	Fix: Production bug resoltuion	CLOSED	2.971057191645034	\N	7788fc3c-93f4-469b-879b-243d7f9623ec	7788fc3c-93f4-469b-879b-243d7f9623ec	\N	2026-04-07 01:44:08.229	2026-04-15 20:14:08.232
+a9399b40-fdea-4052-adc8-9bd3f9144bda	Fix: Production bug resoltuion	CLOSED	3.550395687354487	\N	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	\N	2026-04-10 01:44:08.245	2026-04-15 20:14:08.249
+6d8d616a-d1b2-4635-b39e-2c1915c61443	Fix: Production bug resoltuion	CLOSED	2.390183590869488	\N	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	\N	2026-04-14 01:44:08.253	2026-04-15 20:14:08.257
+fe40988f-8e32-43f5-ad1c-f302e175254b	Fix: Production bug resoltuion	CLOSED	3.026860160241755	\N	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	\N	2026-04-06 01:44:08.26	2026-04-15 20:14:08.264
+eda814e8-f585-414e-8258-84ae63e59890	Fix: Production bug resoltuion	CLOSED	4.495507428454351	\N	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	\N	2026-04-11 01:44:08.269	2026-04-15 20:14:08.274
+d00f5af1-e23b-4894-9275-7cc03fb7dc73	Fix: Production bug resoltuion	CLOSED	2.983260070271842	\N	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	\N	2026-04-11 01:44:08.277	2026-04-15 20:14:08.279
+54012241-48bf-47ac-b10b-9759b850b0db	Fix: Production bug resoltuion	CLOSED	4.605523283830987	\N	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	\N	2026-04-15 01:44:08.282	2026-04-15 20:14:08.284
+f2139e9a-8747-4594-afff-8d983dd12a1c	Fix: Production bug resoltuion	CLOSED	3.00092338106314	\N	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	\N	2026-04-15 01:44:08.288	2026-04-15 20:14:08.292
+455e916d-8d2c-4fcc-965e-815f03d1b768	Fix: Production bug resoltuion	CLOSED	3.6484156940073	\N	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	\N	2026-04-06 01:44:08.297	2026-04-15 20:14:08.3
+6378a96f-d123-46bb-93b3-272df6f5a151	Fix: Production bug resoltuion	CLOSED	2.527305402129245	\N	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	\N	2026-04-14 01:44:08.306	2026-04-15 20:14:08.312
+735277aa-c899-4797-9eb6-a3bc2fb61cfa	Fix: Production bug resoltuion	CLOSED	3.452772192878906	\N	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	\N	2026-04-06 01:44:08.317	2026-04-15 20:14:08.321
+8c8a53df-2f9a-49ef-bb98-1d38774fed4c	Fix: Production bug resoltuion	CLOSED	4.838564980898335	\N	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	\N	2026-04-10 01:44:08.324	2026-04-15 20:14:08.328
+a4a0cc52-f378-4243-a3e9-6014a021424a	Fix: Production bug resoltuion	CLOSED	3.168637206830092	\N	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	\N	2026-04-12 01:44:08.332	2026-04-15 20:14:08.335
+24a20e5a-ecf6-4110-8a53-692c0b25d831	Fix: Production bug resoltuion	CLOSED	2.386129300980296	\N	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-08 01:44:08.671	2026-04-15 20:14:08.673
+6744b8c3-fb34-4db6-8179-68fb39ea15df	Fix: Production bug resoltuion	CLOSED	4.253965096682488	\N	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-08 01:44:08.676	2026-04-15 20:14:08.678
+93528b50-9233-4f49-adeb-155e4800d8cb	Fix: Production bug resoltuion	CLOSED	2.115344191530703	\N	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-15 01:44:08.68	2026-04-15 20:14:08.683
+fda260ae-a5c7-4bd9-8862-4bde6eda92bf	Fix: Production bug resoltuion	CLOSED	2.754068242275569	\N	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-14 01:44:08.686	2026-04-15 20:14:08.688
+b43b8ed9-5f51-422d-a28c-08ac03f59ee3	Fix: Production bug resoltuion	CLOSED	2.925712319481453	\N	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-06 01:44:08.691	2026-04-15 20:14:08.693
+367ffc46-491b-4e7d-bbb0-cf3dbd54aa08	Fix: Production bug resoltuion	CLOSED	2.752452026593471	\N	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-12 01:44:08.695	2026-04-15 20:14:08.698
+41e1acd8-6b0f-44d9-b459-d4b44272dd61	Fix: Production bug resoltuion	CLOSED	3.63090528282301	\N	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-12 01:44:08.7	2026-04-15 20:14:08.703
+f7b1b1db-51bc-4a6e-ab3b-280d720cd930	Fix: Production bug resoltuion	CLOSED	3.218964953666647	\N	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-08 01:44:08.705	2026-04-15 20:14:08.707
+4ab5f7a3-3ba6-4ce1-826c-1004bbd3502b	Fix: Production bug resoltuion	CLOSED	2.091810021961865	\N	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-15 01:44:08.709	2026-04-15 20:14:08.712
+0cd4c6cd-0d18-4e22-b7fc-d473c55a5b17	Fix: Production bug resoltuion	CLOSED	4.352139500831782	\N	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-12 01:44:08.713	2026-04-15 20:14:08.716
+ea75648b-9676-47cd-a740-2555c983eef7	Fix: Production bug resoltuion	CLOSED	4.560341306477213	\N	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-10 01:44:08.72	2026-04-15 20:14:08.722
+afb2e803-8d39-42a7-85c6-033fc4f29d5b	Fix: Production bug resoltuion	CLOSED	3.079266701648571	\N	6a4ada48-0604-4d1f-abef-a3e921a9acb3	6a4ada48-0604-4d1f-abef-a3e921a9acb3	\N	2026-04-09 01:44:08.726	2026-04-15 20:14:08.728
+1d933509-d982-47b1-a334-3b5330f8e158	Fix: Production bug resoltuion	CLOSED	2.388802320964217	\N	17527b7e-8e00-4412-8e70-1bfcafde77bb	17527b7e-8e00-4412-8e70-1bfcafde77bb	\N	2026-04-15 01:44:08.836	2026-04-15 20:14:08.839
+b767427d-36a0-4e7e-ac71-d867a1f8a1bd	Fix: Production bug resoltuion	CLOSED	4.028844168974722	\N	17527b7e-8e00-4412-8e70-1bfcafde77bb	17527b7e-8e00-4412-8e70-1bfcafde77bb	\N	2026-04-15 01:44:08.839	2026-04-15 20:14:08.843
+72b53595-d607-4b68-a22c-229b1eb95929	Fix: Production bug resoltuion	CLOSED	3.629608070352532	\N	17527b7e-8e00-4412-8e70-1bfcafde77bb	17527b7e-8e00-4412-8e70-1bfcafde77bb	\N	2026-04-10 01:44:08.845	2026-04-15 20:14:08.847
+9054e02c-e2ee-4973-94cd-436f63a8461e	Fix: Production bug resoltuion	CLOSED	3.834215883355478	\N	17527b7e-8e00-4412-8e70-1bfcafde77bb	17527b7e-8e00-4412-8e70-1bfcafde77bb	\N	2026-04-13 01:44:08.849	2026-04-15 20:14:08.852
+6cfe403a-12b8-4c21-8329-71f6d59c5664	Fix: Production bug resoltuion	CLOSED	4.514421476567493	\N	17527b7e-8e00-4412-8e70-1bfcafde77bb	17527b7e-8e00-4412-8e70-1bfcafde77bb	\N	2026-04-10 01:44:08.855	2026-04-15 20:14:08.857
+ccc47e41-4f2e-4559-b569-6e4eb2e45f3e	Fix: Production bug resoltuion	CLOSED	3.934573870148582	\N	17527b7e-8e00-4412-8e70-1bfcafde77bb	17527b7e-8e00-4412-8e70-1bfcafde77bb	\N	2026-04-09 01:44:08.859	2026-04-15 20:14:08.862
+88c1c38a-2e2a-46ee-8823-c5e85da39d4b	Fix: Production bug resoltuion	CLOSED	2.926766628365852	\N	17527b7e-8e00-4412-8e70-1bfcafde77bb	17527b7e-8e00-4412-8e70-1bfcafde77bb	\N	2026-04-12 01:44:08.864	2026-04-15 20:14:08.867
+c44ad9ff-f75f-40f1-a608-a5272f7cd3d3	Fix: Production bug resoltuion	CLOSED	4.991770540790011	\N	17527b7e-8e00-4412-8e70-1bfcafde77bb	17527b7e-8e00-4412-8e70-1bfcafde77bb	\N	2026-04-14 01:44:08.87	2026-04-15 20:14:08.874
+65c80c65-d57e-4b57-986e-6627924e41c5	Fix: Production bug resoltuion	CLOSED	3.838582522805014	\N	17527b7e-8e00-4412-8e70-1bfcafde77bb	17527b7e-8e00-4412-8e70-1bfcafde77bb	\N	2026-04-14 01:44:08.875	2026-04-15 20:14:08.881
+929973f7-34fc-4725-81a4-8fba43f725be	Fix: Production bug resoltuion	CLOSED	3.01353463850279	\N	17527b7e-8e00-4412-8e70-1bfcafde77bb	17527b7e-8e00-4412-8e70-1bfcafde77bb	\N	2026-04-07 01:44:08.883	2026-04-15 20:14:08.888
+6be50075-4270-4dde-b51b-0908c3e8427f	Fix: Production bug resoltuion	CLOSED	4.821596149353343	\N	17527b7e-8e00-4412-8e70-1bfcafde77bb	17527b7e-8e00-4412-8e70-1bfcafde77bb	\N	2026-04-11 01:44:08.893	2026-04-15 20:14:08.896
+c5b566a5-4dfc-4820-b0c4-17ba5b8a4518	Fix: Production bug resoltuion	CLOSED	4.160982187745965	\N	17527b7e-8e00-4412-8e70-1bfcafde77bb	17527b7e-8e00-4412-8e70-1bfcafde77bb	\N	2026-04-11 01:44:08.898	2026-04-15 20:14:08.903
+55d51b12-6868-4255-ba99-2a5f49cd3393	Fix: Production bug resoltuion	CLOSED	3.266342142239239	\N	3d4681a2-47e9-4e57-902e-2c16de8e378e	3d4681a2-47e9-4e57-902e-2c16de8e378e	\N	2026-04-07 01:44:08.922	2026-04-15 20:14:08.925
+43f263dd-fbe2-4b7f-b376-6188a27c8f8c	Fix: Production bug resoltuion	CLOSED	3.660387594052312	\N	3d4681a2-47e9-4e57-902e-2c16de8e378e	3d4681a2-47e9-4e57-902e-2c16de8e378e	\N	2026-04-12 01:44:08.929	2026-04-15 20:14:08.936
+a07c58cb-faac-4f50-a298-5c380fb547ea	Fix: Production bug resoltuion	CLOSED	3.053453363305147	\N	3d4681a2-47e9-4e57-902e-2c16de8e378e	3d4681a2-47e9-4e57-902e-2c16de8e378e	\N	2026-04-11 01:44:08.94	2026-04-15 20:14:08.945
+91731d73-adea-4d48-a9fd-0aa9da88bb0b	Fix: Production bug resoltuion	CLOSED	3.384301364727691	\N	3d4681a2-47e9-4e57-902e-2c16de8e378e	3d4681a2-47e9-4e57-902e-2c16de8e378e	\N	2026-04-07 01:44:08.949	2026-04-15 20:14:08.952
+fa3371c9-fa85-4725-9879-d658b3480d4d	Fix: Production bug resoltuion	CLOSED	4.394719216423624	\N	3d4681a2-47e9-4e57-902e-2c16de8e378e	3d4681a2-47e9-4e57-902e-2c16de8e378e	\N	2026-04-10 01:44:08.955	2026-04-15 20:14:08.958
+ad30aab5-ca0d-48ab-8455-b340e2040326	Fix: Production bug resoltuion	CLOSED	3.095535315117192	\N	3d4681a2-47e9-4e57-902e-2c16de8e378e	3d4681a2-47e9-4e57-902e-2c16de8e378e	\N	2026-04-12 01:44:08.961	2026-04-15 20:14:08.964
+caa3f9ac-cf61-43a2-9e65-571c72f59b97	Fix: Production bug resoltuion	CLOSED	4.442085589332283	\N	3d4681a2-47e9-4e57-902e-2c16de8e378e	3d4681a2-47e9-4e57-902e-2c16de8e378e	\N	2026-04-15 01:44:08.966	2026-04-15 20:14:08.969
+eddf6ae3-0020-49c5-8ff9-9053f291b5cb	Fix: Production bug resoltuion	CLOSED	3.037125593028022	\N	3d4681a2-47e9-4e57-902e-2c16de8e378e	3d4681a2-47e9-4e57-902e-2c16de8e378e	\N	2026-04-14 01:44:08.971	2026-04-15 20:14:08.973
+ffb99e3e-5834-49d8-a3b9-575fd1b0142b	Fix: Production bug resoltuion	CLOSED	3.04834291065439	\N	3d4681a2-47e9-4e57-902e-2c16de8e378e	3d4681a2-47e9-4e57-902e-2c16de8e378e	\N	2026-04-13 01:44:08.975	2026-04-15 20:14:08.979
+8cb20cf4-5340-4998-a8c6-cc51fc6a955a	Fix: Production bug resoltuion	CLOSED	4.787107782517555	\N	3d4681a2-47e9-4e57-902e-2c16de8e378e	3d4681a2-47e9-4e57-902e-2c16de8e378e	\N	2026-04-10 01:44:08.981	2026-04-15 20:14:08.984
+53ab2405-6fdb-4a18-8060-b0b6870e15eb	Fix: Production bug resoltuion	CLOSED	3.956653187553757	\N	3d4681a2-47e9-4e57-902e-2c16de8e378e	3d4681a2-47e9-4e57-902e-2c16de8e378e	\N	2026-04-10 01:44:08.985	2026-04-15 20:14:08.988
+fb877325-1ba1-4d57-af20-e94cc44d706e	Fix: Production bug resoltuion	CLOSED	4.193147804214354	\N	3d4681a2-47e9-4e57-902e-2c16de8e378e	3d4681a2-47e9-4e57-902e-2c16de8e378e	\N	2026-04-13 01:44:08.991	2026-04-15 20:14:08.993
+f30ec43d-4b52-4436-af0e-3e2d99742c30	Fix: Production bug resoltuion	CLOSED	3.792812399458926	\N	f04a02a3-d5f1-407c-b530-9e36d9970c64	f04a02a3-d5f1-407c-b530-9e36d9970c64	\N	2026-04-14 01:44:09.007	2026-04-15 20:14:09.011
+d927fb0d-1fb5-4b93-aeca-64074b7c3c87	Fix: Production bug resoltuion	CLOSED	4.882067166490901	\N	f04a02a3-d5f1-407c-b530-9e36d9970c64	f04a02a3-d5f1-407c-b530-9e36d9970c64	\N	2026-04-13 01:44:09.012	2026-04-15 20:14:09.015
+d3ca7184-e1a8-45de-a69a-0821515b632c	Fix: Production bug resoltuion	CLOSED	4.825478037092479	\N	f04a02a3-d5f1-407c-b530-9e36d9970c64	f04a02a3-d5f1-407c-b530-9e36d9970c64	\N	2026-04-15 01:44:09.018	2026-04-15 20:14:09.02
+54e5123e-4f60-4fc2-869e-91def5572aa6	Fix: Production bug resoltuion	CLOSED	3.235186800058081	\N	f04a02a3-d5f1-407c-b530-9e36d9970c64	f04a02a3-d5f1-407c-b530-9e36d9970c64	\N	2026-04-14 01:44:09.021	2026-04-15 20:14:09.024
+310fd3ff-0df0-439b-b7b6-12ebe421fe36	Fix: Production bug resoltuion	CLOSED	2.509080815697033	\N	f04a02a3-d5f1-407c-b530-9e36d9970c64	f04a02a3-d5f1-407c-b530-9e36d9970c64	\N	2026-04-07 01:44:09.025	2026-04-15 20:14:09.028
+e9690c1e-fe9b-41c1-862c-98b2ba03b613	Fix: Production bug resoltuion	CLOSED	2.624846416481591	\N	f04a02a3-d5f1-407c-b530-9e36d9970c64	f04a02a3-d5f1-407c-b530-9e36d9970c64	\N	2026-04-12 01:44:09.03	2026-04-15 20:14:09.033
+57450776-a451-405d-8644-e3e5e9562c53	Fix: Production bug resoltuion	CLOSED	2.526992501213813	\N	f04a02a3-d5f1-407c-b530-9e36d9970c64	f04a02a3-d5f1-407c-b530-9e36d9970c64	\N	2026-04-07 01:44:09.034	2026-04-15 20:14:09.037
+52a6a35c-7cc8-4112-acf4-24ee99d21328	Fix: Production bug resoltuion	CLOSED	2.619188096251574	\N	f04a02a3-d5f1-407c-b530-9e36d9970c64	f04a02a3-d5f1-407c-b530-9e36d9970c64	\N	2026-04-14 01:44:09.039	2026-04-15 20:14:09.043
+43a2dd61-a000-4e02-9aa2-c75314cecbfa	Fix: Production bug resoltuion	CLOSED	3.386767385769197	\N	f04a02a3-d5f1-407c-b530-9e36d9970c64	f04a02a3-d5f1-407c-b530-9e36d9970c64	\N	2026-04-12 01:44:09.045	2026-04-15 20:14:09.048
+db8ab7ba-b7ff-4056-975a-1d58995b9038	Fix: Production bug resoltuion	CLOSED	4.352517075658136	\N	f04a02a3-d5f1-407c-b530-9e36d9970c64	f04a02a3-d5f1-407c-b530-9e36d9970c64	\N	2026-04-07 01:44:09.05	2026-04-15 20:14:09.053
+7b658200-4974-4560-836b-1d1bf86e9c3e	Fix: Production bug resoltuion	CLOSED	4.341359104055087	\N	f04a02a3-d5f1-407c-b530-9e36d9970c64	f04a02a3-d5f1-407c-b530-9e36d9970c64	\N	2026-04-09 01:44:09.054	2026-04-15 20:14:09.058
+519ce8f7-b013-4053-b940-5112070c4fe5	Fix: Production bug resoltuion	CLOSED	3.935183900143097	\N	f04a02a3-d5f1-407c-b530-9e36d9970c64	f04a02a3-d5f1-407c-b530-9e36d9970c64	\N	2026-04-09 01:44:09.06	2026-04-15 20:14:09.062
+2f57ecbb-6e6f-4470-b9ba-45cddfd024c0	Fix: Production bug resoltuion	CLOSED	2.770414311339011	\N	6054f413-2fa0-4af4-8784-2a0697ce75b8	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-06 01:44:09.202	2026-04-15 20:14:09.207
+5ed16045-08df-426e-9068-4a76ba600697	Fix: Production bug resoltuion	CLOSED	2.566160662542125	\N	6054f413-2fa0-4af4-8784-2a0697ce75b8	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-09 01:44:09.211	2026-04-15 20:14:09.217
+8013ba87-e876-483a-b7d0-a45648c61bfe	Fix: Production bug resoltuion	CLOSED	4.904902992247712	\N	6054f413-2fa0-4af4-8784-2a0697ce75b8	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-06 01:44:09.221	2026-04-15 20:14:09.226
+09cadab3-df1f-4b53-933e-c6185758d359	Fix: Production bug resoltuion	CLOSED	3.436126020598768	\N	6054f413-2fa0-4af4-8784-2a0697ce75b8	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-13 01:44:09.228	2026-04-15 20:14:09.23
+3dde4056-6584-4c52-b8b4-14634df58e8b	Fix: Production bug resoltuion	CLOSED	4.258838643102396	\N	6054f413-2fa0-4af4-8784-2a0697ce75b8	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-11 01:44:09.231	2026-04-15 20:14:09.234
+27382426-edc1-44dd-83c3-4a3f0a74ee19	Fix: Production bug resoltuion	CLOSED	3.065322965801666	\N	6054f413-2fa0-4af4-8784-2a0697ce75b8	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-11 01:44:09.235	2026-04-15 20:14:09.238
+83b6237a-0c39-46c1-9a74-a1cb3b75efad	Fix: Production bug resoltuion	CLOSED	4.416146882062439	\N	6054f413-2fa0-4af4-8784-2a0697ce75b8	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-15 01:44:09.239	2026-04-15 20:14:09.242
+bb8f3530-b286-4105-85ad-9ce254c6c0d9	Fix: Production bug resoltuion	CLOSED	2.954652133672913	\N	6054f413-2fa0-4af4-8784-2a0697ce75b8	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-10 01:44:09.244	2026-04-15 20:14:09.247
+d94eeb45-22cf-4b14-a288-81ffd0644534	Fix: Production bug resoltuion	CLOSED	2.473727988955835	\N	6054f413-2fa0-4af4-8784-2a0697ce75b8	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-09 01:44:09.249	2026-04-15 20:14:09.252
+8a1d5c74-7f9b-4ff3-aa75-d1f46755aa07	Fix: Production bug resoltuion	CLOSED	3.12510734136945	\N	6054f413-2fa0-4af4-8784-2a0697ce75b8	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-12 01:44:09.254	2026-04-15 20:14:09.257
+2b410d4e-ed71-446b-948c-a56ea5bc1433	Fix: Production bug resoltuion	CLOSED	3.331546431490285	\N	6054f413-2fa0-4af4-8784-2a0697ce75b8	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-13 01:44:09.26	2026-04-15 20:14:09.263
+fb4a7740-e38c-4497-9f20-8f8d93e3cbdf	Fix: Production bug resoltuion	CLOSED	4.253384550902574	\N	6054f413-2fa0-4af4-8784-2a0697ce75b8	6054f413-2fa0-4af4-8784-2a0697ce75b8	\N	2026-04-14 01:44:09.266	2026-04-15 20:14:09.269
+0768ab45-ce84-4df8-867f-a15c08c54c2c	Fix: Production bug resoltuion	CLOSED	2.405993657895969	\N	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-10 01:44:09.288	2026-04-15 20:14:09.292
+39205921-52fc-4ad1-a2fb-7ca71a93996d	Fix: Production bug resoltuion	CLOSED	3.786914537794111	\N	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-08 01:44:09.296	2026-04-15 20:14:09.3
+c53025cd-311a-414e-9c85-ee3d51fa90d1	Fix: Production bug resoltuion	CLOSED	4.935440739991938	\N	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-13 01:44:09.305	2026-04-15 20:14:09.31
+afd6194d-7791-487a-a138-0cd26e246008	Fix: Production bug resoltuion	CLOSED	2.742531716076506	\N	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-12 01:44:09.313	2026-04-15 20:14:09.317
+a7988859-adc1-4439-9921-950314f6977e	Fix: Production bug resoltuion	CLOSED	3.365494938069411	\N	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-07 01:44:09.321	2026-04-15 20:14:09.325
+8a00e151-762a-4e95-a5c0-b8606b0ed703	Fix: Production bug resoltuion	CLOSED	3.140800371658147	\N	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-08 01:44:09.329	2026-04-15 20:14:09.333
+9477eba1-b2eb-4a74-b3f7-9b994dac1bc7	Fix: Production bug resoltuion	CLOSED	4.15960957520667	\N	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-12 01:44:09.337	2026-04-15 20:14:09.342
+7d4f675d-4422-4d40-9fdb-806279f84783	Fix: Production bug resoltuion	CLOSED	4.155542037574804	\N	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-14 01:44:09.347	2026-04-15 20:14:09.352
+e1e52f7b-6c46-417c-9279-f6a9ec34188e	Fix: Production bug resoltuion	CLOSED	3.069190406115536	\N	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-10 01:44:09.355	2026-04-15 20:14:09.359
+003670c9-cbda-4b22-bf46-8d9da2a7863a	Fix: Production bug resoltuion	CLOSED	3.665961825797997	\N	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-15 01:44:09.364	2026-04-15 20:14:09.367
+be186fbc-c4a3-494f-b1b6-7c4494ea5882	Fix: Production bug resoltuion	CLOSED	4.748904303248521	\N	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-13 01:44:09.371	2026-04-15 20:14:09.375
+626b319b-fa5b-4542-bdcf-b58ba26cc001	Fix: Production bug resoltuion	CLOSED	4.697829771111401	\N	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	b051acfb-90bf-46a2-b587-2c2f9c3c0a10	\N	2026-04-15 01:44:09.378	2026-04-15 20:14:09.382
+a5b21f51-acb5-4e58-94da-8fdd7ebf95d6	Fix: Production bug resoltuion	CLOSED	2.28410888922021	\N	c0ed9381-c09e-436c-ab26-952b1b31b854	c0ed9381-c09e-436c-ab26-952b1b31b854	\N	2026-04-08 01:44:09.399	2026-04-15 20:14:09.403
+a1848fd0-c69d-4bce-9092-19a20f53cbc6	Fix: Production bug resoltuion	CLOSED	4.99029613999026	\N	c0ed9381-c09e-436c-ab26-952b1b31b854	c0ed9381-c09e-436c-ab26-952b1b31b854	\N	2026-04-15 01:44:09.407	2026-04-15 20:14:09.411
+132616e6-579d-494a-bc87-2c334066256c	Fix: Production bug resoltuion	CLOSED	4.798775788688685	\N	c0ed9381-c09e-436c-ab26-952b1b31b854	c0ed9381-c09e-436c-ab26-952b1b31b854	\N	2026-04-09 01:44:09.414	2026-04-15 20:14:09.419
+6d2994b7-1894-4c1f-bfca-5b66395c856b	Fix: Production bug resoltuion	CLOSED	3.021934875228116	\N	c0ed9381-c09e-436c-ab26-952b1b31b854	c0ed9381-c09e-436c-ab26-952b1b31b854	\N	2026-04-07 01:44:09.422	2026-04-15 20:14:09.428
+640fdfc8-3334-41ab-9258-f6575f16b525	Fix: Production bug resoltuion	CLOSED	3.782364865224844	\N	c0ed9381-c09e-436c-ab26-952b1b31b854	c0ed9381-c09e-436c-ab26-952b1b31b854	\N	2026-04-13 01:44:09.432	2026-04-15 20:14:09.438
+a4b82cba-9557-4d99-8825-e0fcc55a9b74	Fix: Production bug resoltuion	CLOSED	3.195243098722246	\N	c0ed9381-c09e-436c-ab26-952b1b31b854	c0ed9381-c09e-436c-ab26-952b1b31b854	\N	2026-04-10 01:44:09.441	2026-04-15 20:14:09.446
+da091795-84be-4164-bea2-ebcc8a45baf0	Fix: Production bug resoltuion	CLOSED	4.901659117527895	\N	c0ed9381-c09e-436c-ab26-952b1b31b854	c0ed9381-c09e-436c-ab26-952b1b31b854	\N	2026-04-09 01:44:09.45	2026-04-15 20:14:09.455
+b80515f9-38f7-45c9-8fd2-8c89f2551c2f	Fix: Production bug resoltuion	CLOSED	3.658876663243613	\N	c0ed9381-c09e-436c-ab26-952b1b31b854	c0ed9381-c09e-436c-ab26-952b1b31b854	\N	2026-04-15 01:44:09.459	2026-04-15 20:14:09.463
+ccab920b-95ec-4b7c-b9c3-89b0ea41c8e2	Fix: Production bug resoltuion	CLOSED	2.602742685605014	\N	c0ed9381-c09e-436c-ab26-952b1b31b854	c0ed9381-c09e-436c-ab26-952b1b31b854	\N	2026-04-14 01:44:09.466	2026-04-15 20:14:09.471
+c0920f0c-1865-4636-bb08-ac9e4824f355	Fix: Production bug resoltuion	CLOSED	3.829825651487444	\N	c0ed9381-c09e-436c-ab26-952b1b31b854	c0ed9381-c09e-436c-ab26-952b1b31b854	\N	2026-04-08 01:44:09.477	2026-04-15 20:14:09.48
+d3300cf1-8140-43c2-bff9-ea273f84e6e1	Fix: Production bug resoltuion	CLOSED	4.124107645463087	\N	c0ed9381-c09e-436c-ab26-952b1b31b854	c0ed9381-c09e-436c-ab26-952b1b31b854	\N	2026-04-07 01:44:09.484	2026-04-15 20:14:09.486
+ccb9d083-976e-4c15-a57b-c24f3405d82f	Fix: Production bug resoltuion	CLOSED	3.475592864167564	\N	c0ed9381-c09e-436c-ab26-952b1b31b854	c0ed9381-c09e-436c-ab26-952b1b31b854	\N	2026-04-12 01:44:09.489	2026-04-15 20:14:09.492
+3f542a40-289e-4049-9f25-511df3618f06	Fix: Production bug resoltuion	CLOSED	4.498681522359233	\N	84a1c259-5964-4570-95d9-1299bc8b8258	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-09 01:44:09.609	2026-04-15 20:14:09.613
+c2efd48c-2578-41cb-9219-093918a48a6f	Fix: Production bug resoltuion	CLOSED	2.758056610206493	\N	84a1c259-5964-4570-95d9-1299bc8b8258	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-11 01:44:09.616	2026-04-15 20:14:09.62
+ccab1931-365e-4652-b175-0ec731347a21	Fix: Production bug resoltuion	CLOSED	2.966866302068709	\N	84a1c259-5964-4570-95d9-1299bc8b8258	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-08 01:44:09.623	2026-04-15 20:14:09.628
+a346e902-a943-4b70-a227-a637d0091b1e	Fix: Production bug resoltuion	CLOSED	3.35363574047792	\N	84a1c259-5964-4570-95d9-1299bc8b8258	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-11 01:44:09.632	2026-04-15 20:14:09.635
+22870a84-1149-4bb7-a973-da631b1d4545	Fix: Production bug resoltuion	CLOSED	3.519762294680281	\N	84a1c259-5964-4570-95d9-1299bc8b8258	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-12 01:44:09.639	2026-04-15 20:14:09.644
+0d1adb2e-5cd9-4dab-bdab-7d7a9a183a67	Fix: Production bug resoltuion	CLOSED	4.309118135916707	\N	84a1c259-5964-4570-95d9-1299bc8b8258	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-10 01:44:09.647	2026-04-15 20:14:09.65
+ea621fd2-d2b9-463d-8b4f-196da183f435	Fix: Production bug resoltuion	CLOSED	2.907584618304533	\N	84a1c259-5964-4570-95d9-1299bc8b8258	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-12 01:44:09.653	2026-04-15 20:14:09.655
+d616ab3b-405e-472b-92a7-5c53e99790b2	Fix: Production bug resoltuion	CLOSED	4.305923020577307	\N	84a1c259-5964-4570-95d9-1299bc8b8258	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-07 01:44:09.659	2026-04-15 20:14:09.663
+b3fe3723-0f0e-49b4-9e39-2d62e173fe7a	Fix: Production bug resoltuion	CLOSED	4.749348744805752	\N	84a1c259-5964-4570-95d9-1299bc8b8258	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-12 01:44:09.666	2026-04-15 20:14:09.671
+4eed61e2-bd03-43f1-ad77-17928f698603	Fix: Production bug resoltuion	CLOSED	2.082491432065625	\N	84a1c259-5964-4570-95d9-1299bc8b8258	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-09 01:44:09.674	2026-04-15 20:14:09.679
+9b4ffcab-ef6f-420b-8987-8596a169363c	Fix: Production bug resoltuion	CLOSED	2.290505453977437	\N	84a1c259-5964-4570-95d9-1299bc8b8258	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-09 01:44:09.684	2026-04-15 20:14:09.688
+9626ea31-a8f4-4be6-a7e7-d36d6f4fe786	Fix: Production bug resoltuion	CLOSED	3.972130730824051	\N	84a1c259-5964-4570-95d9-1299bc8b8258	84a1c259-5964-4570-95d9-1299bc8b8258	\N	2026-04-07 01:44:09.691	2026-04-15 20:14:09.694
+298e33f2-05fb-4a0e-87bf-f3ac158f8a89	Fix: Production bug resoltuion	CLOSED	3.032085517955152	\N	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-09 01:44:09.817	2026-04-15 20:14:09.821
+ec67e3f5-7b77-4e9d-9e74-c39127c58065	Fix: Production bug resoltuion	CLOSED	2.561793984538061	\N	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-09 01:44:09.824	2026-04-15 20:14:09.827
+26dff36d-072d-4d0a-aee4-a5ed0b525bbb	Fix: Production bug resoltuion	CLOSED	2.022468215440442	\N	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-08 01:44:09.831	2026-04-15 20:14:09.834
+be59626d-37f5-4752-ac9e-88e1813c1420	Fix: Production bug resoltuion	CLOSED	4.650177259420174	\N	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-06 01:44:09.837	2026-04-15 20:14:09.84
+09fa4bc8-0735-4ac2-b846-307173ce9cea	Fix: Production bug resoltuion	CLOSED	4.849345269036705	\N	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-08 01:44:09.844	2026-04-15 20:14:09.848
+6e90647f-a595-4591-a0d0-7800ba545611	Fix: Production bug resoltuion	CLOSED	2.942674651939075	\N	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-07 01:44:09.852	2026-04-15 20:14:09.855
+eb7d3e7d-cf4f-4acb-9e50-46672e4c4eee	Fix: Production bug resoltuion	CLOSED	3.021014522456637	\N	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-11 01:44:09.858	2026-04-15 20:14:09.861
+43fb7bba-236a-4a39-8290-767bdb526e55	Fix: Production bug resoltuion	CLOSED	2.89603814776916	\N	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-15 01:44:09.864	2026-04-15 20:14:09.868
+75117391-fe97-46cb-b0d6-8dda568827dd	Fix: Production bug resoltuion	CLOSED	4.308583449805441	\N	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-14 01:44:09.87	2026-04-15 20:14:09.875
+fdf37ec9-4a35-4f9e-b717-a2b2a55dcd65	Fix: Production bug resoltuion	CLOSED	3.248335713575334	\N	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-12 01:44:09.877	2026-04-15 20:14:09.88
+c2218b86-7b67-42e1-a059-c8c4af07335b	Fix: Production bug resoltuion	CLOSED	3.783409539276915	\N	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-06 01:44:09.883	2026-04-15 20:14:09.887
+fa5d1576-c158-4cc0-8523-997bd3ddd7bf	Fix: Production bug resoltuion	CLOSED	3.460298124512973	\N	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	\N	2026-04-13 01:44:09.891	2026-04-15 20:14:09.896
+5fd63578-4c39-4789-ba13-756100b048a2	Fix: Production bug resoltuion	CLOSED	2.997353359298507	\N	b19cfec7-d521-4444-a0ab-481c6ea05158	b19cfec7-d521-4444-a0ab-481c6ea05158	\N	2026-04-07 01:44:09.91	2026-04-15 20:14:09.913
+7874dc76-6ea4-4735-adfd-3a61aa00e9c2	Fix: Production bug resoltuion	CLOSED	3.856109023229252	\N	b19cfec7-d521-4444-a0ab-481c6ea05158	b19cfec7-d521-4444-a0ab-481c6ea05158	\N	2026-04-13 01:44:09.915	2026-04-15 20:14:09.919
+ae249e6f-053d-4ca7-a834-e7b050d4bafc	Fix: Production bug resoltuion	CLOSED	4.641381250749472	\N	b19cfec7-d521-4444-a0ab-481c6ea05158	b19cfec7-d521-4444-a0ab-481c6ea05158	\N	2026-04-14 01:44:09.921	2026-04-15 20:14:09.925
+1a6c7d51-39cf-4c3b-a7fb-b173c5a6e923	Fix: Production bug resoltuion	CLOSED	3.398849399191562	\N	b19cfec7-d521-4444-a0ab-481c6ea05158	b19cfec7-d521-4444-a0ab-481c6ea05158	\N	2026-04-15 01:44:09.929	2026-04-15 20:14:09.933
+a7294881-e2b0-40ec-bc16-35cdf2ae74e5	Fix: Production bug resoltuion	CLOSED	3.2482191791181	\N	b19cfec7-d521-4444-a0ab-481c6ea05158	b19cfec7-d521-4444-a0ab-481c6ea05158	\N	2026-04-08 01:44:09.935	2026-04-15 20:14:09.939
+131c9f9c-1f3c-452c-ae95-820cccca0b1b	Fix: Production bug resoltuion	CLOSED	2.42416718269322	\N	b19cfec7-d521-4444-a0ab-481c6ea05158	b19cfec7-d521-4444-a0ab-481c6ea05158	\N	2026-04-13 01:44:09.941	2026-04-15 20:14:09.943
+e2095003-c2ad-4bf1-b790-63fa76da6b63	Fix: Production bug resoltuion	CLOSED	3.363055863136585	\N	b19cfec7-d521-4444-a0ab-481c6ea05158	b19cfec7-d521-4444-a0ab-481c6ea05158	\N	2026-04-07 01:44:09.945	2026-04-15 20:14:09.948
+e6110bff-de65-404a-b842-0d335436078e	Fix: Production bug resoltuion	CLOSED	3.049687098421516	\N	b19cfec7-d521-4444-a0ab-481c6ea05158	b19cfec7-d521-4444-a0ab-481c6ea05158	\N	2026-04-13 01:44:09.95	2026-04-15 20:14:09.953
+cc13c71f-df29-4947-9ec0-070d64eff237	Fix: Production bug resoltuion	CLOSED	4.05449493763665	\N	b19cfec7-d521-4444-a0ab-481c6ea05158	b19cfec7-d521-4444-a0ab-481c6ea05158	\N	2026-04-11 01:44:09.956	2026-04-15 20:14:09.958
+bc05b05a-4468-4787-b1f0-7b6c7e970b01	Fix: Production bug resoltuion	CLOSED	4.083639909723258	\N	b19cfec7-d521-4444-a0ab-481c6ea05158	b19cfec7-d521-4444-a0ab-481c6ea05158	\N	2026-04-09 01:44:09.959	2026-04-15 20:14:09.961
+fc440134-70c2-43f8-b8ac-8f19c467619e	Fix: Production bug resoltuion	CLOSED	4.96856130171718	\N	b19cfec7-d521-4444-a0ab-481c6ea05158	b19cfec7-d521-4444-a0ab-481c6ea05158	\N	2026-04-11 01:44:09.963	2026-04-15 20:14:09.965
+e7b29a26-edc4-4b2a-863f-6c5a7cae9af6	Fix: Production bug resoltuion	CLOSED	2.612474744061042	\N	b19cfec7-d521-4444-a0ab-481c6ea05158	b19cfec7-d521-4444-a0ab-481c6ea05158	\N	2026-04-06 01:44:09.967	2026-04-15 20:14:09.971
+0e31e62a-822b-4e53-a11c-b217c193d478	Fix: Production bug resoltuion	CLOSED	2.827288200564269	\N	1e287884-c4dc-4ecf-b418-e8e42ff75627	1e287884-c4dc-4ecf-b418-e8e42ff75627	\N	2026-04-07 01:44:09.985	2026-04-15 20:14:09.988
+115169ee-7737-47cb-8631-44b889102665	Fix: Production bug resoltuion	CLOSED	4.294802592295612	\N	1e287884-c4dc-4ecf-b418-e8e42ff75627	1e287884-c4dc-4ecf-b418-e8e42ff75627	\N	2026-04-12 01:44:09.989	2026-04-15 20:14:09.993
+12b51cce-de5f-4fc3-a3f2-0ce6801a92d2	Fix: Production bug resoltuion	CLOSED	4.81745270599265	\N	1e287884-c4dc-4ecf-b418-e8e42ff75627	1e287884-c4dc-4ecf-b418-e8e42ff75627	\N	2026-04-13 01:44:09.995	2026-04-15 20:14:09.999
+a199da91-cdc6-408d-9c3d-0a61434afda0	Fix: Production bug resoltuion	CLOSED	4.254476498014385	\N	1e287884-c4dc-4ecf-b418-e8e42ff75627	1e287884-c4dc-4ecf-b418-e8e42ff75627	\N	2026-04-15 01:44:10.002	2026-04-15 20:14:10.006
+8d84206d-0c72-4aba-8573-b2a72d17d9cf	Fix: Production bug resoltuion	CLOSED	2.656304182124946	\N	1e287884-c4dc-4ecf-b418-e8e42ff75627	1e287884-c4dc-4ecf-b418-e8e42ff75627	\N	2026-04-15 01:44:10.013	2026-04-15 20:14:10.02
+b99054e5-2f55-4b0c-a15d-127e69f56c5e	Fix: Production bug resoltuion	CLOSED	2.786790355486093	\N	1e287884-c4dc-4ecf-b418-e8e42ff75627	1e287884-c4dc-4ecf-b418-e8e42ff75627	\N	2026-04-06 01:44:10.024	2026-04-15 20:14:10.03
+7dabfb8f-bd3a-4449-aaeb-cc154e596efb	Fix: Production bug resoltuion	CLOSED	4.112620884724518	\N	1e287884-c4dc-4ecf-b418-e8e42ff75627	1e287884-c4dc-4ecf-b418-e8e42ff75627	\N	2026-04-09 01:44:10.033	2026-04-15 20:14:10.035
+cc16f72b-a838-4b7a-8b8f-c352933f8234	Fix: Production bug resoltuion	CLOSED	4.877579131658573	\N	1e287884-c4dc-4ecf-b418-e8e42ff75627	1e287884-c4dc-4ecf-b418-e8e42ff75627	\N	2026-04-15 01:44:10.037	2026-04-15 20:14:10.039
+edc4e673-568e-489f-a982-7197065b3ae8	Fix: Production bug resoltuion	CLOSED	3.407377400343256	\N	1e287884-c4dc-4ecf-b418-e8e42ff75627	1e287884-c4dc-4ecf-b418-e8e42ff75627	\N	2026-04-11 01:44:10.041	2026-04-15 20:14:10.043
+750e4fb7-7b11-48e3-b015-1401adb3e700	Fix: Production bug resoltuion	CLOSED	2.988240536844657	\N	1e287884-c4dc-4ecf-b418-e8e42ff75627	1e287884-c4dc-4ecf-b418-e8e42ff75627	\N	2026-04-07 01:44:10.044	2026-04-15 20:14:10.047
+f342dea4-9a07-4751-b61f-1dc4288cfbc1	Fix: Production bug resoltuion	CLOSED	3.180277103077215	\N	1e287884-c4dc-4ecf-b418-e8e42ff75627	1e287884-c4dc-4ecf-b418-e8e42ff75627	\N	2026-04-09 01:44:10.05	2026-04-15 20:14:10.054
+7ef6dd54-ebf8-4baf-a61b-5d2414123588	Fix: Production bug resoltuion	CLOSED	2.56109915526137	\N	1e287884-c4dc-4ecf-b418-e8e42ff75627	1e287884-c4dc-4ecf-b418-e8e42ff75627	\N	2026-04-11 01:44:10.057	2026-04-15 20:14:10.06
+1f5322e7-3e41-4c5b-9a2c-b81e15f084ae	Fix: Production bug resoltuion	CLOSED	3.337532519511013	\N	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-10 01:44:10.071	2026-04-15 20:14:10.074
+9a869ab7-5f22-44af-9b4a-183e0fb84aa9	Fix: Production bug resoltuion	CLOSED	3.680538693925314	\N	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-08 01:44:10.075	2026-04-15 20:14:10.078
+58ea0b10-985c-468f-9a79-5eca72a17ad9	Fix: Production bug resoltuion	CLOSED	2.991588903383165	\N	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-08 01:44:10.081	2026-04-15 20:14:10.087
+8a461d9e-b5ca-4273-8d38-e9b92909267a	Fix: Production bug resoltuion	CLOSED	4.228662941900311	\N	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-11 01:44:10.091	2026-04-15 20:14:10.098
+2b3947a8-f9f5-4183-a4d9-fc54b3849b12	Fix: Production bug resoltuion	CLOSED	4.854913995122778	\N	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-07 01:44:10.101	2026-04-15 20:14:10.104
+4d0b77b1-4549-40b6-81f5-184a0590a14e	Fix: Production bug resoltuion	CLOSED	3.112298928708353	\N	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-14 01:44:10.106	2026-04-15 20:14:10.108
+be8a8c12-d2ae-475d-896b-bca28bade896	Fix: Production bug resoltuion	CLOSED	2.521431332073068	\N	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-12 01:44:10.111	2026-04-15 20:14:10.114
+3b037198-4e27-46df-893a-3d881d90e049	Fix: Production bug resoltuion	CLOSED	4.983180053720059	\N	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-10 01:44:10.116	2026-04-15 20:14:10.119
+fd1b9ee2-e9bf-42ce-b54f-340134c9ca08	Fix: Production bug resoltuion	CLOSED	3.746457477627218	\N	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-15 01:44:10.122	2026-04-15 20:14:10.125
+ac998ef2-873c-413b-bc83-3c6558d21bfa	Fix: Production bug resoltuion	CLOSED	2.172101786726057	\N	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-06 01:44:10.126	2026-04-15 20:14:10.13
+98d0c5ba-5d88-482b-90d3-bc321a731e98	Fix: Production bug resoltuion	CLOSED	3.534467426248033	\N	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-13 01:44:10.133	2026-04-15 20:14:10.137
+20b321c9-ea9d-4056-beae-516c32ebfc1b	Fix: Production bug resoltuion	CLOSED	4.486009889429163	\N	86afda8b-8abf-4611-80d7-90d5b18e0695	86afda8b-8abf-4611-80d7-90d5b18e0695	\N	2026-04-08 01:44:10.139	2026-04-15 20:14:10.141
+96b1a6b6-361b-48fd-9913-52cf1e66eeab	Fix: Production bug resoltuion	CLOSED	2.411211335003816	\N	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	\N	2026-04-11 01:44:10.148	2026-04-15 20:14:10.151
+12ec3dfa-72ef-43b9-b618-2d31781b0db2	Fix: Production bug resoltuion	CLOSED	2.394433828621158	\N	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	\N	2026-04-06 01:44:10.154	2026-04-15 20:14:10.158
+bfe52dbe-2b40-4df7-b1a0-cd18a5ab6d01	Fix: Production bug resoltuion	CLOSED	2.611023622869257	\N	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	\N	2026-04-13 01:44:10.161	2026-04-15 20:14:10.165
+a713bf05-a0e7-4502-bc9a-5fe293998436	Fix: Production bug resoltuion	CLOSED	2.753623788061791	\N	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	\N	2026-04-06 01:44:10.167	2026-04-15 20:14:10.171
+38e92458-9c8b-4179-86b4-6eeb652b49c7	Fix: Production bug resoltuion	CLOSED	2.628153121549796	\N	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	\N	2026-04-15 01:44:10.174	2026-04-15 20:14:10.179
+643140aa-d70c-48b2-be7b-5bd9e5fa7fd6	Fix: Production bug resoltuion	CLOSED	3.033119962971081	\N	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	\N	2026-04-11 01:44:10.183	2026-04-15 20:14:10.186
+3fb6cafb-5f7b-4c42-979b-4fa6bc265707	Fix: Production bug resoltuion	CLOSED	3.350184218733693	\N	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	\N	2026-04-11 01:44:10.189	2026-04-15 20:14:10.191
+7f1a84ce-37d4-4df3-98bd-fad92b892814	Fix: Production bug resoltuion	CLOSED	4.584843152750253	\N	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	\N	2026-04-06 01:44:10.193	2026-04-15 20:14:10.196
+a785206f-36e6-47cd-9e33-ad7a020ca840	Fix: Production bug resoltuion	CLOSED	4.285765600949023	\N	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	\N	2026-04-06 01:44:10.198	2026-04-15 20:14:10.2
+469ee696-36a1-459a-a057-1504225c217e	Fix: Production bug resoltuion	CLOSED	2.927697248324238	\N	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	\N	2026-04-09 01:44:10.202	2026-04-15 20:14:10.205
+40106a2e-b2fb-454c-bfd1-17e9f01d4479	Fix: Production bug resoltuion	CLOSED	3.450484456589001	\N	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	\N	2026-04-14 01:44:10.207	2026-04-15 20:14:10.21
+7dc46a7a-ca85-423c-a76a-46a6449a9d8b	Fix: Production bug resoltuion	CLOSED	4.657716281677315	\N	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	\N	2026-04-08 01:44:10.212	2026-04-15 20:14:10.216
+c20b228e-b5fe-43bb-8842-bba5c2e8fd63	Fix: Production bug resoltuion	CLOSED	3.921678276198694	\N	7ae07d1f-d90d-413e-b1cb-790033f947ce	7ae07d1f-d90d-413e-b1cb-790033f947ce	\N	2026-04-09 01:44:10.353	2026-04-15 20:14:10.357
+85e3ec3e-c6e2-423f-921e-58a269bad115	Fix: Production bug resoltuion	CLOSED	3.231339719862365	\N	7ae07d1f-d90d-413e-b1cb-790033f947ce	7ae07d1f-d90d-413e-b1cb-790033f947ce	\N	2026-04-11 01:44:10.359	2026-04-15 20:14:10.362
+4f6c4cf2-92f3-45c1-a6d0-65abbc64e4b0	Fix: Production bug resoltuion	CLOSED	4.04067030911553	\N	7ae07d1f-d90d-413e-b1cb-790033f947ce	7ae07d1f-d90d-413e-b1cb-790033f947ce	\N	2026-04-14 01:44:10.364	2026-04-15 20:14:10.367
+8b6f0fc0-7f8b-4f02-b362-dfdbe6349dca	Fix: Production bug resoltuion	CLOSED	4.544123364084475	\N	7ae07d1f-d90d-413e-b1cb-790033f947ce	7ae07d1f-d90d-413e-b1cb-790033f947ce	\N	2026-04-14 01:44:10.369	2026-04-15 20:14:10.372
+44144aba-5398-479c-82ee-6be1646157fb	Fix: Production bug resoltuion	CLOSED	2.559215471049598	\N	7ae07d1f-d90d-413e-b1cb-790033f947ce	7ae07d1f-d90d-413e-b1cb-790033f947ce	\N	2026-04-08 01:44:10.375	2026-04-15 20:14:10.378
+658ad0af-3ccd-4559-b73d-146602985215	Fix: Production bug resoltuion	CLOSED	3.936950289873028	\N	7ae07d1f-d90d-413e-b1cb-790033f947ce	7ae07d1f-d90d-413e-b1cb-790033f947ce	\N	2026-04-12 01:44:10.382	2026-04-15 20:14:10.388
+236ade07-167e-406f-8e39-730ad4db8019	Fix: Production bug resoltuion	CLOSED	3.908773389876915	\N	7ae07d1f-d90d-413e-b1cb-790033f947ce	7ae07d1f-d90d-413e-b1cb-790033f947ce	\N	2026-04-06 01:44:10.393	2026-04-15 20:14:10.396
+4e26177a-24c7-4682-a2b5-13d4f085a98b	Fix: Production bug resoltuion	CLOSED	3.380117825543758	\N	7ae07d1f-d90d-413e-b1cb-790033f947ce	7ae07d1f-d90d-413e-b1cb-790033f947ce	\N	2026-04-07 01:44:10.398	2026-04-15 20:14:10.401
+a11d7df5-50c7-4ec0-b6c0-1f3d6cb29b6b	Fix: Production bug resoltuion	CLOSED	3.693754099386678	\N	7ae07d1f-d90d-413e-b1cb-790033f947ce	7ae07d1f-d90d-413e-b1cb-790033f947ce	\N	2026-04-13 01:44:10.403	2026-04-15 20:14:10.406
+f825a7e4-d931-462c-a581-3938c3085444	Fix: Production bug resoltuion	CLOSED	4.148101516959044	\N	7ae07d1f-d90d-413e-b1cb-790033f947ce	7ae07d1f-d90d-413e-b1cb-790033f947ce	\N	2026-04-10 01:44:10.408	2026-04-15 20:14:10.411
+c282e2c2-2f24-4a8b-9105-a73d0b454237	Fix: Production bug resoltuion	CLOSED	4.966654653738305	\N	7ae07d1f-d90d-413e-b1cb-790033f947ce	7ae07d1f-d90d-413e-b1cb-790033f947ce	\N	2026-04-10 01:44:10.412	2026-04-15 20:14:10.415
+737ec26c-8254-4bbe-a6f8-701a8052e95b	Fix: Production bug resoltuion	CLOSED	4.757732557383538	\N	7ae07d1f-d90d-413e-b1cb-790033f947ce	7ae07d1f-d90d-413e-b1cb-790033f947ce	\N	2026-04-12 01:44:10.416	2026-04-15 20:14:10.42
+7292e833-40f2-4a29-80b2-24dfb15e5027	Fix: Production bug resoltuion	CLOSED	3.585106774919815	\N	4638bdfb-2236-4901-8642-fc22bb4b936d	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-08 01:44:10.843	2026-04-15 20:14:10.848
+b1297e1f-66ff-4ba0-95e8-be86db1f55f8	Fix: Production bug resoltuion	CLOSED	4.871129477456929	\N	4638bdfb-2236-4901-8642-fc22bb4b936d	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-07 01:44:10.853	2026-04-15 20:14:10.856
+c8497c24-2374-4efb-9c98-aab73b18fca1	Fix: Production bug resoltuion	CLOSED	4.110258074998637	\N	4638bdfb-2236-4901-8642-fc22bb4b936d	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-15 01:44:10.858	2026-04-15 20:14:10.861
+ffcbc077-9200-40d5-9c9e-0b1bf280fc40	Fix: Production bug resoltuion	CLOSED	2.141909469817179	\N	4638bdfb-2236-4901-8642-fc22bb4b936d	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-15 01:44:10.866	2026-04-15 20:14:10.868
+b33f5b78-d77d-4468-b286-5420d610ca40	Fix: Production bug resoltuion	CLOSED	2.221281609726381	\N	4638bdfb-2236-4901-8642-fc22bb4b936d	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-10 01:44:10.872	2026-04-15 20:14:10.876
+628db85c-f8e4-4569-a093-e12a2d68e70e	Fix: Production bug resoltuion	CLOSED	4.735182723428953	\N	4638bdfb-2236-4901-8642-fc22bb4b936d	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-09 01:44:10.879	2026-04-15 20:14:10.884
+5581e1c4-9ea5-4c8b-8230-b288b134d585	Fix: Production bug resoltuion	CLOSED	4.322329233868955	\N	4638bdfb-2236-4901-8642-fc22bb4b936d	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-09 01:44:10.888	2026-04-15 20:14:10.892
+5d0545bf-fd83-404a-bbf9-e4fd9f7c2090	Fix: Production bug resoltuion	CLOSED	3.272814420605911	\N	4638bdfb-2236-4901-8642-fc22bb4b936d	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-08 01:44:10.894	2026-04-15 20:14:10.897
+fcbc0851-e4a6-4944-8b88-22a8c71a6b4a	Fix: Production bug resoltuion	CLOSED	2.089917554072478	\N	4638bdfb-2236-4901-8642-fc22bb4b936d	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-06 01:44:10.899	2026-04-15 20:14:10.901
+f2f6f729-0bc0-4bed-930c-e46f99b710e0	Fix: Production bug resoltuion	CLOSED	2.113840146618748	\N	4638bdfb-2236-4901-8642-fc22bb4b936d	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-10 01:44:10.904	2026-04-15 20:14:10.908
+cb66c203-526d-41e9-acfa-49358cfc32b1	Fix: Production bug resoltuion	CLOSED	3.989066658429124	\N	4638bdfb-2236-4901-8642-fc22bb4b936d	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-10 01:44:10.912	2026-04-15 20:14:10.915
+a4b5cee6-8a84-405c-8c28-819fdd8e2432	Fix: Production bug resoltuion	CLOSED	4.761352560109836	\N	4638bdfb-2236-4901-8642-fc22bb4b936d	4638bdfb-2236-4901-8642-fc22bb4b936d	\N	2026-04-11 01:44:10.919	2026-04-15 20:14:10.922
+b1b1949f-f627-44cd-8b7d-f308bde82acd	Fix: Production bug resoltuion	CLOSED	4.603783162179834	\N	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	\N	2026-04-06 01:44:10.946	2026-04-15 20:14:10.949
+72b46d81-771a-4825-82f3-e09a0c5471cf	Fix: Production bug resoltuion	CLOSED	3.959234241780571	\N	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	\N	2026-04-13 01:44:10.951	2026-04-15 20:14:10.955
+20fbb377-97d5-433e-a397-45660fb5bfff	Fix: Production bug resoltuion	CLOSED	2.663312976174429	\N	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	\N	2026-04-10 01:44:10.957	2026-04-15 20:14:10.96
+d299db4f-b5e7-48ed-ad6b-278dfff70c84	Fix: Production bug resoltuion	CLOSED	4.742237004411718	\N	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	\N	2026-04-14 01:44:10.962	2026-04-15 20:14:10.964
+39b9c327-1f95-4eda-a38d-6756ff64ebb8	Fix: Production bug resoltuion	CLOSED	4.097364630527192	\N	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	\N	2026-04-15 01:44:10.966	2026-04-15 20:14:10.97
+186d0311-bab9-4c8c-8c2d-fec0b4e7b368	Fix: Production bug resoltuion	CLOSED	2.90336620592992	\N	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	\N	2026-04-13 01:44:10.972	2026-04-15 20:14:10.976
+6cac65d4-4b2f-4ab9-bf44-c92cc538f0a0	Fix: Production bug resoltuion	CLOSED	2.473318662733579	\N	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	\N	2026-04-09 01:44:10.978	2026-04-15 20:14:10.981
+d05cca56-f32e-415b-8a7e-dd2e0f27af70	Fix: Production bug resoltuion	CLOSED	4.880488855532533	\N	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	\N	2026-04-10 01:44:10.985	2026-04-15 20:14:10.987
+e3d7957b-9368-4066-8b87-58a5b4f9b5f4	Fix: Production bug resoltuion	CLOSED	2.237133126831466	\N	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	\N	2026-04-14 01:44:10.989	2026-04-15 20:14:10.992
+b73565f1-0605-4eb8-b0fe-6d20f14bf10d	Fix: Production bug resoltuion	CLOSED	4.689219362624896	\N	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	\N	2026-04-11 01:44:10.994	2026-04-15 20:14:10.998
+ef23a3c9-e3fc-43f7-a8c4-533cb126e311	Fix: Production bug resoltuion	CLOSED	3.992505160290966	\N	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	\N	2026-04-06 01:44:11.001	2026-04-15 20:14:11.006
+53a148cc-8abf-4d21-bc94-f1931512b882	Fix: Production bug resoltuion	CLOSED	3.221508980320066	\N	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	06eb1dbf-88c1-490a-90a7-a5f91156e8f9	\N	2026-04-08 01:44:11.009	2026-04-15 20:14:11.012
+7732927a-19ef-4eeb-bd2d-fee1198c0b5a	Fix: Production bug resoltuion	CLOSED	3.269610074254297	\N	39312998-cf88-478d-a27a-a9a75787b9fe	39312998-cf88-478d-a27a-a9a75787b9fe	\N	2026-04-07 01:44:11.027	2026-04-15 20:14:11.03
+a72b1b33-f683-4dff-be27-ab959ca320c5	Fix: Production bug resoltuion	CLOSED	4.863596015777968	\N	39312998-cf88-478d-a27a-a9a75787b9fe	39312998-cf88-478d-a27a-a9a75787b9fe	\N	2026-04-07 01:44:11.032	2026-04-15 20:14:11.035
+e163f5d3-ef04-40ca-8e2a-f966ab192d34	Fix: Production bug resoltuion	CLOSED	3.08261550823163	\N	39312998-cf88-478d-a27a-a9a75787b9fe	39312998-cf88-478d-a27a-a9a75787b9fe	\N	2026-04-10 01:44:11.037	2026-04-15 20:14:11.039
+a47a661d-9c79-47b3-8c78-fa570479b512	Fix: Production bug resoltuion	CLOSED	4.217081316477713	\N	39312998-cf88-478d-a27a-a9a75787b9fe	39312998-cf88-478d-a27a-a9a75787b9fe	\N	2026-04-11 01:44:11.039	2026-04-15 20:14:11.043
+e7a35d2c-a498-409e-b133-91e8d5b490ce	Fix: Production bug resoltuion	CLOSED	2.651482088364508	\N	39312998-cf88-478d-a27a-a9a75787b9fe	39312998-cf88-478d-a27a-a9a75787b9fe	\N	2026-04-15 01:44:11.045	2026-04-15 20:14:11.049
+5ead8f56-19b2-4af3-8187-d565e2a8188f	Fix: Production bug resoltuion	CLOSED	3.751188958723709	\N	39312998-cf88-478d-a27a-a9a75787b9fe	39312998-cf88-478d-a27a-a9a75787b9fe	\N	2026-04-13 01:44:11.052	2026-04-15 20:14:11.055
+36d28b4f-064e-42a0-8cd7-ea5f137e6860	Fix: Production bug resoltuion	CLOSED	2.386985110011243	\N	39312998-cf88-478d-a27a-a9a75787b9fe	39312998-cf88-478d-a27a-a9a75787b9fe	\N	2026-04-07 01:44:11.059	2026-04-15 20:14:11.062
+a167fa29-1573-4679-b58a-3204f1847bf3	Fix: Production bug resoltuion	CLOSED	3.28714465941148	\N	39312998-cf88-478d-a27a-a9a75787b9fe	39312998-cf88-478d-a27a-a9a75787b9fe	\N	2026-04-07 01:44:11.064	2026-04-15 20:14:11.067
+4fc443ab-b683-4412-b804-6decf80f3bc4	Fix: Production bug resoltuion	CLOSED	2.727557752023591	\N	39312998-cf88-478d-a27a-a9a75787b9fe	39312998-cf88-478d-a27a-a9a75787b9fe	\N	2026-04-10 01:44:11.068	2026-04-15 20:14:11.072
+c8cc5b8a-1445-48c9-a184-42566eb1e446	Fix: Production bug resoltuion	CLOSED	3.752034389084264	\N	39312998-cf88-478d-a27a-a9a75787b9fe	39312998-cf88-478d-a27a-a9a75787b9fe	\N	2026-04-14 01:44:11.074	2026-04-15 20:14:11.078
+d5b8ed0f-4b80-4c8c-a480-4d8b23a9eb63	Fix: Production bug resoltuion	CLOSED	2.891721693453926	\N	39312998-cf88-478d-a27a-a9a75787b9fe	39312998-cf88-478d-a27a-a9a75787b9fe	\N	2026-04-12 01:44:11.081	2026-04-15 20:14:11.083
+947cc04b-55fa-48d8-8340-14af0bd85fbf	Fix: Production bug resoltuion	CLOSED	2.288287334626439	\N	39312998-cf88-478d-a27a-a9a75787b9fe	39312998-cf88-478d-a27a-a9a75787b9fe	\N	2026-04-14 01:44:11.085	2026-04-15 20:14:11.087
+332e5088-4a05-4c50-9da7-b5734379db98	Fix: Production bug resoltuion	CLOSED	3.434510571772096	\N	06268a07-934e-41e5-9526-15687e490453	06268a07-934e-41e5-9526-15687e490453	\N	2026-04-06 01:44:11.102	2026-04-15 20:14:11.105
+885878b7-4985-490f-93b2-d4c43ab846c4	Fix: Production bug resoltuion	CLOSED	4.554895704215602	\N	06268a07-934e-41e5-9526-15687e490453	06268a07-934e-41e5-9526-15687e490453	\N	2026-04-06 01:44:11.107	2026-04-15 20:14:11.11
+e3432e00-790a-4174-8fe9-1061e7991126	Fix: Production bug resoltuion	CLOSED	3.298454929039019	\N	06268a07-934e-41e5-9526-15687e490453	06268a07-934e-41e5-9526-15687e490453	\N	2026-04-08 01:44:11.113	2026-04-15 20:14:11.116
+e4fc5db5-0c74-4896-9338-c277698ea98d	Fix: Production bug resoltuion	CLOSED	4.292313639951188	\N	06268a07-934e-41e5-9526-15687e490453	06268a07-934e-41e5-9526-15687e490453	\N	2026-04-15 01:44:11.119	2026-04-15 20:14:11.123
+6510ea95-4580-457f-be38-7c1307e5cff3	Fix: Production bug resoltuion	CLOSED	3.33631547675957	\N	06268a07-934e-41e5-9526-15687e490453	06268a07-934e-41e5-9526-15687e490453	\N	2026-04-11 01:44:11.126	2026-04-15 20:14:11.13
+ba613f54-8619-4a5b-8f7b-6461883e8341	Fix: Production bug resoltuion	CLOSED	3.162062099951133	\N	06268a07-934e-41e5-9526-15687e490453	06268a07-934e-41e5-9526-15687e490453	\N	2026-04-07 01:44:11.132	2026-04-15 20:14:11.136
+30f3b5fc-f732-4be6-92cd-a3d6aacbea4a	Fix: Production bug resoltuion	CLOSED	3.250397107514011	\N	06268a07-934e-41e5-9526-15687e490453	06268a07-934e-41e5-9526-15687e490453	\N	2026-04-11 01:44:11.138	2026-04-15 20:14:11.142
+8d8f3334-4d3c-4a29-bd91-741ea9bda470	Fix: Production bug resoltuion	CLOSED	4.937872292907034	\N	06268a07-934e-41e5-9526-15687e490453	06268a07-934e-41e5-9526-15687e490453	\N	2026-04-09 01:44:11.143	2026-04-15 20:14:11.146
+990063b1-3d08-4e06-b958-9a432932de6a	Fix: Production bug resoltuion	CLOSED	4.148592348682083	\N	06268a07-934e-41e5-9526-15687e490453	06268a07-934e-41e5-9526-15687e490453	\N	2026-04-12 01:44:11.148	2026-04-15 20:14:11.151
+fc4b98c8-77f2-4234-8e3c-3792d4aa98d6	Fix: Production bug resoltuion	CLOSED	4.373965747365971	\N	06268a07-934e-41e5-9526-15687e490453	06268a07-934e-41e5-9526-15687e490453	\N	2026-04-08 01:44:11.156	2026-04-15 20:14:11.16
+f9099bce-1a92-4c5d-8bf7-3a8ee521471b	Fix: Production bug resoltuion	CLOSED	4.837885191108764	\N	06268a07-934e-41e5-9526-15687e490453	06268a07-934e-41e5-9526-15687e490453	\N	2026-04-11 01:44:11.164	2026-04-15 20:14:11.168
+4775fb8f-1972-43fa-b55c-903ea7ae89dd	Fix: Production bug resoltuion	CLOSED	3.240489952611664	\N	06268a07-934e-41e5-9526-15687e490453	06268a07-934e-41e5-9526-15687e490453	\N	2026-04-06 01:44:11.172	2026-04-15 20:14:11.175
+a70b516b-31a8-4f97-8225-04849ae7249e	Fix: Production bug resoltuion	CLOSED	4.407358701779494	\N	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	\N	2026-04-12 01:44:11.191	2026-04-15 20:14:11.194
+822b046c-6df0-4046-8441-101e1be2efb6	Fix: Production bug resoltuion	CLOSED	3.014525232173127	\N	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	\N	2026-04-09 01:44:11.196	2026-04-15 20:14:11.199
+8f789bdc-eca7-467b-aa32-ce61356dde21	Fix: Production bug resoltuion	CLOSED	3.205264978429477	\N	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	\N	2026-04-07 01:44:11.2	2026-04-15 20:14:11.203
+8cb9e0d8-eef4-45e0-8f01-046029bb5a8b	Fix: Production bug resoltuion	CLOSED	3.339472291717793	\N	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	\N	2026-04-11 01:44:11.204	2026-04-15 20:14:11.206
+20ada005-dc01-447d-b3bd-c9eec478af40	Fix: Production bug resoltuion	CLOSED	4.052960647619097	\N	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	\N	2026-04-12 01:44:11.207	2026-04-15 20:14:11.209
+3611652a-f8a7-46cc-8996-bf70ebeafebc	Fix: Production bug resoltuion	CLOSED	4.333132276793377	\N	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	\N	2026-04-13 01:44:11.211	2026-04-15 20:14:11.213
+a30892f0-f76c-4a47-810e-5fe40ac513a9	Fix: Production bug resoltuion	CLOSED	2.322519433103339	\N	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	\N	2026-04-11 01:44:11.215	2026-04-15 20:14:11.218
+ea37e190-359a-4d57-a96e-c692ce18bf09	Fix: Production bug resoltuion	CLOSED	3.330733494657425	\N	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	\N	2026-04-09 01:44:11.223	2026-04-15 20:14:11.227
+182a030d-6690-4be2-a5cf-e17ea9520404	Fix: Production bug resoltuion	CLOSED	3.642640434831467	\N	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	\N	2026-04-14 01:44:11.232	2026-04-15 20:14:11.236
+2ce66f7d-de21-440b-ac68-18602eace550	Fix: Production bug resoltuion	CLOSED	3.265166562804922	\N	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	\N	2026-04-09 01:44:11.239	2026-04-15 20:14:11.242
+bf1e1a10-b89c-4356-9a06-018f5e7443eb	Fix: Production bug resoltuion	CLOSED	4.531267428304673	\N	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	\N	2026-04-10 01:44:11.246	2026-04-15 20:14:11.25
+65c06d94-70b9-4a1e-9696-0c3bb6c085da	Fix: Production bug resoltuion	CLOSED	4.38556019269334	\N	5229418e-accc-47a3-aa8e-e630ecb2df9d	5229418e-accc-47a3-aa8e-e630ecb2df9d	\N	2026-04-12 01:44:11.254	2026-04-15 20:14:11.258
+b135855e-9d79-400b-be49-4e5434f66d30	Fix: Production bug resoltuion	CLOSED	2.029859868733755	\N	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	\N	2026-04-07 01:44:11.279	2026-04-15 20:14:11.283
+b7b27419-77d3-490c-8b22-363e4da245b8	Fix: Production bug resoltuion	CLOSED	3.756435953985386	\N	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	\N	2026-04-09 01:44:11.286	2026-04-15 20:14:11.29
+7e5f5fe9-8b3c-46dd-b008-6cc2889047a7	Fix: Production bug resoltuion	CLOSED	2.888160861892209	\N	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	\N	2026-04-07 01:44:11.291	2026-04-15 20:14:11.294
+bea5cffd-c3db-4d74-ac72-206744bcf7a4	Fix: Production bug resoltuion	CLOSED	4.29226329777109	\N	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	\N	2026-04-11 01:44:11.296	2026-04-15 20:14:11.299
+85894e90-7e31-4a6b-b209-61008d2fbe1c	Fix: Production bug resoltuion	CLOSED	2.712278056959986	\N	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	\N	2026-04-15 01:44:11.299	2026-04-15 20:14:11.303
+fcccd412-666b-4317-8cd0-546b6581232a	Fix: Production bug resoltuion	CLOSED	3.378925542453695	\N	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	\N	2026-04-15 01:44:11.306	2026-04-15 20:14:11.309
+7ef41f39-1a87-4833-85cc-2117218077ee	Fix: Production bug resoltuion	CLOSED	2.897506248030746	\N	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	\N	2026-04-13 01:44:11.311	2026-04-15 20:14:11.313
+50e526c9-277a-462f-ba20-56a2cafff645	Fix: Production bug resoltuion	CLOSED	2.610428046258675	\N	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	\N	2026-04-08 01:44:11.314	2026-04-15 20:14:11.317
+b96eb4ef-f783-46eb-9f92-646e2cd43349	Fix: Production bug resoltuion	CLOSED	4.854776334637419	\N	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	\N	2026-04-11 01:44:11.318	2026-04-15 20:14:11.322
+aadd0382-f4ae-4783-b261-e8f0c5e7fa42	Fix: Production bug resoltuion	CLOSED	4.515536204046348	\N	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	\N	2026-04-09 01:44:11.323	2026-04-15 20:14:11.326
+d95f3b00-d5a6-4343-930e-78ec80d8b338	Fix: Production bug resoltuion	CLOSED	3.84146993898803	\N	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	\N	2026-04-14 01:44:11.326	2026-04-15 20:14:11.33
+7e3c7f0c-1e35-439c-b7ec-105da4eecd17	Fix: Production bug resoltuion	CLOSED	2.177827837529562	\N	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	\N	2026-04-06 01:44:11.331	2026-04-15 20:14:11.333
+4d19f419-e872-43b1-9336-7ebab90bfd58	Fix: Production bug resoltuion	CLOSED	3.693863313601897	\N	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-12 01:44:11.441	2026-04-15 20:14:11.443
+f4042d91-e90a-49b7-99b5-a506ee812890	Fix: Production bug resoltuion	CLOSED	3.614519592351719	\N	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-06 01:44:11.445	2026-04-15 20:14:11.448
+01d6cda3-2b05-4fbd-8f7f-67d495922e84	Fix: Production bug resoltuion	CLOSED	2.199859758694555	\N	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-14 01:44:11.45	2026-04-15 20:14:11.452
+9e8a8362-2107-4315-a61f-7d97610a0ba2	Fix: Production bug resoltuion	CLOSED	3.364107693361992	\N	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-15 01:44:11.455	2026-04-15 20:14:11.458
+dbe97845-ac02-437e-aac6-eadbef24fe82	Fix: Production bug resoltuion	CLOSED	3.972131098969658	\N	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-13 01:44:11.461	2026-04-15 20:14:11.464
+114eb47f-95b6-4d69-8ebb-da844f199c65	Fix: Production bug resoltuion	CLOSED	4.429669119586457	\N	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-15 01:44:11.466	2026-04-15 20:14:11.469
+1c08f0bd-2ce3-4156-a1ef-6b4ddf8dad7a	Fix: Production bug resoltuion	CLOSED	3.878292134549982	\N	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-10 01:44:11.472	2026-04-15 20:14:11.475
+aee1d0b7-0541-44bc-a1ac-5537c6f777a7	Fix: Production bug resoltuion	CLOSED	3.242289934665334	\N	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-10 01:44:11.476	2026-04-15 20:14:11.48
+44511ab9-9194-4f9c-b161-2e0931b2882c	Fix: Production bug resoltuion	CLOSED	2.368900812826183	\N	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-13 01:44:11.482	2026-04-15 20:14:11.484
+8c1394b8-c43b-4e2f-a138-338d23675c86	Fix: Production bug resoltuion	CLOSED	4.820610630664714	\N	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-07 01:44:11.485	2026-04-15 20:14:11.488
+40ee2cd1-ce6b-4b20-8aea-bf8713e667a5	Fix: Production bug resoltuion	CLOSED	4.807105012829467	\N	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-07 01:44:11.489	2026-04-15 20:14:11.492
+4dc47b5b-8cdd-4612-bbdf-cd5f234b4180	Fix: Production bug resoltuion	CLOSED	2.407386143153357	\N	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	cf9235d4-c3a1-4fd2-8822-e1379208c5ac	\N	2026-04-14 01:44:11.493	2026-04-15 20:14:11.496
+7cfd6fd9-99dc-4e80-9b62-9142fec10790	Fix: Production bug resoltuion	CLOSED	2.509463113534303	\N	c6b5fe02-5974-4c38-8eee-62fec0916b76	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-11 01:44:11.586	2026-04-15 20:14:11.588
+c8305d42-7e61-4ae2-8e7c-0811e045644b	Fix: Production bug resoltuion	CLOSED	4.193942023752798	\N	c6b5fe02-5974-4c38-8eee-62fec0916b76	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-07 01:44:11.589	2026-04-15 20:14:11.592
+36c02281-646d-48c3-aeeb-05e4a5cb174a	Fix: Production bug resoltuion	CLOSED	3.982710307779085	\N	c6b5fe02-5974-4c38-8eee-62fec0916b76	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-06 01:44:11.594	2026-04-15 20:14:11.597
+7186d0aa-4aa2-416c-a50c-9fe03d84d7e2	Fix: Production bug resoltuion	CLOSED	2.431650100123225	\N	c6b5fe02-5974-4c38-8eee-62fec0916b76	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-07 01:44:11.599	2026-04-15 20:14:11.602
+170c3fb0-ba74-4543-8816-361c00e7e8a1	Fix: Production bug resoltuion	CLOSED	2.362216996088621	\N	c6b5fe02-5974-4c38-8eee-62fec0916b76	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-06 01:44:11.603	2026-04-15 20:14:11.606
+567bdd33-bcd4-42e6-b9ba-7fe5d641e186	Fix: Production bug resoltuion	CLOSED	3.422938825233871	\N	c6b5fe02-5974-4c38-8eee-62fec0916b76	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-15 01:44:11.606	2026-04-15 20:14:11.61
+01ca0878-2955-461e-bf6a-4ced661dfaa5	Fix: Production bug resoltuion	CLOSED	3.192436086533245	\N	c6b5fe02-5974-4c38-8eee-62fec0916b76	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-06 01:44:11.611	2026-04-15 20:14:11.614
+ef6ccc0e-605b-4b3f-91f1-7d48b1694b08	Fix: Production bug resoltuion	CLOSED	2.524519987562998	\N	c6b5fe02-5974-4c38-8eee-62fec0916b76	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-12 01:44:11.615	2026-04-15 20:14:11.618
+31d8dcb4-852d-4365-8209-1853370e5a4e	Fix: Production bug resoltuion	CLOSED	3.93275865350646	\N	c6b5fe02-5974-4c38-8eee-62fec0916b76	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-06 01:44:11.619	2026-04-15 20:14:11.621
+48cd0c2c-9bbd-4f7d-820c-0d0c9c5e1caa	Fix: Production bug resoltuion	CLOSED	2.77208748813028	\N	c6b5fe02-5974-4c38-8eee-62fec0916b76	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-11 01:44:11.623	2026-04-15 20:14:11.626
+d44c5a83-eefe-4ba2-abc2-090a08837a75	Fix: Production bug resoltuion	CLOSED	3.845205090367254	\N	c6b5fe02-5974-4c38-8eee-62fec0916b76	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-09 01:44:11.628	2026-04-15 20:14:11.63
+9fd750bc-812a-40f4-9ef2-6cc3753bb39b	Fix: Production bug resoltuion	CLOSED	4.609432495011687	\N	c6b5fe02-5974-4c38-8eee-62fec0916b76	c6b5fe02-5974-4c38-8eee-62fec0916b76	\N	2026-04-13 01:44:11.632	2026-04-15 20:14:11.635
+4583653e-5e93-460d-a396-eaa416aa9de5	Fix: Production bug resoltuion	CLOSED	4.83873484382706	\N	ace90216-fa2c-4ac5-ad89-645cb71736d0	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-11 01:44:11.735	2026-04-15 20:14:11.738
+f8c84d4b-91d8-43e8-b8cf-4c381a263d7d	Fix: Production bug resoltuion	CLOSED	4.505024114072188	\N	ace90216-fa2c-4ac5-ad89-645cb71736d0	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-09 01:44:11.741	2026-04-15 20:14:11.744
+7a407169-6ad5-4ec0-afb9-02683a8d70c9	Fix: Production bug resoltuion	CLOSED	2.060821399305913	\N	ace90216-fa2c-4ac5-ad89-645cb71736d0	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-11 01:44:11.746	2026-04-15 20:14:11.75
+315c15b1-e540-4260-b3a5-aed1c90d1ec3	Fix: Production bug resoltuion	CLOSED	4.432828189739948	\N	ace90216-fa2c-4ac5-ad89-645cb71736d0	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-15 01:44:11.751	2026-04-15 20:14:11.756
+a5c1438e-6157-48cd-813c-529e203171a6	Fix: Production bug resoltuion	CLOSED	2.870174732382485	\N	ace90216-fa2c-4ac5-ad89-645cb71736d0	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-08 01:44:11.758	2026-04-15 20:14:11.761
+7a6d5f47-7e41-4fc6-a4bb-f4d7e82f8313	Fix: Production bug resoltuion	CLOSED	3.072450018677558	\N	ace90216-fa2c-4ac5-ad89-645cb71736d0	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-14 01:44:11.762	2026-04-15 20:14:11.766
+909d1e92-0788-480d-8d7f-23fc0828d3b8	Fix: Production bug resoltuion	CLOSED	2.777635399310909	\N	ace90216-fa2c-4ac5-ad89-645cb71736d0	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-07 01:44:11.767	2026-04-15 20:14:11.771
+1a5f4eb7-d45d-472f-9d34-876c00338e4f	Fix: Production bug resoltuion	CLOSED	3.810287602675903	\N	ace90216-fa2c-4ac5-ad89-645cb71736d0	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-07 01:44:11.773	2026-04-15 20:14:11.776
+98b12c29-c1e1-40cc-b954-5a14ac7a6cdf	Fix: Production bug resoltuion	CLOSED	4.117083885068628	\N	ace90216-fa2c-4ac5-ad89-645cb71736d0	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-09 01:44:11.776	2026-04-15 20:14:11.779
+1e5c9107-e726-4d90-bced-e2d5393de19b	Fix: Production bug resoltuion	CLOSED	2.413518351819432	\N	ace90216-fa2c-4ac5-ad89-645cb71736d0	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-11 01:44:11.781	2026-04-15 20:14:11.783
+fbc0bdcd-745c-4f2c-b9ad-7d16dd7dacbf	Fix: Production bug resoltuion	CLOSED	2.773302133140406	\N	ace90216-fa2c-4ac5-ad89-645cb71736d0	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-08 01:44:11.785	2026-04-15 20:14:11.787
+55311708-00e5-471e-b373-222fc0d02b3f	Fix: Production bug resoltuion	CLOSED	3.99007343290038	\N	ace90216-fa2c-4ac5-ad89-645cb71736d0	ace90216-fa2c-4ac5-ad89-645cb71736d0	\N	2026-04-13 01:44:11.788	2026-04-15 20:14:11.791
+\.
+
+
+--
+-- Data for Name: Training; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Training" (id, name, description, "completionDate", "profileId") FROM stdin;
+55bc2311-8bb8-410c-8c00-70e8b0ba6ec7	AWS Cloud Practitioner	Enterprise certified.	2026-04-16 00:06:04.198	7c293905-7d0d-4a38-b33a-1fec22ad0648
+81f023a0-9f19-462b-9969-3aab8d4d252d	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:04.204	7c293905-7d0d-4a38-b33a-1fec22ad0648
+fa5e427d-d932-4243-8253-e48b11c1f13d	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:04.206	7c293905-7d0d-4a38-b33a-1fec22ad0648
+754b72ae-e0f9-4376-bb6f-f36a9c2b8f47	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:04.341	2bf78e26-c205-4642-b072-04b07fd66815
+04d9735e-58e1-42b6-b334-0844288ac838	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:04.344	2bf78e26-c205-4642-b072-04b07fd66815
+f9d46fbb-bfeb-47da-b033-32cbd623ddeb	AWS Cloud Practitioner	Enterprise certified.	2026-04-16 00:06:04.347	2bf78e26-c205-4642-b072-04b07fd66815
+1aa0dbc6-e398-46e9-95c3-d3c1fb4a1d69	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:04.467	3798cd4b-a3b6-4850-8660-c6975f58016a
+7cddb121-f1ed-4185-aa2c-e2da5bfbc405	Python for Data Science	Enterprise certified.	2026-04-16 00:06:04.578	5f7207d8-9a69-45fe-a219-bf5a7e311fef
+bd430cbc-35ba-4c8c-b493-4d643a6d03b1	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:04.58	5f7207d8-9a69-45fe-a219-bf5a7e311fef
+70e5bfb4-e607-477b-a5ef-93fbf7853c3d	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:04.582	5f7207d8-9a69-45fe-a219-bf5a7e311fef
+40f89bb7-5b4a-43a6-9d90-a68ab43cf5f1	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:04.664	aa5913ab-ad01-43ae-9ce6-36116edbae31
+c5a60b93-c77f-4605-8aa7-aa95e3461c23	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:04.666	aa5913ab-ad01-43ae-9ce6-36116edbae31
+708aa35c-5408-4d6f-b5ec-fcb907ccb7a2	AWS Cloud Practitioner	Enterprise certified.	2026-04-16 00:06:04.667	aa5913ab-ad01-43ae-9ce6-36116edbae31
+a5a9d678-4ad4-4224-a466-133dd9919d27	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:04.751	a0f0eeb0-2154-46cc-98de-613e4b1f63d5
+18369bc0-3c9a-444a-891c-d9d8b980d279	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:04.753	a0f0eeb0-2154-46cc-98de-613e4b1f63d5
+52e5dae1-734b-4b96-9c6a-8102115b4b9e	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:04.754	a0f0eeb0-2154-46cc-98de-613e4b1f63d5
+4afee5a7-aee1-45fb-ad16-9323bc991337	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:04.846	f7645bd8-f888-4f9b-b747-e599bc9dd900
+d1f473af-3c7f-4720-948f-24827a11c8fd	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:04.848	f7645bd8-f888-4f9b-b747-e599bc9dd900
+056e1bd4-109e-43a7-a98d-c4e3a42bd74c	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:04.85	f7645bd8-f888-4f9b-b747-e599bc9dd900
+79532e82-2602-4420-b952-b72f68c2cf4f	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:04.918	ddde01b8-09ee-4db5-81be-2506d58f4d49
+9da0a733-1f6d-483b-9e66-991f5ea733b4	AWS Cloud Practitioner	Enterprise certified.	2026-04-16 00:06:04.92	ddde01b8-09ee-4db5-81be-2506d58f4d49
+9c4c4c9d-4c73-4840-93ca-afca66d7360c	Python for Data Science	Enterprise certified.	2026-04-16 00:06:04.922	ddde01b8-09ee-4db5-81be-2506d58f4d49
+37ab87ab-ed21-4004-9fac-4bdc3d5db397	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:05.025	c79e9f6a-af3b-4ba4-a88a-9d7269a5d43d
+36b86d4c-5805-4c2a-aca8-6e11509cb51e	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:05.028	c79e9f6a-af3b-4ba4-a88a-9d7269a5d43d
+a7f2c278-6f32-413e-9e9f-acfdced8cb5b	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:05.03	c79e9f6a-af3b-4ba4-a88a-9d7269a5d43d
+1c214a47-5ba4-4135-a720-884a29a0ebdf	Python for Data Science	Enterprise certified.	2026-04-16 00:06:05.117	ff04f1b9-0954-4ae3-bcc7-5a2cb61414e0
+b5598b3c-c236-4574-b18d-48189e58cb62	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:05.245	e788cb94-4247-43e1-999d-64bfb7e19223
+d3aee79f-0e26-46b4-aa4f-14a5991532b3	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:05.249	e788cb94-4247-43e1-999d-64bfb7e19223
+1b1add6a-e434-4652-95be-2119559fd62f	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:05.394	369af921-2d91-4166-8ccd-5fc89491cca0
+3f586200-358d-480c-8241-6cdd0afd6ae5	AWS Cloud Practitioner	Enterprise certified.	2026-04-16 00:06:05.395	369af921-2d91-4166-8ccd-5fc89491cca0
+7f7bc492-7ebf-4662-830c-ed06cc3ca5c0	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:05.505	58f0190f-517b-410a-97a6-ff3286b14ca4
+e53c13e8-fd43-4cb6-80db-773b1689fc51	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:05.507	58f0190f-517b-410a-97a6-ff3286b14ca4
+464b5eca-3899-4aba-b357-aacecab458f3	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:05.583	8726ce76-c4d9-4f45-a80b-0000cddabc8c
+4b8e125d-9ad3-461c-b155-d4e37eb460ad	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:05.585	8726ce76-c4d9-4f45-a80b-0000cddabc8c
+c0830a0e-9cd1-4a70-a6f6-bb87e4a44ba8	AWS Cloud Practitioner	Enterprise certified.	2026-04-16 00:06:05.681	322a2d63-4941-4ba3-8741-1bf2e7d3c60f
+fa42bd3d-8b70-46e1-af44-e8781dbcad8d	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:05.787	4da41c22-f766-47a4-9aa9-3de77928a436
+5389d247-c4e7-48f2-b9ff-dbfdcf938085	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:05.788	4da41c22-f766-47a4-9aa9-3de77928a436
+c736aceb-5ca2-4356-8f80-ae9cecd8f970	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:05.862	6214c499-bcad-4b61-9697-557f8d3f32d7
+d4987c65-841d-4b57-9899-59ce1d6d2146	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:05.943	5983dac0-727b-496d-84ae-5456df4e8ad4
+7ce14729-a1c1-44e4-bccf-4ad5fa51c915	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:05.945	5983dac0-727b-496d-84ae-5456df4e8ad4
+d0989ba4-18fc-4b2b-84bc-25c5dba98fd1	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:06.045	1624866b-50c5-41a0-b236-71548b31ba1c
+36945eee-f93c-4869-8d52-34d71de3e0b7	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:06.048	1624866b-50c5-41a0-b236-71548b31ba1c
+067b17ef-4d9d-4911-8467-841f11ad1f78	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:06.133	5bd51f37-d26d-4b8e-a98b-cc6987fb407f
+3819fc58-428e-4132-a968-be103d4e3c8c	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:06.238	793c8954-6a0b-4324-b866-e647375a68e0
+815162d8-9b30-4c77-8cbd-e110e626ec9b	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:06.24	793c8954-6a0b-4324-b866-e647375a68e0
+71628f28-3dd8-4196-a0a8-d770cda2431d	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:06.344	567fa813-a9aa-4cd2-b237-79bdeafdb73b
+31dc60ac-a035-4499-bfc6-2d11e462f856	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:06.423	06723a29-b719-4d2b-9b70-965fc6b12c0b
+34721996-e41d-4fb0-a723-4f3172552e82	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:06.425	06723a29-b719-4d2b-9b70-965fc6b12c0b
+05047473-eae4-4f4a-a928-6d85028da9de	Python for Data Science	Enterprise certified.	2026-04-16 00:06:06.428	06723a29-b719-4d2b-9b70-965fc6b12c0b
+d4b734b4-1ab7-47d9-b7f9-0470e8d79824	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:06.535	35ae68f4-e23d-447a-a2bc-efa125edc80c
+1467f5d8-201a-4a06-9859-47033a2c3bfc	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:06.621	ab57f6c1-4b51-4f8d-b8bd-9a488c2cd8d4
+ebb81774-f903-4a6c-944f-9517c61c3b38	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:06.754	a5e1a9b2-cc3f-4013-80ad-64ff5535c959
+2daf001b-61d8-43fd-9c96-ed6696cc9c41	AWS Cloud Practitioner	Enterprise certified.	2026-04-16 00:06:06.855	2a608cd4-0ad6-48e6-8e08-a228b9c6ed30
+4e8e0186-eeed-4871-a8c8-d2401e823916	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:06.857	2a608cd4-0ad6-48e6-8e08-a228b9c6ed30
+af89e6f4-9d54-4756-acf7-f050215e9690	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:06.949	ae4cff8d-74cc-43be-b57c-463017d8685e
+f558b8f6-6db0-4e43-9fd1-b0a2da9189e0	AWS Cloud Practitioner	Enterprise certified.	2026-04-16 00:06:07.066	c3a32ff4-6acd-4c6e-8e66-d822559126f5
+8b91d2b9-6ea6-40cd-af83-7449bb440d57	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:07.071	c3a32ff4-6acd-4c6e-8e66-d822559126f5
+b3782c7b-1389-425b-8468-07cb1e1e17cd	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:07.229	be2bc5e4-6e8f-4af4-a890-c5973be3973b
+c5fc3b11-b23f-42b2-920e-d5f0b66c0d8d	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:07.231	be2bc5e4-6e8f-4af4-a890-c5973be3973b
+b009489a-2e98-489f-9b6a-7005a1398478	Python for Data Science	Enterprise certified.	2026-04-16 00:06:07.233	be2bc5e4-6e8f-4af4-a890-c5973be3973b
+00ea9e94-ed35-42ba-8e45-36cdd9d04905	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:07.318	a5114256-11fb-4066-a2ce-bc85442d187f
+8ce71413-f8c1-48f3-977c-26cc49ff7a1d	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:07.321	a5114256-11fb-4066-a2ce-bc85442d187f
+86be5737-f08a-4346-be43-e8b98de5abf4	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:07.397	85b855db-747f-40f7-a918-a5dd00684675
+8a8bbe71-cdcb-4e7c-8900-637d6f97a543	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:07.402	85b855db-747f-40f7-a918-a5dd00684675
+a6121c21-2c73-43a6-8d10-b50554340d80	AWS Cloud Practitioner	Enterprise certified.	2026-04-16 00:06:07.406	85b855db-747f-40f7-a918-a5dd00684675
+66d77eb9-5f13-406f-a10f-b6c7dd4051f9	Python for Data Science	Enterprise certified.	2026-04-16 00:06:07.542	61bd343d-3138-4c7a-bdf8-7bd0dc0b1247
+912d1db8-e8f6-4e34-a0ad-8830cecbf679	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:07.544	61bd343d-3138-4c7a-bdf8-7bd0dc0b1247
+944f7c2c-ad1a-491b-95e2-a5a0360b6f51	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:07.547	61bd343d-3138-4c7a-bdf8-7bd0dc0b1247
+fc72eacd-fd4d-4378-a5c5-1e582bf79595	Python for Data Science	Enterprise certified.	2026-04-16 00:06:07.677	7fb9b0e9-7ac7-45d0-9865-8d4332907ffe
+61627294-de47-4bd7-a0bb-e25659b82b27	AWS Cloud Practitioner	Enterprise certified.	2026-04-16 00:06:07.779	7905b888-cee1-40ed-8f05-dc3d2ddf3452
+5ad5ad6a-a29f-434d-8e14-948f7dbf35a3	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:07.782	7905b888-cee1-40ed-8f05-dc3d2ddf3452
+2929f6ea-d64e-4332-8a45-c09ed8cca488	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:07.87	23ded092-ad3f-428e-b21f-0feb64a1320f
+997c00ae-7c14-48aa-b3f0-e574dd610cea	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:07.873	23ded092-ad3f-428e-b21f-0feb64a1320f
+f1b10b31-82ea-4b02-b8c3-c971cbb2e24d	Python for Data Science	Enterprise certified.	2026-04-16 00:06:07.96	5e78279f-175f-4f3f-8405-0aca6cb416e3
+f71aa5b5-d984-4ecf-af92-7719c6e8c706	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:08.071	8efec597-b366-48cf-8c7d-7d0a8fda96b3
+7cea502a-ed65-4308-a730-7a02a5e9b954	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:08.072	8efec597-b366-48cf-8c7d-7d0a8fda96b3
+fad1255b-a48c-4b27-90f8-22592c41ffbc	Python for Data Science	Enterprise certified.	2026-04-16 00:06:08.159	8b93eaa0-e1e5-4d30-9d34-a254924e73a2
+0f0aff49-a248-454a-b077-c22fb92e34d3	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:08.161	8b93eaa0-e1e5-4d30-9d34-a254924e73a2
+84c10284-5276-4d39-bc3a-a3d4a768a0c9	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:08.242	a581cdb7-771f-490c-b2c8-2ec8bce366dc
+730b48cc-aedf-4d33-a050-219d98e43acd	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:08.244	a581cdb7-771f-490c-b2c8-2ec8bce366dc
+8dd9ea3d-f0f5-464f-8934-1b795ab28bcc	Python for Data Science	Enterprise certified.	2026-04-16 00:06:08.245	a581cdb7-771f-490c-b2c8-2ec8bce366dc
+a442b16d-151e-4ab3-acd8-955b64ce021c	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:08.34	c61d5a4e-80b1-477c-8ce6-e6d07d070598
+684e4762-f260-4ce1-9325-7d9d15d0599e	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:08.343	c61d5a4e-80b1-477c-8ce6-e6d07d070598
+6bec9853-b196-4be7-b10f-bcad54d10270	AWS Cloud Practitioner	Enterprise certified.	2026-04-16 00:06:08.437	0aeca834-d8d7-4f2e-90d8-e1ae45458aea
+1c76c57f-87b4-42ea-a715-3e1ca1d9b7fb	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:08.439	0aeca834-d8d7-4f2e-90d8-e1ae45458aea
+cb6fed44-ee66-4287-a1ef-f8302c1f81f3	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:08.441	0aeca834-d8d7-4f2e-90d8-e1ae45458aea
+074bc423-0ec1-475c-8059-04b73397fdba	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:08.561	1692fa52-c64c-4b7d-b616-24279f75a1eb
+b4fd308d-5056-4692-97e5-e4976cd23f6a	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:08.701	1e1ed1f9-b576-4b02-af98-273c5cc45156
+ed0df188-1435-4173-9937-7e1084940d21	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:08.704	1e1ed1f9-b576-4b02-af98-273c5cc45156
+21105b34-14df-4bec-a18c-155a89c64776	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:08.708	1e1ed1f9-b576-4b02-af98-273c5cc45156
+f8d7c228-3da7-4643-8b8c-c8c76859f1e8	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:08.822	fe73efbe-32c5-498e-b4ad-b539ed83bfb5
+6e00504e-88b9-4337-86a2-efa15663ddf0	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:08.955	bf157948-cd48-457d-b2ab-98e37073d30b
+d70e22d1-4598-4b47-b9ad-4b006886f4ef	Python for Data Science	Enterprise certified.	2026-04-16 00:06:09.077	e6c7d222-3207-4b79-bf0e-3e2729711355
+c0f11120-e8de-4933-9f50-be0abdbfdff1	System Architecture Mastery	Enterprise certified.	2026-04-16 00:06:09.185	1e301891-0e94-4443-b8dc-7b0e67d05aa0
+29672b16-0777-411b-8eac-95de3f621f2d	Advanced React Patterns	Enterprise certified.	2026-04-16 00:06:09.188	1e301891-0e94-4443-b8dc-7b0e67d05aa0
+367e27fd-c34c-47a5-be04-286ec57750ee	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:09.277	4f5d0a1b-abe3-40fa-82af-875df5259a71
+404dbac9-5d25-40d7-b066-583254c77742	Agile Methodologies	Enterprise certified.	2026-04-16 00:06:09.36	185d77ac-c536-4c25-9d76-3dcf5d1d8763
+a56d8662-686d-4e1c-85d5-3057cd769c6a	OWASP Security Training	Enterprise certified.	2026-04-16 00:06:09.361	185d77ac-c536-4c25-9d76-3dcf5d1d8763
+d10a9d1f-d0e3-4bd8-b51f-f0d53c0a189c	Python for Data Science	Enterprise certified.	2026-04-16 00:06:09.364	185d77ac-c536-4c25-9d76-3dcf5d1d8763
+\.
+
+
+--
+-- Data for Name: User; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."User" (id, email, "passwordHash", name, role, "createdAt") FROM stdin;
+20f1e5ce-7792-42ce-b465-e6764fc9d46d	hr@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Sarah Chen	HR	2026-04-15 18:36:03.9
+ad644a94-f98d-4e72-9fd0-c69447f09c61	manager1@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Marcus Thorne	MANAGER	2026-04-15 18:36:03.983
+42f29983-6229-4f6c-9176-5aa6a1ba9f7c	manager2@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Elena Rodriguez	MANAGER	2026-04-15 18:36:04.005
+4b9b3ad2-d965-4e45-bbc7-e9d9b4f9af89	manager3@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Silas Vance	MANAGER	2026-04-15 18:36:04.012
+aa7cccf3-4edb-4a42-87df-41261f3b77b2	manager4@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Maya Okafor	MANAGER	2026-04-15 18:36:04.02
+d4a5f799-2f5f-4356-9ac2-c7741c99ab5d	manager5@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Kaelen Voss	MANAGER	2026-04-15 18:36:04.026
+4ade028d-cbfb-45ae-b2da-b74b8c8eef8a	manager6@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Jaxon Reed	MANAGER	2026-04-15 18:36:04.034
+a4d7a9dd-e2d5-4e1f-aa46-270c08c61d84	manager7@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Aria Sterling	MANAGER	2026-04-15 18:36:04.042
+bce2ceb7-841a-4f29-a7fc-3d1d0b13b73d	manager8@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Leo Castellan	MANAGER	2026-04-15 18:36:04.049
+e8c1ccbd-3722-4f57-83bf-e55806ee88c6	manager9@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Nadia Volkov	MANAGER	2026-04-15 18:36:04.057
+b8fb5b06-5ba1-4b53-97de-0f5fd735c73b	manager10@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Julian Cross	MANAGER	2026-04-15 18:36:04.064
+247df865-0802-450f-994b-a7c9581f7a87	user1@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Alex Rivera	EMPLOYEE	2026-04-15 18:36:04.142
+20e1523e-19b0-4103-b411-c65151555e82	user2@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Jordan Smith	EMPLOYEE	2026-04-15 18:36:04.32
+b39ddc58-6212-46bb-9cab-e59568337275	user3@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Taylor Reed	EMPLOYEE	2026-04-15 18:36:04.449
+af0bbab8-3b33-4ff7-b88e-11c4699da50b	user4@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Morgan Page	EMPLOYEE	2026-04-15 18:36:04.566
+d674df84-6046-430c-9694-b2f7516f202c	user5@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Casey Vlogs	EMPLOYEE	2026-04-15 18:36:04.652
+da706c4a-8b92-4d33-8975-a97639743688	user6@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Jamie Lan	EMPLOYEE	2026-04-15 18:36:04.743
+1aa5f621-4a09-4117-b2b9-661d35c4d4bc	user7@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Riley West	EMPLOYEE	2026-04-15 18:36:04.834
+ab97f1fd-5c85-49cd-8dc4-05220db2ea99	user8@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Dakota Skye	EMPLOYEE	2026-04-15 18:36:04.911
+2a023e98-8c19-4530-9921-69200099e4e9	user9@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Peyton Manning	EMPLOYEE	2026-04-15 18:36:05.012
+8929de17-01c9-4486-bde1-caec1ed32ef2	user10@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Skyler Blue	EMPLOYEE	2026-04-15 18:36:05.105
+85dea961-0141-4140-b9c6-f3dfd14e26a9	user11@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Quinn Fabray	EMPLOYEE	2026-04-15 18:36:05.221
+4276e67e-f4b1-4ebf-9ad5-e99b8f6ff459	user12@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Avery Brooks	EMPLOYEE	2026-04-15 18:36:05.38
+bd6f42c0-60c5-4b7e-894a-524c311d026f	user13@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Charlie Day	EMPLOYEE	2026-04-15 18:36:05.482
+fee61f1c-1907-427e-ba7b-8ff0d67b8bf8	user14@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Blake Lively	EMPLOYEE	2026-04-15 18:36:05.572
+f563015a-2a62-4e5d-b494-e76712c3fc00	user15@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Drew Berry	EMPLOYEE	2026-04-15 18:36:05.663
+0b0f005d-3943-4384-8f1b-b6210e5071e5	user16@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Logan Paul	EMPLOYEE	2026-04-15 18:36:05.775
+895f4fc3-59f8-4aea-870f-b20abc918ffe	user17@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Sasha Banks	EMPLOYEE	2026-04-15 18:36:05.85
+e7d09ede-899c-4b1d-a224-98865fd411bd	user18@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Reese Spoon	EMPLOYEE	2026-04-15 18:36:05.929
+2dcdf168-3b3c-4839-93b1-f18a1d089d02	user19@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Emery Stone	EMPLOYEE	2026-04-15 18:36:06.03
+7788fc3c-93f4-469b-879b-243d7f9623ec	user20@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Parker Posey	EMPLOYEE	2026-04-15 18:36:06.121
+3f5ac343-f9a7-43cc-948b-9ad2b4d814f9	user21@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Hayden Pan	EMPLOYEE	2026-04-15 18:36:06.226
+4aec8e3d-20c3-43c2-84e8-2c04e4f37436	user22@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Finley Faith	EMPLOYEE	2026-04-15 18:36:06.335
+6a4ada48-0604-4d1f-abef-a3e921a9acb3	user23@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Justice Moore	EMPLOYEE	2026-04-15 18:36:06.41
+714c5335-de73-4dd7-87bb-e59cfd464af1	user24@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Remi Gaillard	EMPLOYEE	2026-04-15 18:36:06.523
+17527b7e-8e00-4412-8e70-1bfcafde77bb	user25@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Sam Winchester	EMPLOYEE	2026-04-15 18:36:06.612
+3d4681a2-47e9-4e57-902e-2c16de8e378e	user26@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Dean Howell	EMPLOYEE	2026-04-15 18:36:06.745
+f04a02a3-d5f1-407c-b530-9e36d9970c64	user27@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Castiel Novak	EMPLOYEE	2026-04-15 18:36:06.841
+6054f413-2fa0-4af4-8784-2a0697ce75b8	user28@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Bobby Singer	EMPLOYEE	2026-04-15 18:36:06.936
+b051acfb-90bf-46a2-b587-2c2f9c3c0a10	user29@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Ellen Harvelle	EMPLOYEE	2026-04-15 18:36:07.04
+c0ed9381-c09e-436c-ab26-952b1b31b854	user30@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Jo Beth	EMPLOYEE	2026-04-15 18:36:07.214
+84a1c259-5964-4570-95d9-1299bc8b8258	user31@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Ruby Rose	EMPLOYEE	2026-04-15 18:36:07.308
+73ee0600-4ec0-4b3e-aa67-8ed8fdb92186	user32@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Bela Talbot	EMPLOYEE	2026-04-15 18:36:07.387
+b19cfec7-d521-4444-a0ab-481c6ea05158	user33@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Gabriel Arch	EMPLOYEE	2026-04-15 18:36:07.523
+1e287884-c4dc-4ecf-b418-e8e42ff75627	user34@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Lucifer Morning	EMPLOYEE	2026-04-15 18:36:07.656
+86afda8b-8abf-4611-80d7-90d5b18e0695	user35@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Crowley King	EMPLOYEE	2026-04-15 18:36:07.769
+ab9406dc-d4cc-4844-af8b-3ceb1b0b4372	user36@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Rowena Mac	EMPLOYEE	2026-04-15 18:36:07.861
+a135b85e-cf22-44be-a014-cc6116529fc9	user37@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Kevin Tran	EMPLOYEE	2026-04-15 18:36:07.949
+7ae07d1f-d90d-413e-b1cb-790033f947ce	user38@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Charlie Bradbury	EMPLOYEE	2026-04-15 18:36:08.058
+48aecaf6-373f-4012-9f9b-fae916047cc4	user39@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Jody Mills	EMPLOYEE	2026-04-15 18:36:08.151
+100173fc-a655-4859-8bdb-33e695033fbf	user40@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Donna Hans	EMPLOYEE	2026-04-15 18:36:08.234
+4638bdfb-2236-4901-8642-fc22bb4b936d	user41@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Claire Novak	EMPLOYEE	2026-04-15 18:36:08.325
+06eb1dbf-88c1-490a-90a7-a5f91156e8f9	user42@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Kaia Nieves	EMPLOYEE	2026-04-15 18:36:08.427
+39312998-cf88-478d-a27a-a9a75787b9fe	user43@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Eileen Leahy	EMPLOYEE	2026-04-15 18:36:08.551
+06268a07-934e-41e5-9526-15687e490453	user44@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Meg Masters	EMPLOYEE	2026-04-15 18:36:08.676
+5229418e-accc-47a3-aa8e-e630ecb2df9d	user45@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Ash Miles	EMPLOYEE	2026-04-15 18:36:08.808
+9a2dfa20-1be0-4e72-a26c-8d059f71cdd8	user46@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Garth Fitz	EMPLOYEE	2026-04-15 18:36:08.945
+d5afc715-6859-4fb4-a128-b535547d272e	user47@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Benny Lafitte	EMPLOYEE	2026-04-15 18:36:09.06
+cf9235d4-c3a1-4fd2-8822-e1379208c5ac	user48@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Jack Kline	EMPLOYEE	2026-04-15 18:36:09.171
+c6b5fe02-5974-4c38-8eee-62fec0916b76	user49@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Amara Dark	EMPLOYEE	2026-04-15 18:36:09.268
+ace90216-fa2c-4ac5-ad89-645cb71736d0	user50@luminous.com	$pbkdf2-sha256$29000$BiAkJGRsbY3ROse4F0IoxQ$TTebbcn9zLevFlRvJ6MU9p5qfka4jbM//oEeCVbWeWA	Chuck Shurley	EMPLOYEE	2026-04-15 18:36:09.35
+\.
+
+
+--
+-- Name: Achievement Achievement_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Achievement"
+    ADD CONSTRAINT "Achievement_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Bug Bug_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Bug"
+    ADD CONSTRAINT "Bug_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Commit Commit_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Commit"
+    ADD CONSTRAINT "Commit_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: EmployeeProfile EmployeeProfile_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."EmployeeProfile"
+    ADD CONSTRAINT "EmployeeProfile_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: EmployeeSkill EmployeeSkill_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."EmployeeSkill"
+    ADD CONSTRAINT "EmployeeSkill_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Milestone Milestone_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Milestone"
+    ADD CONSTRAINT "Milestone_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: PerformanceReview PerformanceReview_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."PerformanceReview"
+    ADD CONSTRAINT "PerformanceReview_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: ProjectHistory ProjectHistory_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."ProjectHistory"
+    ADD CONSTRAINT "ProjectHistory_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Project Project_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Project"
+    ADD CONSTRAINT "Project_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Team Team_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Team"
+    ADD CONSTRAINT "Team_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Ticket Ticket_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Ticket"
+    ADD CONSTRAINT "Ticket_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Training Training_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Training"
+    ADD CONSTRAINT "Training_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: User User_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."User"
+    ADD CONSTRAINT "User_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Commit_hash_key; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "Commit_hash_key" ON public."Commit" USING btree (hash);
+
+
+--
+-- Name: EmployeeProfile_userId_key; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "EmployeeProfile_userId_key" ON public."EmployeeProfile" USING btree ("userId");
+
+
+--
+-- Name: Project_name_key; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "Project_name_key" ON public."Project" USING btree (name);
+
+
+--
+-- Name: Team_name_key; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "Team_name_key" ON public."Team" USING btree (name);
+
+
+--
+-- Name: User_email_key; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "User_email_key" ON public."User" USING btree (email);
+
+
+--
+-- Name: Achievement Achievement_teamId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Achievement"
+    ADD CONSTRAINT "Achievement_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES public."Team"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Bug Bug_ownerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Bug"
+    ADD CONSTRAINT "Bug_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Bug Bug_projectId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Bug"
+    ADD CONSTRAINT "Bug_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES public."Project"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Bug Bug_reporterId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Bug"
+    ADD CONSTRAINT "Bug_reporterId_fkey" FOREIGN KEY ("reporterId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: Bug Bug_resolverId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Bug"
+    ADD CONSTRAINT "Bug_resolverId_fkey" FOREIGN KEY ("resolverId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Commit Commit_projectId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Commit"
+    ADD CONSTRAINT "Commit_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES public."Project"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Commit Commit_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Commit"
+    ADD CONSTRAINT "Commit_userId_fkey" FOREIGN KEY ("userId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: EmployeeProfile EmployeeProfile_projectId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."EmployeeProfile"
+    ADD CONSTRAINT "EmployeeProfile_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES public."Project"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: EmployeeProfile EmployeeProfile_teamId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."EmployeeProfile"
+    ADD CONSTRAINT "EmployeeProfile_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES public."Team"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: EmployeeProfile EmployeeProfile_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."EmployeeProfile"
+    ADD CONSTRAINT "EmployeeProfile_userId_fkey" FOREIGN KEY ("userId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: EmployeeSkill EmployeeSkill_profileId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."EmployeeSkill"
+    ADD CONSTRAINT "EmployeeSkill_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES public."EmployeeProfile"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Milestone Milestone_projectId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Milestone"
+    ADD CONSTRAINT "Milestone_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES public."Project"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: PerformanceReview PerformanceReview_reviewerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."PerformanceReview"
+    ADD CONSTRAINT "PerformanceReview_reviewerId_fkey" FOREIGN KEY ("reviewerId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: PerformanceReview PerformanceReview_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."PerformanceReview"
+    ADD CONSTRAINT "PerformanceReview_userId_fkey" FOREIGN KEY ("userId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: ProjectHistory ProjectHistory_projectId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."ProjectHistory"
+    ADD CONSTRAINT "ProjectHistory_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES public."Project"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: ProjectHistory ProjectHistory_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."ProjectHistory"
+    ADD CONSTRAINT "ProjectHistory_userId_fkey" FOREIGN KEY ("userId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Project Project_managerId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Project"
+    ADD CONSTRAINT "Project_managerId_fkey" FOREIGN KEY ("managerId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: Project Project_teamId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Project"
+    ADD CONSTRAINT "Project_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES public."Team"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Team Team_leadId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Team"
+    ADD CONSTRAINT "Team_leadId_fkey" FOREIGN KEY ("leadId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: Ticket Ticket_assigneeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Ticket"
+    ADD CONSTRAINT "Ticket_assigneeId_fkey" FOREIGN KEY ("assigneeId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Ticket Ticket_closedById_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Ticket"
+    ADD CONSTRAINT "Ticket_closedById_fkey" FOREIGN KEY ("closedById") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Ticket Ticket_openedById_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Ticket"
+    ADD CONSTRAINT "Ticket_openedById_fkey" FOREIGN KEY ("openedById") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: Ticket Ticket_projectId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Ticket"
+    ADD CONSTRAINT "Ticket_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES public."Project"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Training Training_profileId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Training"
+    ADD CONSTRAINT "Training_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES public."EmployeeProfile"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict Aj3FRZrYs35p5BRDSwTuBzmSTRNkJJdaFf6IbfGLAHRVMJoospRN36ZJNRLxzT5
+

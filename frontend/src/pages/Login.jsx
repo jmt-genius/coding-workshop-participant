@@ -13,10 +13,11 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
     e?.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/auth/login', {
+      const response = await axios.post(`${API_BASE}/api/auth-service`, {
         email,
         password
       });
@@ -36,10 +37,11 @@ const Login = () => {
   };
 
   const handleQuickNodeAccess = (nodeEmail) => {
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
     setEmail(nodeEmail);
     setPassword('Tarun2004');
     setTimeout(() => {
-        axios.post('http://localhost:8000/auth/login', {
+        axios.post(`${API_BASE}/api/auth-service`, {
             email: nodeEmail,
             password: 'Tarun2004'
         }).then(response => {

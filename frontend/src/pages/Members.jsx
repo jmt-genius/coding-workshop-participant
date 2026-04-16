@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Search, MapPin, Users, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 const Members = () => {
   const [members, setMembers] = useState([]);
@@ -14,7 +14,7 @@ const Members = () => {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const response = await axios.get(`${API_BASE}/employees`);
+        const response = await axios.get(`${API_BASE}/api/employees-service`);
         setMembers(response.data);
       } catch (err) {
         console.error("Failed to fetch members", err);

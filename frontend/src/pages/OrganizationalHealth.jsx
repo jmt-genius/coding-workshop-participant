@@ -42,20 +42,28 @@ const OrganizationalHealth = () => {
 
       {/* Vital Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {healthScores.map((h, i) => (
-          <div key={i} className="bg-surface-container-low p-8 rounded-[2rem] border border-outline-variant/5 hover:border-success/30 transition-all group relative overflow-hidden">
-            <div className="flex justify-between items-start mb-6">
-               <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-60">{h.label}</span>
-               <span className={`text-xs font-bold text-${h.trend.startsWith('+') ? 'success' : 'error'}`}>{h.trend}</span>
+        {healthScores.map((h, i) => {
+          const shadowClasses = {
+            primary: 'group-hover:shadow-[0_0_12px_rgba(var(--color-primary-rgb),0.4)]',
+            secondary: 'group-hover:shadow-[0_0_12px_rgba(var(--color-secondary-rgb),0.4)]',
+            success: 'group-hover:shadow-[0_0_12px_rgba(var(--color-success-rgb),0.4)]',
+          };
+          
+          return (
+            <div key={i} className="bg-surface-container-low p-8 rounded-[2rem] border border-outline-variant/5 hover:border-success/30 transition-all group relative overflow-hidden">
+              <div className="flex justify-between items-start mb-6">
+                 <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-60">{h.label}</span>
+                 <span className={`text-xs font-bold text-${h.trend.startsWith('+') ? 'success' : 'error'}`}>{h.trend}</span>
+              </div>
+              <div className="flex items-end gap-2 mb-4">
+                 <h3 className="text-4xl font-black text-on-surface tracking-tighter">{h.score}<span className="text-xl text-on-surface-variant">%</span></h3>
+              </div>
+              <div className="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+                 <div className={`h-full bg-${h.color} ${shadowClasses[h.color] || ''} transition-all duration-1000`} style={{ width: `${h.score}%` }}></div>
+              </div>
             </div>
-            <div className="flex items-end gap-2 mb-4">
-               <h3 className="text-4xl font-black text-on-surface tracking-tighter">{h.score}<span className="text-xl text-on-surface-variant">%</span></h3>
-            </div>
-            <div className="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-               <div className={`h-full bg-${h.color} group-hover:shadow-[0_0_12px_rgba(var(--color-${h.color}-rgb),0.4)] transition-all duration-1000`} style={{ width: `${h.score}%` }}></div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Analysis Section */}

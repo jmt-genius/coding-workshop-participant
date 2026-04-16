@@ -64,7 +64,7 @@ const TeamVelocity = () => {
                       <span className={`text-xl font-black text-${v.color}`}>{v.val}%</span>
                     </div>
                     <div className="w-full h-3 bg-surface-container-high rounded-full overflow-hidden shadow-inner">
-                      <div className={`h-full bg-gradient-to-r from-${v.color} to-${v.color}-dim rounded-full shadow-[0_0_12px_rgba(var(--color-${v.color}-rgb),0.3)] transition-all duration-1000`} style={{ width: `${v.val}%` }}></div>
+                      <div className={`h-full bg-gradient-to-r from-${v.color} to-${v.color}-dim rounded-full transition-all duration-1000`} style={{ width: `${v.val}%`, boxShadow: `0 0 12px rgba(var(--color-${v.color}-rgb), 0.3)` }}></div>
                     </div>
                   </div>
                 ))}

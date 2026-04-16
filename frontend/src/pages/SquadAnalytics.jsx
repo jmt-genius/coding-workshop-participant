@@ -8,7 +8,7 @@ import {
   Search, Filter, Crown
 } from 'lucide-react';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 const SquadAnalytics = () => {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ const SquadAnalytics = () => {
     try {
       // Filter teams by logged-in manager's ID
       const params = user?.id ? { leadId: user.id } : {};
-      const response = await axios.get(`${API_BASE}/teams`, { params });
+      const response = await axios.get(`${API_BASE}/api/teams-service`, { params });
       setTeams(response.data);
       if (response.data.length > 0) {
         await handleTeamSelect(response.data[0].id);
@@ -42,7 +42,7 @@ const SquadAnalytics = () => {
   const handleTeamSelect = async (id) => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${API_BASE}/analytics/squad/${id}`);
+      const response = await axios.get(`${API_BASE}/api/analytics-service/squad/${id}`);
       setSquadData(response.data);
       setSelectedTeam(id);
     } catch (err) {

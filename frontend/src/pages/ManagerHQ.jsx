@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 const ManagerHQ = () => {
   const { user } = useSelector((state) => state.auth);
@@ -31,7 +31,7 @@ const ManagerHQ = () => {
 
   const fetchProjectData = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/projects/manager/${user.id}`);
+      const response = await axios.get(`${API_BASE}/api/projects-service/manager/${user.id}`);
       setProjects(response.data);
       if (activeProject) {
         // Refresh active project data
@@ -58,11 +58,11 @@ const ManagerHQ = () => {
       };
 
       if (activeLogType === 'commit') {
-        endpoint = '/logs/commit';
+        endpoint = 'commit';
         payload.message = title || "Feature implementation";
         payload.impact = parseFloat(extraInfo);
       } else if (activeLogType === 'ticket') {
-        endpoint = '/logs/ticket';
+        endpoint = 'ticket';
         payload.title = title || "Task Resolution";
         payload.difficulty = parseFloat(extraInfo);
         payload.status = 'CLOSED';
@@ -70,7 +70,7 @@ const ManagerHQ = () => {
         payload.closedById = selectedMember;
         payload.assigneeId = selectedMember;
       } else {
-        endpoint = '/logs/bug';
+        endpoint = 'bug';
         payload.title = title || "System Exception";
         payload.severity = extraInfo > 3 ? 'CRITICAL' : (extraInfo > 2 ? 'HIGH' : 'MEDIUM');
         payload.reporterId = user.id;
@@ -78,7 +78,7 @@ const ManagerHQ = () => {
         payload.status = 'OPEN';
       }
 
-      await axios.post(`${API_BASE}${endpoint}`, payload);
+      await axios.post(`${API_BASE}/api/logs-service/${endpoint}`, payload);
       setTitle('');
       await fetchProjectData(); // Refresh data
       alert("Activity Recorded Successfully.");

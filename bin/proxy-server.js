@@ -63,7 +63,15 @@ const server = http.createServer((req, res) => {
   }
 
   const endpointName = pathParts[1];
-  const targetUrl = endpoints[endpointName] + (parsedUrl.search || '');
+  const remainingPath = pathParts.slice(2).join('/');
+  
+  // Clean up the target base URL (remove trailing slash)
+  let baseUrl = endpoints[endpointName];
+  if (baseUrl && baseUrl.endsWith('/')) {
+    baseUrl = baseUrl.slice(0, -1);
+  }
+  
+  const targetUrl = baseUrl + (remainingPath ? '/' + remainingPath : '') + (parsedUrl.search || '');
 
   if (!targetUrl) {
     res.writeHead(404, { 'Content-Type': 'application/json' });

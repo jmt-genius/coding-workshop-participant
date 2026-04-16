@@ -34,11 +34,12 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
     const fetchData = async () => {
       try {
         const [globalRes, teamsRes] = await Promise.all([
-          axios.get('http://localhost:8000/analytics/global'),
-          axios.get('http://localhost:8000/teams')
+          axios.get(`${API_BASE}/api/analytics-service/global`),
+          axios.get(`${API_BASE}/api/teams-service`)
         ]);
         setAnalytics(globalRes.data);
         setSquads(teamsRes.data);

@@ -7,7 +7,7 @@ import {
   Terminal, ShieldCheck, Zap, Globe
 } from 'lucide-react';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 const MemberProfile = () => {
   const { id } = useParams();
@@ -17,7 +17,7 @@ const MemberProfile = () => {
   useEffect(() => {
     const fetchMember = async () => {
       try {
-        const response = await axios.get(`${API_BASE}/employees/${id}`);
+        const response = await axios.get(`${API_BASE}/api/employees-service/${id}`);
         setMember(response.data);
       } catch (err) {
         console.error("Failed to load profile", err);

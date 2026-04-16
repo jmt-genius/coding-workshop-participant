@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Database, Plus, Users, Award, ShieldAlert, TrendingUp, Save } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 const StatCard = ({ icon: Icon, title, count, color }) => (
   <div className="bg-surface-container rounded-3xl p-6 shadow-xl border-none transition-all hover:scale-[1.02] group">
@@ -32,8 +32,8 @@ const DataManagement = () => {
   const fetchInitialData = async () => {
     try {
       const [usersRes, teamsRes] = await Promise.all([
-        axios.get(`${API_BASE}/users`),
-        axios.get(`${API_BASE}/teams`)
+        axios.get(`${API_BASE}/api/employees-service/users`),
+        axios.get(`${API_BASE}/api/teams-service`)
       ]);
       setUsers(usersRes.data);
       setTeams(teamsRes.data);
@@ -46,7 +46,7 @@ const DataManagement = () => {
     e.preventDefault();
     if (!selectedUser) return;
     try {
-      await axios.post(`${API_BASE}/employees/metrics`, {
+      await axios.post(`${API_BASE}/api/employees-service/metrics`, {
         userId: selectedUser,
         metrics: metrics
       });
@@ -59,7 +59,7 @@ const DataManagement = () => {
   const handleCreateTeam = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_BASE}/teams`, { name: teamName, leadId: teamLead });
+      await axios.post(`${API_BASE}/api/teams-service`, { name: teamName, leadId: teamLead });
       setTeamName('');
       fetchInitialData();
       alert("Team created successfully!");
