@@ -60,7 +60,7 @@ const IndividualsManagement = () => {
         <div className="max-w-2xl">
           <div className="flex items-center gap-3 mb-2">
             <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(135,173,255,0.5)]"></span>
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant italic">Global Workforce</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant">Global Workforce</span>
           </div>
           <h1 className="text-5xl font-black text-on-surface tracking-tighter leading-tight mb-4">
             Individual Progress <span className="text-primary">&</span> Skills Tracker

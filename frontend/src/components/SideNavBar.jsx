@@ -41,7 +41,7 @@ const SideNavBar = () => {
         </div>
         <div>
           <h2 className="text-lg font-black text-on-surface leading-none tracking-tighter">HQ Ops</h2>
-          <p className="text-[9px] text-primary uppercase font-black tracking-widest mt-1 italic">{role} Portal</p>
+          <p className="text-[9px] text-primary uppercase font-black tracking-widest mt-1">{role} Portal</p>
         </div>
       </div>
 
@@ -67,7 +67,14 @@ const SideNavBar = () => {
             <NavLink to="/dashboard" icon="dashboard" label="Global Dashboard" isActive={isActive('/dashboard')} />
             {role === 'MANAGER' && <NavLink to="/dashboard/manager" icon="business_center" label="Project Management" isActive={isActive('/dashboard/manager')} />}
             {role === 'MANAGER' && <NavLink to="/dashboard/team-management" icon="group" label="Team Management" isActive={isActive('/dashboard/team-management')} />}
+            <NavLink to="/dashboard/calendar" icon="calendar_month" label="Calendar" isActive={isActive('/dashboard/calendar')} />
             <NavLink to="/dashboard/squad" icon="groups" label="Team Intelligence" isActive={isActive('/dashboard/squad')} />
+          </SideNavGroup>
+        )}
+
+        {role === 'EMPLOYEE' && (
+          <SideNavGroup title="Team">
+            <NavLink to="/dashboard/calendar" icon="calendar_month" label="Calendar" isActive={isActive('/dashboard/calendar')} />
           </SideNavGroup>
         )}
 

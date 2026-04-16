@@ -27,10 +27,10 @@ const TalentDensityHub = () => {
               </div>
             ))}
           </div>
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary italic">Global Operations Hub</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Global Operations Hub</span>
         </div>
         <h1 className="text-5xl font-black text-on-surface tracking-tighter leading-tight mb-4">
-          Global Talent <span className="text-primary italic">Density</span> Hub
+          Global Talent <span className="text-primary">Density</span> Hub
         </h1>
         <p className="text-on-surface-variant text-lg font-medium leading-relaxed">
           Advanced structural mapping and leadership distribution metrics across global operations. Monitor organizational health and reporting velocity.
@@ -153,7 +153,7 @@ const TalentDensityHub = () => {
       </div>
 
       {/* Footer Info */}
-      <footer className="pt-10 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-4 opacity-50 italic">
+      <footer className="pt-10 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-4 opacity-50">
         <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
            Organizational Mapping V4.1 // Real-time Synchronization
         </p>

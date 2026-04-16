@@ -26,7 +26,7 @@ const SystemStatus = () => {
              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-60">Real-time Infrastructure Monitoring</span>
           </div>
           <h1 className="text-5xl font-black text-on-surface tracking-tighter leading-tight mb-4">
-            System Status & <span className="text-primary italic">Security</span>
+            System Status & <span className="text-primary">Security</span>
           </h1>
           <p className="text-on-surface-variant text-lg font-medium leading-relaxed">
             Global operational overview of infrastructure health and privacy protocol enforcement. Secure nodes are processing at peak efficiency with zero non-conformities.
@@ -105,7 +105,7 @@ const SystemStatus = () => {
                     <Shield size={20} className="text-secondary" />
                     <h3 className="text-xl font-black text-on-surface">Security Audit Log</h3>
                  </div>
-                 <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-50 italic">Last 24 Hours</span>
+                 <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-50">Last 24 Hours</span>
               </div>
               <div className="space-y-4 font-mono text-[11px]">
                  {[
@@ -116,7 +116,7 @@ const SystemStatus = () => {
                  ].map((log, i) => (
                    <div key={i} className="flex gap-4 p-4 rounded-xl hover:bg-surface-container transition-all group/log">
                       <span className="text-secondary opacity-50">{log.t}</span>
-                      <span className="text-on-surface-variant flex-1 italic group-hover:text-on-surface transition-colors">{log.e}</span>
+                      <span className="text-on-surface-variant flex-1 group-hover:text-on-surface transition-colors">{log.e}</span>
                       <span className={`font-black uppercase tracking-widest ${log.s === 'Success' ? 'text-success' : log.s === 'Handled' ? 'text-primary' : 'text-on-surface-variant'}`}>
                          [{log.s}]
                       </span>
@@ -128,7 +128,7 @@ const SystemStatus = () => {
       </div>
 
       {/* Footer System Status */}
-      <footer className="pt-10 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-4 opacity-50 italic px-2">
+      <footer className="pt-10 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-4 opacity-50 px-2">
          <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
             Encrypted System Overview // Security Level 4 // Node: Central-01
          </p>

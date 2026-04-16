@@ -58,7 +58,7 @@ const MemberProfile = () => {
           </div>
           <div className="text-center lg:text-left">
             <h1 className="text-4xl font-black text-on-surface tracking-tighter mb-2">{member.name}</h1>
-            <p className="text-on-surface-variant font-black uppercase tracking-[0.2em] text-[10px] opacity-40 italic mb-6">
+            <p className="text-on-surface-variant font-black uppercase tracking-[0.2em] text-[10px] opacity-40 mb-6">
               {member.profile?.specialization || 'Strategic Engineer'} • {member.profile?.team?.name || 'Global Ops'}
             </p>
             <div className="flex flex-wrap justify-center lg:justify-start gap-2">
@@ -152,10 +152,10 @@ const MemberProfile = () => {
                  {member.profile?.promotionReady && (
                     <div className="p-4 bg-primary/10 rounded-2xl flex items-center gap-4 border border-primary/20">
                        <ShieldCheck size={24} className="text-primary" />
-                       <p className="text-[10px] font-black uppercase tracking-widest text-primary italic">Promoted to High-Potential Pool</p>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-primary">Promoted to High-Potential Pool</p>
                     </div>
                  )}
-                 <p className="text-xs text-on-surface-variant font-medium leading-relaxed italic opacity-70">
+                 <p className="text-xs text-on-surface-variant font-medium leading-relaxed opacity-70">
                     This engineer has consistently maintained a high delivery cadence and has shown exceptional adaptability to the current tech stack.
                  </p>
               </div>
@@ -175,7 +175,7 @@ const MemberProfile = () => {
                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                           <div className="flex-1">
                              <h4 className="text-lg font-black text-on-surface tracking-tight uppercase leading-none mb-2">{entry.project.name}</h4>
-                             <p className="text-[10px] font-black text-on-surface-variant opacity-40 uppercase tracking-widest italic">{entry.role}</p>
+                             <p className="text-[10px] font-black text-on-surface-variant opacity-40 uppercase tracking-widest">{entry.role}</p>
                           </div>
                           <div className="text-right">
                              <span className="px-3 py-1 bg-surface-container-high rounded-full text-[9px] font-black uppercase tracking-widest text-on-surface-variant">
@@ -207,9 +207,9 @@ const MemberProfile = () => {
                              ))}
                            </div>
                        </div>
-                       <p className="text-xs text-on-surface font-medium leading-relaxed italic opacity-80 mb-6">"{review.comments}"</p>
+                       <p className="text-xs text-on-surface font-medium leading-relaxed opacity-80 mb-6">"{review.comments}"</p>
                        <div className="text-right">
-                          <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-40 italic">
+                          <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-40">
                             — {review.reviewer?.name || 'Manager'}
                           </p>
                        </div>

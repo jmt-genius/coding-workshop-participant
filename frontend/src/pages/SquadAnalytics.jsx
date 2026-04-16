@@ -53,8 +53,12 @@ const SquadAnalytics = () => {
   };
 
   if (isLoading) return (
-    <div className="flex items-center justify-center min-h-[60vh] text-primary font-black uppercase tracking-widest animate-pulse">
-      Loading Team Intelligence...
+    <div className="p-12 animate-pulse space-y-8">
+      <div className="h-20 bg-surface-container rounded-3xl w-1/3"></div>
+      <div className="grid grid-cols-12 gap-8">
+        <div className="col-span-8 h-80 bg-surface-container rounded-[2rem]"></div>
+        <div className="col-span-4 h-80 bg-surface-container rounded-[2rem]"></div>
+      </div>
     </div>
   );
 
@@ -72,16 +76,16 @@ const SquadAnalytics = () => {
   );
 
   return (
-    <div className="p-8 lg:p-12 max-w-7xl mx-auto animate-in fade-in duration-700">
+    <div className="p-8 lg:p-12 max-w-7xl mx-auto">
       <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-8 h-8 rounded-xl bg-secondary/20 flex items-center justify-center">
               <BarChart3 size={16} className="text-secondary" />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary italic">Performance & Delivery</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary">Performance & Delivery</span>
           </div>
-          <h1 className="text-[3.5rem] font-black leading-[0.9] tracking-tighter text-on-surface">Team <span className="text-secondary italic">Analytics</span></h1>
+          <h1 className="text-[3.5rem] font-black leading-[0.9] tracking-tighter text-on-surface">Team Analytics</h1>
         </div>
         
         <div className="flex items-center gap-4 bg-surface-container rounded-2xl p-2 shadow-xl border-none">
@@ -105,7 +109,7 @@ const SquadAnalytics = () => {
           <div className="flex justify-between items-end mb-10">
             <div>
               <h3 className="text-2xl font-black text-on-surface tracking-tight mb-2">Employee Performance Ratings</h3>
-              <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-variant font-black opacity-40 italic">Individual Contribution Indices for {squadData.teamName}</p>
+              <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-variant font-black opacity-40">Individual Contribution Indices for {squadData.teamName}</p>
             </div>
             <div className="text-right">
               <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-1">Cluster Average</p>
@@ -142,7 +146,7 @@ const SquadAnalytics = () => {
                    >
                      <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-surface-container-highest px-4 py-2 rounded-2xl text-[10px] font-black opacity-0 group-hover/bar:opacity-100 transition-all shadow-2xl z-20 whitespace-nowrap scale-90 group-hover/bar:scale-100">
                        <span className={member.score > 8.5 ? 'text-primary' : member.score > 6 ? 'text-secondary' : 'text-error'}>
-                         {member.score.toFixed(1)} — {member.score > 8.5 ? 'ELITE' : member.score > 6 ? 'STABLE' : 'CRITICAL'}
+                         {member.score.toFixed(1)} {member.performanceRating ? `(Rating: ${member.performanceRating})` : ''} — {member.score > 8.5 ? 'ELITE' : member.score > 6 ? 'STABLE' : 'CRITICAL'}
                        </span>
                      </div>
                    </div>
@@ -168,14 +172,14 @@ const SquadAnalytics = () => {
                    <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover/ach:rotate-12 transition-transform">
                       <LayoutGrid size={14} />
                    </div>
-                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 italic">{new Date(ach.date).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</span>
+                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">{new Date(ach.date).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</span>
                 </div>
                 <h4 className="font-black text-on-surface tracking-tight uppercase text-sm mb-2 leading-tight group-hover/ach:text-primary transition-colors">{ach.title}</h4>
-                <p className="text-xs text-on-surface-variant font-medium leading-relaxed opacity-60 group-hover/ach:opacity-100 transition-opacity italic">{ach.description}</p>
+                <p className="text-xs text-on-surface-variant font-medium leading-relaxed opacity-60 group-hover/ach:opacity-100 transition-opacity">{ach.description}</p>
               </div>
             )) : (
               <div className="text-center py-20 opacity-20">
-                 <p className="text-[10px] font-black uppercase tracking-widest italic">Data Stream Empty</p>
+                 <p className="text-[10px] font-black uppercase tracking-widest">Data Stream Empty</p>
               </div>
             )}
           </div>
@@ -187,7 +191,7 @@ const SquadAnalytics = () => {
         <div className="flex items-center justify-between mb-10">
           <div>
             <h3 className="text-2xl font-black text-on-surface tracking-tight mb-2">Project Execution Milestones</h3>
-            <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-variant font-black opacity-40 italic">Lifecycle Tracking for Assigned Cluster Projects</p>
+            <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-variant font-black opacity-40">Lifecycle Tracking for Assigned Cluster Projects</p>
           </div>
         </div>
 
@@ -216,7 +220,7 @@ const SquadAnalytics = () => {
                       {ms.projectName}
                     </span>
                   </td>
-                  <td className="px-6 py-6 font-black text-on-surface-variant text-[10px] uppercase tracking-widest italic">
+                  <td className="px-6 py-6 font-black text-on-surface-variant text-[10px] uppercase tracking-widest">
                     {ms.duration}
                   </td>
                   <td className="px-6 py-6 text-sm font-black text-on-surface tracking-tighter">
@@ -230,7 +234,7 @@ const SquadAnalytics = () => {
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan="5" className="px-6 py-12 text-center text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-30 italic">
+                  <td colSpan="5" className="px-6 py-12 text-center text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-30">
                     No Project Milestones Defined for this Cluster
                   </td>
                 </tr>
@@ -246,7 +250,7 @@ const SquadAnalytics = () => {
            <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-2xl font-black text-on-surface tracking-tight mb-2">Delivery Throughput</h3>
-                <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-variant font-black opacity-40 italic">Team Rankings for {squadData.teamName}</p>
+                <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-variant font-black opacity-40">Team Rankings for {squadData.teamName}</p>
               </div>
               <Activity size={24} className="text-on-surface-variant opacity-10" />
            </div>
@@ -316,10 +320,10 @@ const SquadAnalytics = () => {
            </div>
 
            <div className="mt-10 pt-8 border-t border-on-surface/5">
-              <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-3 flex items-center gap-2 italic">
+              <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
                  <TrendingUp size={14} /> HR Suggestion
               </h4>
-              <p className="text-xs text-on-surface-variant font-medium leading-relaxed italic opacity-80 max-w-2xl">
+              <p className="text-xs text-on-surface-variant font-medium leading-relaxed opacity-80 max-w-2xl">
                 The current metrics suggest a high delivery baseline for {squadData.teamName}. 
                 {squadData.memberBreakdown.find(m => m.bugs > 2) ? " Quality drag is increasing due to risk accumulation amongst certain individuals." : " Maintain current peer-review protocols to preserve high quality yields."}
               </p>
@@ -329,7 +333,7 @@ const SquadAnalytics = () => {
         {/* Global Standings / Rankings */}
         <section className="col-span-12 lg:col-span-4 space-y-8">
            <div className="bg-surface-container rounded-[2.5rem] p-10 shadow-2xl border-none">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-40 mb-8 italic">Cluster Ranking</h3>
+              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-40 mb-8">Cluster Ranking</h3>
               <div className="space-y-6">
                  {teams.map((t, i) => (
                    <div key={t.id} className={`flex items-center justify-between p-4 rounded-2xl transition-all ${t.id === selectedTeam ? 'bg-primary/10 border border-primary/20' : 'bg-surface-container-low'}`}>

@@ -22,7 +22,7 @@ const LeadershipAlignment = () => {
         <div className="max-w-3xl">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-8 h-px bg-primary/50"></div>
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary italic">Structural Intelligence</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Structural Intelligence</span>
           </div>
           <h1 className="text-5xl font-black text-on-surface tracking-tighter leading-tight mb-4">
             Leadership <span className="text-primary">Alignment</span> Matrix
@@ -90,7 +90,7 @@ const LeadershipAlignment = () => {
              
              <div className="relative z-10 text-center space-y-2">
                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Node Analysis</p>
-                <h4 className="text-3xl font-black text-white tracking-tighter italic">Deep Scanning...</h4>
+                <h4 className="text-3xl font-black text-white tracking-tighter">Deep Scanning...</h4>
              </div>
           </div>
 
@@ -100,7 +100,7 @@ const LeadershipAlignment = () => {
                 <span className="text-[10px] font-black uppercase tracking-widest">Anomaly Detected</span>
              </div>
              <p className="text-sm font-medium text-on-surface-variant leading-relaxed">
-                Indirect reporting line density exceeded threshold in <span className="text-on-surface font-bold italic">Node-07 (European Cluster)</span>. Re-alignment recommended within 72 hours.
+                Indirect reporting line density exceeded threshold in <span className="text-on-surface font-bold">Node-07 (European Cluster)</span>. Re-alignment recommended within 72 hours.
              </p>
           </div>
         </div>

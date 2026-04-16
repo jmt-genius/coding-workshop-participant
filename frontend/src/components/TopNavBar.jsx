@@ -26,7 +26,7 @@ const TopNavBar = () => {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-dim flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
                <span className="material-symbols-outlined text-black text-lg font-bold" style={{fontVariationSettings: "'FILL' 1"}}>dataset</span>
             </div>
-            <span className="text-xl font-black text-on-surface tracking-tighter group-hover:text-primary transition-colors">Enterprise <span className="italic">Hub</span></span>
+            <span className="text-xl font-black text-on-surface tracking-tighter group-hover:text-primary transition-colors">Enterprise Hub</span>
           </Link>
         </div>
 
@@ -52,7 +52,7 @@ const TopNavBar = () => {
                          <div className="w-8 h-8 rounded-lg bg-success/10 text-success flex items-center justify-center flex-shrink-0">
                             <span className="material-symbols-outlined text-sm">check_circle</span>
                          </div>
-                         <p className="text-xs text-on-surface-variant font-medium leading-relaxed italic">Payment Gateway Project successfully completed.</p>
+                         <p className="text-xs text-on-surface-variant font-medium leading-relaxed">Payment Gateway Project successfully completed.</p>
                       </div>
                    </div>
                 </div>
@@ -79,7 +79,7 @@ const TopNavBar = () => {
           <Link to="/dashboard/employee-dashboard" className="group flex items-center gap-3 no-underline">
              <div className="hidden md:flex flex-col items-end text-right">
                 <span className="text-[10px] font-black text-on-surface leading-none uppercase tracking-widest">{user?.name || 'Guest User'}</span>
-                <span className="text-[9px] text-primary font-bold italic tracking-tighter mt-0.5">{user?.role || 'Visitor'} Mode</span>
+                <span className="text-[9px] text-primary font-bold tracking-tighter mt-0.5">{user?.role || 'Visitor'} Mode</span>
              </div>
              <div className="relative">
                 <img 

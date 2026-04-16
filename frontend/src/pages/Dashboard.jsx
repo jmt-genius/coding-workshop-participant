@@ -22,7 +22,7 @@ const StatCard = ({ title, value, subValue, trend, icon: Icon, color }) => (
     <div className="mt-8 h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
       <div className={`h-full bg-gradient-to-r ${color} transition-all duration-1000`} style={{ width: `${Math.min(value, 100)}%` }}></div>
     </div>
-    <p className="mt-4 text-[10px] font-bold text-on-surface-variant italic opacity-60">{subValue}</p>
+    <p className="mt-4 text-[10px] font-bold text-on-surface-variant opacity-60">{subValue}</p>
   </div>
 );
 
@@ -86,9 +86,9 @@ const Dashboard = () => {
             <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center">
               <Database size={16} className="text-primary" />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary italic">Global Analytics Console</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Global Analytics Console</span>
           </div>
-          <h1 className="text-[3.5rem] font-black leading-[0.9] tracking-tighter text-on-surface">Organization <span className="text-primary italic">Overview</span></h1>
+          <h1 className="text-[3.5rem] font-black leading-[0.9] tracking-tighter text-on-surface">Organization Overview</h1>
         </div>
         <div className="flex gap-4">
           <div className="bg-surface-container rounded-2xl px-6 py-3 flex items-center gap-4 shadow-lg border-none">
@@ -138,7 +138,7 @@ const Dashboard = () => {
           <div className="flex justify-between items-end mb-10">
             <div>
               <h3 className="text-2xl font-black text-on-surface tracking-tight mb-2">Cluster Performance Rankings</h3>
-              <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-variant font-black opacity-40 italic">Aggregated scoring metrics per team node</p>
+              <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-variant font-black opacity-40">Aggregated scoring metrics per team node</p>
             </div>
           </div>
           
@@ -200,7 +200,7 @@ const Dashboard = () => {
               </div>
               
               <div className="mt-12 bg-primary/5 rounded-[2rem] p-8">
-                 <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-6 italic">Top Internal Skills</h4>
+                 <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-6">Top Internal Skills</h4>
                  <div className="flex flex-wrap gap-3">
                    {analytics?.hrMetrics?.skillDistribution?.map(skill => (
                      <div key={skill.skill} className="bg-surface-container-high px-4 py-2 rounded-xl text-[10px] font-black text-on-surface tracking-widest uppercase border border-primary/10">

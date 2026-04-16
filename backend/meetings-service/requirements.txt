@@ -1,0 +1,4 @@
+psycopg[binary]>=3.1.0
+google-apps-meet>=0.1.0
+google-auth-httplib2>=0.2.0
+google-auth-oauthlib>=1.2.0

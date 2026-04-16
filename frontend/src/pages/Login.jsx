@@ -63,7 +63,7 @@ const Login = () => {
             </div>
             <div>
               <span className="text-2xl font-black tracking-tighter text-on-surface block leading-none">ENTERPRISE</span>
-              <span className="text-[10px] uppercase font-black tracking-[0.3em] text-primary italic">HR Portal</span>
+              <span className="text-[10px] uppercase font-black tracking-[0.3em] text-primary">HR Portal</span>
             </div>
           </div>
         </div>
@@ -71,7 +71,7 @@ const Login = () => {
         <div className="relative z-10 max-w-lg mb-20 animate-in fade-in slide-in-from-left-8 duration-700 delay-100">
           <h2 className="text-6xl font-black leading-[0.9] tracking-tighter text-on-surface mb-8">
             Orchestrate <br/> 
-            <span className="text-primary italic">Brilliance.</span>
+            <span className="text-primary">Brilliance.</span>
           </h2>
           <p className="text-xl text-on-surface-variant font-medium leading-relaxed opacity-80">
             The next generation of team management is here. Seamless project scaling and comprehensive HR analytics built for absolute clarity.
@@ -80,7 +80,7 @@ const Login = () => {
 
         {/* Quick Access Context */}
         <div className="relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-6 italic">Demo Accounts</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-6">Demo Accounts</p>
           <div className="flex gap-4">
              {[
                { email: 'hr@luminous.com', role: 'HR', name: 'HR Director', icon: ShieldAlert },
@@ -117,7 +117,7 @@ const Login = () => {
         <div className="w-full max-w-md space-y-12 relative z-10 animate-in fade-in zoom-in-95 duration-700">
           <header className="text-left">
             <h1 className="text-4xl font-black tracking-tighter text-on-surface mb-3">Welcome Back</h1>
-            <p className="text-on-surface-variant font-medium text-lg leading-relaxed opacity-70 italic">Continue your journey with the world's most precise team platform.</p>
+            <p className="text-on-surface-variant font-medium text-lg leading-relaxed opacity-70">Continue your journey with the world's most precise team platform.</p>
           </header>
 
           <div className="space-y-8">

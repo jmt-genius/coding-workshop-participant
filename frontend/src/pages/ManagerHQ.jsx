@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { 
   Briefcase, Users, Code, Ticket, Bug, ChevronRight, 
-  TrendingUp, Activity, ShieldAlert, Plus, BarChart3, Database, AlertCircle 
+  TrendingUp, Activity, ShieldAlert, Plus, BarChart3, Database, AlertCircle, FolderSync 
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -22,6 +22,9 @@ const ManagerHQ = () => {
   const [title, setTitle] = useState('');
   const [extraInfo, setExtraInfo] = useState(1.0); // impact/difficulty
   const [isLoading, setIsLoading] = useState(false);
+  const [engineers, setEngineers] = useState([]);
+  const [projectSelections, setProjectSelections] = useState({});
+  const [actionLoading, setActionLoading] = useState('');
 
   useEffect(() => {
     if (user?.id) {
@@ -31,16 +34,43 @@ const ManagerHQ = () => {
 
   const fetchProjectData = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/api/projects-service/manager/${user.id}`);
-      setProjects(response.data);
+      const [projectsRes, engineersRes] = await Promise.all([
+        axios.get(`${API_BASE}/api/projects-service/manager/${user.id}`),
+        axios.get(`${API_BASE}/api/employees-service/manager/${user.id}`),
+      ]);
+      setProjects(projectsRes.data);
+      setEngineers(engineersRes.data);
+      setProjectSelections(
+        Object.fromEntries(
+          engineersRes.data.map((eng) => [eng.id, eng.profile?.projectId || ''])
+        )
+      );
       if (activeProject) {
-        // Refresh active project data
-        setActiveProject(response.data.find(p => p.id === activeProject.id) || null);
+        setActiveProject(projectsRes.data.find(p => p.id === activeProject.id) || null);
       }
     } catch (err) {
       console.error("Failed to fetch manager data", err);
     } finally {
       setIsInitialLoading(false);
+    }
+  };
+
+  const runAction = async (payload, successMessage) => {
+    const key = `${payload.action}-${payload.userId}`;
+    setActionLoading(key);
+    try {
+      await axios.post(`${API_BASE}/api/employees-service/actions`, {
+        managerId: user.id,
+        ...payload,
+      });
+      await fetchProjectData();
+      if (successMessage) {
+        alert(successMessage);
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || error.response?.data?.error || 'Action failed.');
+    } finally {
+      setActionLoading('');
     }
   };
 
@@ -90,13 +120,18 @@ const ManagerHQ = () => {
   };
 
   if (isInitialLoading) return (
-    <div className="flex items-center justify-center min-h-[60vh] text-primary font-black uppercase tracking-widest animate-pulse">
-      Loading Project Data...
+    <div className="p-12 animate-pulse space-y-8">
+      <div className="h-20 bg-surface-container rounded-3xl w-1/3"></div>
+      <div className="grid grid-cols-12 gap-8">
+        <div className="col-span-4 h-64 bg-surface-container rounded-[2rem]"></div>
+        <div className="col-span-4 h-64 bg-surface-container rounded-[2rem]"></div>
+        <div className="col-span-4 h-64 bg-surface-container rounded-[2rem]"></div>
+      </div>
     </div>
   );
 
   return (
-    <div className="p-8 max-w-7xl mx-auto animate-in fade-in duration-700">
+    <div className="p-8 max-w-7xl mx-auto">
       <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="flex-1">
           <div className="flex items-center gap-4 mb-3">
@@ -104,16 +139,16 @@ const ManagerHQ = () => {
               <Briefcase size={24} />
             </div>
             <div className="flex items-center gap-6">
-              <h1 className="text-4xl font-black tracking-tighter text-on-surface">Project <span className="text-secondary italic">Management</span></h1>
+              <h1 className="text-4xl font-black tracking-tighter text-on-surface">Project Management</h1>
               <button className="bg-surface-container-high text-on-surface px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-surface-container-highest transition-all flex items-center gap-2 group active:scale-[0.98]">
                 <Plus size={14} className="group-hover:rotate-90 transition-transform" />
                 New Project
               </button>
             </div>
           </div>
-          <p className="text-on-surface-variant font-medium text-lg opacity-70 italic">
+          <p className="text-on-surface-variant font-medium text-lg opacity-70">
             {projects.length > 0 
-                ? <>Active Project: <span className="text-on-surface not-italic font-black text-primary uppercase tracking-widest ml-1">{activeProject?.name}</span></>
+                ? <>Active Project: <span className="text-on-surface font-black text-primary uppercase tracking-widest ml-1">{activeProject?.name}</span></>
                 : "No active projects assigned."
             }
           </p>
@@ -134,7 +169,7 @@ const ManagerHQ = () => {
 
       {/* Selection State or Management State */}
       {!activeProject ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12 animate-in slide-in-from-bottom-4 duration-500">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {projects.map(proj => (
             <div 
               key={proj.id} 
@@ -171,7 +206,7 @@ const ManagerHQ = () => {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left: Performance Logging */}
         <section className="lg:col-span-4 space-y-8">
           <div className="bg-surface-container rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden">
@@ -241,7 +276,7 @@ const ManagerHQ = () => {
             <h4 className="text-[9px] font-black uppercase tracking-widest mb-4 flex items-center gap-2">
               <Database size={14} className="text-primary" /> Manager Guidelines
             </h4>
-            <p className="text-xs text-on-surface-variant font-medium leading-relaxed italic">
+            <p className="text-xs text-on-surface-variant font-medium leading-relaxed">
               Regularly logging your engineers' activities helps HR track performance metrics and readiness for promotion accurately.
             </p>
           </div>
@@ -255,7 +290,7 @@ const ManagerHQ = () => {
                     <h3 className="text-2xl font-black text-on-surface tracking-tight flex items-center gap-3">
                        <Users size={24} className="text-primary" /> Project Engineering Team
                     </h3>
-                    <p className="text-[9px] uppercase tracking-[0.3em] font-black text-on-surface-variant mt-2 italic opacity-50">
+                    <p className="text-[9px] uppercase tracking-[0.3em] font-black text-on-surface-variant mt-2 opacity-50">
                         Required Tech Stack: {activeProject?.requiredSkills?.join(' • ') || 'None'}
                     </p>
                 </div>
@@ -294,7 +329,7 @@ const ManagerHQ = () => {
                       <div>
                         <h4 className="text-lg font-black text-on-surface tracking-tight">{member.name}</h4>
                         <div className="flex items-center gap-3">
-                           <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60 italic">{member.role}</p>
+                           <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60">{member.role}</p>
                            <div className="flex gap-1">
                               {member.skills.slice(0, 2).map(sk => (
                                 <span key={sk} className="text-[8px] font-black text-primary uppercase tracking-tighter opacity-40 group-hover:opacity-100 transition-opacity">#{sk}</span>
@@ -329,6 +364,62 @@ const ManagerHQ = () => {
            </div>
         </section>
         </div>
+      )}
+
+      {/* Project Assignment Section */}
+      {activeProject && (
+        <section className="mt-8">
+          <div className="bg-surface-container rounded-[2.5rem] p-10 shadow-2xl border border-on-surface/5">
+            <h3 className="text-2xl font-black text-on-surface tracking-tight mb-6 flex items-center gap-3">
+              <FolderSync size={24} className="text-secondary" /> Assign Engineers to Projects
+            </h3>
+            <div className="space-y-4">
+              {engineers.map((engineer) => {
+                const busy = actionLoading.split('-').slice(1).join('-') === engineer.id;
+                return (
+                  <div key={engineer.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-surface-container-low rounded-2xl">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center text-on-surface font-black text-xs shrink-0">
+                        {engineer.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-on-surface text-sm truncate">{engineer.name}</p>
+                        <p className="text-[10px] text-on-surface-variant opacity-50">
+                          Current: {engineer.profile?.project?.name || 'Unassigned'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 flex-1">
+                      <select
+                        value={projectSelections[engineer.id] || ''}
+                        onChange={(e) => setProjectSelections((prev) => ({ ...prev, [engineer.id]: e.target.value }))}
+                        className="flex-1 bg-surface-container text-on-surface rounded-xl py-3 px-4 outline-none text-sm"
+                      >
+                        <option value="">Select Project...</option>
+                        {projects.map((project) => (
+                          <option key={project.id} value={project.id}>{project.name}</option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        disabled={busy || !projectSelections[engineer.id]}
+                        onClick={() =>
+                          runAction(
+                            { action: 'assign_project', userId: engineer.id, projectId: projectSelections[engineer.id] },
+                            'Engineer assigned to project.'
+                          )
+                        }
+                        className="flex items-center justify-center gap-2 rounded-xl bg-secondary text-black py-3 px-5 text-[10px] font-black uppercase tracking-[0.2em] disabled:opacity-50 shrink-0"
+                      >
+                        <FolderSync size={14} /> Assign
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
       )}
     </div>
   );

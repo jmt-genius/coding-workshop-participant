@@ -21,10 +21,10 @@ const OrganizationalHealth = () => {
         <div className="max-w-3xl">
           <div className="flex items-center gap-3 mb-2">
             <HeartPulse size={16} className="text-success" />
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-success italic">Biometric System Health</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-success">Biometric System Health</span>
           </div>
           <h1 className="text-5xl font-black text-on-surface tracking-tighter leading-tight mb-4">
-            Organizational <span className="text-success italic">Health</span> Insights
+            Organizational <span className="text-success">Health</span> Insights
           </h1>
           <p className="text-on-surface-variant text-lg font-medium leading-relaxed">
             Real-time monitoring of structural integrity, leadership distribution, and cultural synchronization. System performance is optimal across all tracked dimensions.
@@ -92,7 +92,7 @@ const OrganizationalHealth = () => {
                          <h4 className="font-bold text-on-surface text-lg group-hover:text-primary transition-colors">{incident.title}</h4>
                          <span className="text-[10px] font-bold text-on-surface-variant opacity-50">{incident.time}</span>
                       </div>
-                      <p className="text-sm font-medium text-on-surface-variant leading-relaxed opacity-80 italic">{incident.desc}</p>
+                      <p className="text-sm font-medium text-on-surface-variant leading-relaxed opacity-80">{incident.desc}</p>
                    </div>
                    <div className="flex flex-col justify-center items-end opacity-0 group-hover:opacity-100 transition-opacity">
                       <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-1">Status</span>
@@ -125,7 +125,7 @@ const OrganizationalHealth = () => {
                  ].map((hub, i) => (
                    <div key={i} className="group/hub">
                       <div className="flex justify-between items-end mb-2">
-                         <span className="text-xs font-bold text-on-surface-variant italic">{hub.name}</span>
+                         <span className="text-xs font-bold text-on-surface-variant">{hub.name}</span>
                          <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-60">{hub.status}</span>
                       </div>
                       <div className="w-full h-1 bg-surface-container-high rounded-full overflow-hidden">
@@ -142,7 +142,7 @@ const OrganizationalHealth = () => {
                  <h4 className="text-[10px] font-black uppercase tracking-widest">Advisory Protocols</h4>
               </div>
               <p className="text-xs font-medium text-on-surface-variant leading-relaxed opacity-70">
-                 Structural friction in <span className="text-on-surface font-bold italic">Engineering 'Delta'</span> suggests workload redistribution or leadership intervention within 48h.
+                 Structural friction in <span className="text-on-surface font-bold">Engineering 'Delta'</span> suggests workload redistribution or leadership intervention within 48h.
               </p>
               <button className="w-full py-3 bg-warning/10 hover:bg-warning/20 text-warning text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">
                  Generate Report
@@ -152,7 +152,7 @@ const OrganizationalHealth = () => {
       </div>
 
       {/* Footer System Status */}
-      <footer className="pt-10 border-t border-outline-variant/10 flex justify-between items-center opacity-40 grayscale group-hover:grayscale-0 transition-all italic">
+      <footer className="pt-10 border-t border-outline-variant/10 flex justify-between items-center opacity-40 grayscale group-hover:grayscale-0 transition-all">
          <div className="flex items-center gap-4">
             <ShieldCheck size={14} />
             <span className="text-[10px] font-black uppercase tracking-widest">Protocol: Active Integrity Sync</span>

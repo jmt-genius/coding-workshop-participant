@@ -32,9 +32,9 @@ def get_squad_analytics(team_id):
 
         team_id_val, team_name = team
 
-        # Fetch team members
+        # Fetch team members (all employees regardless of status)
         cur.execute('''
-            SELECT ep."userId", u.name
+            SELECT ep."userId", u.name, ep."performanceRating", ep."attritionRisk"
             FROM "EmployeeProfile" ep
             JOIN "User" u ON u.id = ep."userId"
             WHERE ep."teamId" = %s
@@ -44,7 +44,7 @@ def get_squad_analytics(team_id):
         member_stats = []
         total_squad_score = 0
 
-        for user_id, user_name in members:
+        for user_id, user_name, perf_rating, attrition_risk in members:
             cur.execute('SELECT COUNT(*) FROM "Commit" WHERE "userId" = %s', (user_id,))
             commits = cur.fetchone()[0]
             cur.execute('SELECT COUNT(*) FROM "Ticket" WHERE "assigneeId" = %s AND status = %s', (user_id, 'CLOSED'))
@@ -59,6 +59,8 @@ def get_squad_analytics(team_id):
                 "id": user_id,
                 "name": user_name,
                 "score": score,
+                "performanceRating": perf_rating,
+                "status": attrition_risk or "LOW",
                 "commits": commits,
                 "tickets": tickets,
                 "bugs": bugs

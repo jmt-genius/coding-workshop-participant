@@ -75,9 +75,9 @@ const DataManagement = () => {
           <div className="w-12 h-12 rounded-2xl bg-primary text-black flex items-center justify-center shadow-lg shadow-primary/20">
             <Database size={24} />
           </div>
-          <h1 className="text-4xl font-black tracking-tighter text-on-surface">Data <span className="text-primary italic">Orchestrator</span></h1>
+          <h1 className="text-4xl font-black tracking-tighter text-on-surface">Data <span className="text-primary">Orchestrator</span></h1>
         </div>
-        <p className="text-on-surface-variant font-medium text-lg leading-relaxed opacity-70 italic max-w-2xl">
+        <p className="text-on-surface-variant font-medium text-lg leading-relaxed opacity-70 max-w-2xl">
           Central intelligence hub for Luminous Ops. Standardize performance vectors and synchronize organizational clusters.
         </p>
       </header>
@@ -231,7 +231,7 @@ const DataManagement = () => {
 
           <div className="bg-gradient-to-br from-primary/10 to-transparent rounded-[2rem] p-8 relative overflow-hidden">
             <h3 className="text-sm font-black text-on-surface mb-2 uppercase tracking-widest">Administrator Note</h3>
-            <p className="text-xs text-on-surface-variant font-medium leading-relaxed italic opacity-80">
+            <p className="text-xs text-on-surface-variant font-medium leading-relaxed opacity-80">
               Data synchronized via the Orchestrator panel is immutable once verified. Metrics contribute directly to individual performance indices and team velocity analytics.
             </p>
           </div>

@@ -23,7 +23,7 @@ def calculate_performance_rating(tickets, commits, bugs):
 
 def list_employees():
     """List all employees with their profiles."""
-    conn = get_connection()
+    conn = get_conn34ection()
     with conn.cursor() as cur:
         cur.execute('''
             SELECT u.id, u.email, u.name, u.role,
@@ -174,6 +174,46 @@ def suspend_engineer(manager_id, user_id):
         if not cur.fetchone():
             raise ValueError("Engineer not found")
         return {"status": "success", "userId": user_id, "isSuspended": True}
+
+
+def unsuspend_engineer(manager_id, user_id):
+    """Remove suspension from an engineer."""
+    conn = get_connection()
+    with conn.cursor() as cur:
+        ensure_manager_scope(cur, manager_id, user_id)
+        cur.execute(
+            '''
+            UPDATE "EmployeeProfile"
+            SET "attritionRisk" = 'LOW'
+            WHERE "userId" = %s
+            RETURNING "userId"
+            ''',
+            (user_id,),
+        )
+        conn.commit()
+        if not cur.fetchone():
+            raise ValueError("Engineer not found")
+        return {"status": "success", "userId": user_id, "isSuspended": False}
+
+
+def promote_engineer(manager_id, user_id):
+    """Mark an engineer as promotion ready."""
+    conn = get_connection()
+    with conn.cursor() as cur:
+        ensure_manager_scope(cur, manager_id, user_id)
+        cur.execute(
+            '''
+            UPDATE "EmployeeProfile"
+            SET "promotionReady" = true
+            WHERE "userId" = %s
+            RETURNING "userId"
+            ''',
+            (user_id,),
+        )
+        conn.commit()
+        if not cur.fetchone():
+            raise ValueError("Engineer not found")
+        return {"status": "success", "userId": user_id, "promotionReady": True}
 
 
 def add_performance_review(manager_id, user_id, rating, comments):
@@ -495,7 +535,7 @@ def handler(event=None, context=None):
     headers = {"Content-Type": "application/json"}
 
     try:
-        method = event.get("httpMethod", "GET")
+        method = event.get("httpMethod") or event.get("requestContext", {}).get("http", {}).get("method", "GET")
         
         # Robust path detection for LocalStack Function URLs
         path = event.get("path") or event.get("rawPath") or "/"
@@ -554,6 +594,10 @@ def handler(event=None, context=None):
                 result = assign_to_project(manager_id, user_id, project_id)
             elif action == "remove_team":
                 result = remove_from_team(manager_id, user_id)
+            elif action == "unsuspend":
+                result = unsuspend_engineer(manager_id, user_id)
+            elif action == "promote":
+                result = promote_engineer(manager_id, user_id)
             else:
                 return {
                     "statusCode": 400,

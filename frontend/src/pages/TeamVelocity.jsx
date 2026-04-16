@@ -19,10 +19,10 @@ const TeamVelocity = () => {
         <div className="max-w-3xl">
           <div className="flex items-center gap-3 mb-2">
             <FastForward size={16} className="text-primary" />
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary italic">Operational Velocity</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Operational Velocity</span>
           </div>
           <h1 className="text-5xl font-black text-on-surface tracking-tighter leading-tight mb-4">
-            Team <span className="text-primary italic">Velocity</span> Analysis
+            Team <span className="text-primary">Velocity</span> Analysis
           </h1>
           <p className="text-on-surface-variant text-lg font-medium leading-relaxed">
             Monitor department performance, member density, and regional distribution through the central team node. Tracking Q4 performance metrics and scalability optimization.
@@ -33,7 +33,7 @@ const TeamVelocity = () => {
               <div className="w-2 h-2 rounded-full bg-success"></div>
               <span className="text-[10px] font-black uppercase tracking-widest text-success">Optimal Flow</span>
            </div>
-           <p className="text-xs font-bold text-on-surface-variant italic">Top 5% of internal teams this sprint.</p>
+           <p className="text-xs font-bold text-on-surface-variant">Top 5% of internal teams this sprint.</p>
         </div>
       </header>
 
@@ -45,7 +45,7 @@ const TeamVelocity = () => {
              <div className="flex justify-between items-start mb-12">
                 <div>
                    <h3 className="text-2xl font-black text-on-surface tracking-tight">Active Velocity Profile</h3>
-                   <p className="text-sm font-bold text-on-surface-variant mt-1 italic">Workload variance tracked within 15% across all members.</p>
+                   <p className="text-sm font-bold text-on-surface-variant mt-1">Workload variance tracked within 15% across all members.</p>
                 </div>
                 <div className="p-4 bg-surface-container-high rounded-2xl border border-outline-variant/10 group-hover:bg-primary/5 transition-colors">
                    <BarChart3 size={24} className="text-primary" />
@@ -82,7 +82,7 @@ const TeamVelocity = () => {
                      <div key={i} className="flex items-start justify-between p-4 bg-surface-container rounded-2xl border border-error/10 hover:border-error/30 transition-all cursor-default group/item">
                         <div>
                            <p className="font-bold text-on-surface">{b.member}</p>
-                           <p className="text-xs text-on-surface-variant opacity-70 italic">{b.issue}</p>
+                           <p className="text-xs text-on-surface-variant opacity-70">{b.issue}</p>
                         </div>
                         <span className="text-[10px] font-black text-error uppercase tracking-widest bg-error/5 px-2 py-1 rounded border border-error/10 group-hover/item:bg-error/10">
                            {b.duration}
@@ -102,7 +102,7 @@ const TeamVelocity = () => {
                      <div key={i} className="flex items-start justify-between p-4 bg-surface-container rounded-2xl border border-success/10 hover:border-success/30 transition-all cursor-default group/item">
                         <div>
                            <p className="font-bold text-on-surface">{c.member}</p>
-                           <p className="text-xs text-on-surface-variant opacity-70 italic">{c.project}</p>
+                           <p className="text-xs text-on-surface-variant opacity-70">{c.project}</p>
                         </div>
                         <div className="text-right">
                            <span className="text-lg font-black text-success leading-none">+{c.available}</span>
@@ -144,14 +144,14 @@ const TeamVelocity = () => {
            </div>
 
            <div className="bg-surface-container-high/50 rounded-[2rem] p-8 border border-outline-variant/5">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface opacity-80 mb-6 italic">Infrastructure Status</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface opacity-80 mb-6">Infrastructure Status</h4>
               <div className="space-y-4">
                  <div className="flex items-center justify-between p-4 bg-surface-container rounded-2xl border border-outline-variant/10 shadow-sm">
-                    <span className="text-xs font-bold text-on-surface-variant italic">Data Node Stability</span>
+                    <span className="text-xs font-bold text-on-surface-variant">Data Node Stability</span>
                     <span className="text-[10px] font-black text-success uppercase tracking-widest">99.9%</span>
                  </div>
                  <div className="flex items-center justify-between p-4 bg-surface-container rounded-2xl border border-outline-variant/10 shadow-sm">
-                    <span className="text-xs font-bold text-on-surface-variant italic">Sync Latency Avg</span>
+                    <span className="text-xs font-bold text-on-surface-variant">Sync Latency Avg</span>
                     <span className="text-[10px] font-black text-primary uppercase tracking-widest">14ms</span>
                  </div>
               </div>

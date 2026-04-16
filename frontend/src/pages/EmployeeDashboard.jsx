@@ -22,7 +22,7 @@ const EmployeeDashboard = () => {
               <span className="text-primary font-bold text-lg pb-1">/ 100</span>
             </div>
             <p className="text-on-surface-variant text-sm font-medium leading-relaxed max-w-[240px]">
-              You are in the <span className="text-on-surface font-bold italic">top 5%</span> of productivity this week across the engineering squad.
+              You are in the <span className="text-on-surface font-bold">top 5%</span> of productivity this week across the engineering squad.
             </p>
           </div>
           {/* Background decoration */}
@@ -89,7 +89,7 @@ const EmployeeDashboard = () => {
               </div>
               <div>
                 <h4 className="font-bold text-on-surface text-lg tracking-tight">Design Review</h4>
-                <p className="text-xs font-bold text-[#ababab] uppercase tracking-widest italic opacity-60">Creative Dept</p>
+                <p className="text-xs font-bold text-[#ababab] uppercase tracking-widest opacity-60">Creative Dept</p>
               </div>
             </div>
             <span className="material-symbols-outlined text-[#484848] group-hover:text-primary transition-colors">east</span>

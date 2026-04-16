@@ -41,10 +41,10 @@ const Members = () => {
     <div className="px-8 py-12 max-w-7xl mx-auto w-full animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div className="space-y-4">
-           <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full text-[10px] font-black uppercase tracking-widest text-primary italic">
+           <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full text-[10px] font-black uppercase tracking-widest text-primary">
               <Users size={12} /> Organizational Intelligence
            </div>
-          <h1 className="text-5xl font-black leading-tight tracking-tighter text-on-surface">Human <span className="text-primary italic">Capital</span> Catalog</h1>
+          <h1 className="text-5xl font-black leading-tight tracking-tighter text-on-surface">Human <span className="text-primary">Capital</span> Catalog</h1>
           <p className="text-on-surface-variant text-lg max-w-2xl font-medium opacity-70">
             Real-time synchronization of the global engineer matrix. Interrogate nodes for delivery performance and specialization.
           </p>
@@ -141,14 +141,14 @@ const Members = () => {
              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-40">Active Nodes</span>
              <div className="flex items-end justify-between">
                <span className="text-5xl font-black text-on-surface tracking-tighter">{members.length}</span>
-               <span className="text-primary text-[10px] font-black uppercase tracking-widest italic mb-2">Live Sync</span>
+               <span className="text-primary text-[10px] font-black uppercase tracking-widest mb-2">Live Sync</span>
              </div>
            </div>
            <div className="bg-surface-container p-8 rounded-[2.5rem] shadow-xl border border-on-surface/5 flex flex-col justify-between h-44 group hover:bg-secondary/5 transition-colors">
              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-40">Clusters Online</span>
              <div className="flex items-end justify-between">
                <span className="text-5xl font-black text-on-surface tracking-tighter">{[...new Set(members.map(m => m.profile?.teamId))].length}</span>
-               <span className="text-secondary text-[10px] font-black uppercase tracking-widest italic mb-2">Multi-Region</span>
+               <span className="text-secondary text-[10px] font-black uppercase tracking-widest mb-2">Multi-Region</span>
              </div>
            </div>
            <div className="bg-gradient-to-br from-primary/10 to-transparent p-8 rounded-[2.5rem] shadow-xl border border-primary/10 flex flex-col justify-between h-44 relative overflow-hidden group">

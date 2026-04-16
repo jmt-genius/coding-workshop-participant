@@ -3677,6 +3677,64 @@ ALTER TABLE ONLY public."Training"
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
+--
+-- Name: Meeting; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE IF NOT EXISTS public."Meeting" (
+    id text NOT NULL,
+    title text NOT NULL,
+    description text,
+    "teamId" text NOT NULL,
+    "createdBy" text NOT NULL,
+    "meetLink" text,
+    "startTime" timestamp(3) without time zone NOT NULL,
+    "endTime" timestamp(3) without time zone NOT NULL,
+    status text DEFAULT 'SCHEDULED'::text NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+ALTER TABLE public."Meeting" OWNER TO postgres;
+
+ALTER TABLE ONLY public."Meeting"
+    ADD CONSTRAINT "Meeting_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."Meeting"
+    ADD CONSTRAINT "Meeting_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY public."Meeting"
+    ADD CONSTRAINT "Meeting_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES public."Team"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+--
+-- Name: MeetingRequest; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE IF NOT EXISTS public."MeetingRequest" (
+    id text NOT NULL,
+    title text NOT NULL,
+    description text,
+    "teamId" text NOT NULL,
+    "requestedBy" text NOT NULL,
+    "preferredTime" timestamp(3) without time zone NOT NULL,
+    "preferredEndTime" timestamp(3) without time zone NOT NULL,
+    status text DEFAULT 'PENDING'::text NOT NULL,
+    "reviewedBy" text,
+    "meetingId" text,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+ALTER TABLE public."MeetingRequest" OWNER TO postgres;
+
+ALTER TABLE ONLY public."MeetingRequest"
+    ADD CONSTRAINT "MeetingRequest_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."MeetingRequest"
+    ADD CONSTRAINT "MeetingRequest_requestedBy_fkey" FOREIGN KEY ("requestedBy") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE ONLY public."MeetingRequest"
+    ADD CONSTRAINT "MeetingRequest_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES public."Team"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
 REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 
 

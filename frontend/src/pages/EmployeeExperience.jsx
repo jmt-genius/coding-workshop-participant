@@ -21,7 +21,7 @@ const EmployeeExperience = () => {
         <div className="max-w-3xl">
           <div className="flex items-center gap-3 mb-2">
             <Heart size={16} className="text-secondary fill-secondary/20" />
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary italic">Human Capital Metrics</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary">Human Capital Metrics</span>
           </div>
           <h1 className="text-5xl font-black text-on-surface tracking-tighter leading-tight mb-4">
             Employee <span className="text-secondary">Experience</span> & Retention
@@ -62,7 +62,7 @@ const EmployeeExperience = () => {
                        <h4 className="font-bold text-on-surface text-lg">{pulse.title}</h4>
                        <span className="text-[10px] font-bold text-on-surface-variant opacity-50">{pulse.time}</span>
                     </div>
-                    <p className="text-on-surface-variant font-medium leading-relaxed italic opacity-80">{pulse.desc}</p>
+                    <p className="text-on-surface-variant font-medium leading-relaxed opacity-80">{pulse.desc}</p>
                   </div>
                 </div>
               ))}
@@ -77,7 +77,7 @@ const EmployeeExperience = () => {
                 </div>
                 <div className="flex items-end justify-between mb-4">
                    <span className="text-5xl font-black text-on-surface tracking-tighter">78<span className="text-2xl text-on-surface-variant">%</span></span>
-                   <span className="text-[10px] font-bold text-primary italic">Target: 85% by Q4</span>
+                   <span className="text-[10px] font-bold text-primary">Target: 85% by Q4</span>
                 </div>
                 <div className="w-full h-2 bg-surface-container rounded-full overflow-hidden">
                    <div className="h-full bg-gradient-to-r from-primary to-primary-dim w-[78%] rounded-full shadow-[0_0_12px_rgba(135,173,255,0.4)]"></div>
@@ -91,7 +91,7 @@ const EmployeeExperience = () => {
                 </div>
                 <div className="flex items-end justify-between mb-4">
                    <span className="text-5xl font-black text-on-surface tracking-tighter">12.4<span className="text-2xl text-on-surface-variant">%</span></span>
-                   <span className="text-[10px] font-bold text-success italic">Above Baseline</span>
+                   <span className="text-[10px] font-bold text-success">Above Baseline</span>
                 </div>
                 <div className="w-full h-2 bg-surface-container rounded-full overflow-hidden">
                    <div className="h-full bg-gradient-to-r from-success to-success/60 w-[85%] rounded-full shadow-[0_0_12px_rgba(34,197,94,0.4)]"></div>
