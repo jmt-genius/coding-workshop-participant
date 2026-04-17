@@ -9,6 +9,8 @@ Endpoints:
 import json
 import logging
 import uuid
+import os
+import requests
 from postgres_service import get_connection
 
 logger = logging.getLogger()
@@ -764,6 +766,126 @@ def list_talent_pool():
         return pool
 
 
+def get_ai_recommendations(manager_id):
+    """Get AI-powered candidate recommendations from talent pool using Gemini."""
+    conn = get_connection()
+    with conn.cursor() as cur:
+        # Get manager's projects
+        cur.execute('''
+            SELECT p.id, p.name, p.description, p.status, p."requiredSkills"
+            FROM "Project" p
+            WHERE p."managerId" = %s
+        ''', (manager_id,))
+        projects = [{
+            "id": row[0],
+            "name": row[1],
+            "description": row[2] or "",
+            "status": row[3],
+            "requiredSkills": row[4] or []
+        } for row in cur.fetchall()]
+
+        # Get manager's current team members and their skills
+        cur.execute('''
+            SELECT u.id, u.name, u.email, ep.specialization
+            FROM "User" u
+            JOIN "EmployeeProfile" ep ON ep."userId" = u.id
+            JOIN "Team" t ON t.id = ep."teamId"
+            WHERE t."leadId" = %s OR ep."teamId" IN (
+                SELECT t2.id FROM "Team" t2 WHERE t2."leadId" = %s
+            )
+        ''', (manager_id, manager_id))
+        team_members = []
+        for row in cur.fetchall():
+            user_id = row[0]
+            cur.execute('''
+                SELECT "skillName", proficiency
+                FROM "EmployeeSkill"
+                WHERE "profileId" = (SELECT id FROM "EmployeeProfile" WHERE "userId" = %s)
+            ''', (user_id,))
+            skills = [{"skillName": s[0], "proficiency": s[1]} for s in cur.fetchall()]
+            team_members.append({
+                "id": row[0],
+                "name": row[1],
+                "email": row[2],
+                "specialization": row[3],
+                "skills": skills
+            })
+
+    # Get talent pool candidates
+    talent_pool = list_talent_pool()
+
+    # Build prompt for Gemini
+    prompt = f"""You are an expert technical recruiter helping a manager choose the best candidates from a talent pool.
+
+MANAGER'S PROJECTS:
+{json.dumps(projects, indent=2)}
+
+MANAGER'S CURRENT TEAM MEMBERS AND THEIR SKILLS:
+{json.dumps(team_members, indent=2)}
+
+TALENT POOL CANDIDATES:
+{json.dumps(talent_pool, indent=2)}
+
+TASK:
+1. Analyze the projects and identify required skills
+2. Analyze the current team's skills and identify gaps
+3. Evaluate each talent pool candidate based on:
+   - How well their skills match the project requirements
+   - How well they fill the team's skill gaps
+   - Their trainings and specialization
+4. Return the TOP 3 candidates that would be the best fit
+
+Return ONLY a JSON array with this exact structure:
+[
+  {{
+    "userId": "candidate_user_id",
+    "name": "Candidate Name",
+    "reasoning": "Brief explanation of why this candidate is recommended (2-3 sentences)"
+  }},
+  ...
+]
+"""
+
+    # Call Gemini API
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY environment variable not set")
+
+    from google import genai
+    from google.genai import types
+    
+    client = genai.Client(api_key=api_key)
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-3-flash-preview",
+            contents=[prompt],
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json"
+            )
+        )
+        gemini_response = response.text
+    except Exception as e:
+        logger.error(f"Gemini API error: {str(e)}")
+        raise ValueError(f"Gemini API failed: {str(e)}")
+    
+    # Extract JSON from response (Gemini might wrap it in markdown)
+    import re
+    json_match = re.search(r'\[.*\]', gemini_response, re.DOTALL)
+    if json_match:
+        recommendations = json.loads(json_match.group(0))
+    else:
+        # Fallback: try to parse entire response as JSON
+        recommendations = json.loads(gemini_response)
+
+    return {
+        "recommendations": recommendations,
+        "talentPool": talent_pool,
+        "projects": projects,
+        "teamSkills": team_members
+    }
+
+
 def add_talent_pool_employee(data):
     """Add a new employee to the talent pool."""
     conn = get_connection()
@@ -945,6 +1067,23 @@ def handler(event=None, context=None):
                 return {"statusCode": 201, "headers": headers, "body": json.dumps(result, default=str)}
             result = list_talent_pool()
             return {"statusCode": 200, "headers": headers, "body": json.dumps(result, default=str)}
+
+        # POST /ai-recommendations
+        if method == "POST" and "ai-recommendations" in parts:
+            body = json.loads(event.get("body", "{}"))
+            manager_id = body.get("managerId")
+            if not manager_id:
+                return {"statusCode": 400, "headers": headers, "body": json.dumps({"error": "managerId required"})}
+            try:
+                result = get_ai_recommendations(manager_id)
+                return {"statusCode": 200, "headers": headers, "body": json.dumps(result, default=str)}
+            except ValueError as e:
+                return {"statusCode": 400, "headers": headers, "body": json.dumps({"error": str(e)})}
+            except Exception as e:
+                import traceback
+                error_trace = traceback.format_exc()
+                logger.error(f"AI recommendation error: {str(e)}\n{error_trace}")
+                return {"statusCode": 500, "headers": headers, "body": json.dumps({"error": "Failed to get recommendations", "detail": str(e), "traceback": error_trace})}
 
         # GET /all-managers (HR manager database view)
         if "all-managers" in parts:

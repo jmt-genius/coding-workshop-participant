@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
-import { Search, Plus, X, ChevronUp, ChevronDown, GraduationCap, Sparkles, UserPlus, Trash2, Download, Briefcase } from 'lucide-react';
+import { Search, Plus, X, ChevronUp, ChevronDown, GraduationCap, Sparkles, UserPlus, Trash2, Download, Briefcase, Bot, Loader2 } from 'lucide-react';
 import { exportTablePdf } from '../utils/exportPdf';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -25,6 +25,10 @@ const TalentPool = () => {
   const [managerProjects, setManagerProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState('');
   const [recruiting, setRecruiting] = useState(false);
+
+  const [aiRecommendations, setAiRecommendations] = useState(null);
+  const [loadingAi, setLoadingAi] = useState(false);
+  const [showAiPanel, setShowAiPanel] = useState(false);
 
   const [form, setForm] = useState({
     name: '', email: '', specialization: '',
@@ -146,6 +150,28 @@ const TalentPool = () => {
     } finally { setRecruiting(false); }
   };
 
+  const handleAiRecommendations = async () => {
+    if (!authUser?.id) return;
+    setLoadingAi(true);
+    setShowAiPanel(true);
+    try {
+      const res = await axios.post(`${API_BASE}/api/employees-service/ai-recommendations`, {
+        managerId: authUser.id,
+      });
+      setAiRecommendations(res.data);
+    } catch (err) {
+      console.error('Failed to get AI recommendations', err);
+      console.error('API Error Response:', err.response?.data);
+      console.error('API Error Status:', err.response?.status);
+      
+      const detailedMessage = err.response?.data?.traceback || err.response?.data?.detail || err.response?.data?.error || err.message;
+      alert(`Failed to get AI recommendations.\n\nDetails: ${detailedMessage}`);
+      setAiRecommendations(null);
+    } finally {
+      setLoadingAi(false);
+    }
+  };
+
   const handleDownloadPdf = () => {
     const columns = ['Name', 'Specialization', 'Email', 'Joined', 'Skills', 'Trainings'];
     const rows = filtered.map(e => [
@@ -182,6 +208,16 @@ const TalentPool = () => {
           >
             <Download size={16} /> Export PDF
           </button>
+          {role === 'MANAGER' && (
+            <button
+              onClick={handleAiRecommendations}
+              disabled={loadingAi}
+              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl text-sm font-bold border border-transparent hover:shadow-lg transition-all disabled:opacity-50"
+            >
+              {loadingAi ? <Loader2 size={16} className="animate-spin" /> : <Bot size={16} />}
+              {loadingAi ? 'Analyzing...' : 'AI Recommendations'}
+            </button>
+          )}
           {role === 'HR' && (
             <button
               onClick={() => setShowAddForm(true)}
@@ -359,6 +395,76 @@ const TalentPool = () => {
           </table>
         </div>
       </div>
+
+      {/* AI Recommendations Panel */}
+      {showAiPanel && role === 'MANAGER' && (
+        <div className="mt-8 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-3xl p-6 border border-purple-500/20">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <Bot size={24} className="text-purple-500" />
+              <h3 className="text-lg font-black text-on-surface tracking-tight">AI Candidate Recommendations</h3>
+            </div>
+            <button onClick={() => setShowAiPanel(false)} className="p-2 rounded-xl hover:bg-surface-container-high transition-colors">
+              <X size={20} className="text-on-surface-variant" />
+            </button>
+          </div>
+
+          {loadingAi ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 size={32} className="animate-spin text-purple-500" />
+              <span className="ml-3 text-sm font-bold text-on-surface-variant">Analyzing team skills and talent pool...</span>
+            </div>
+          ) : aiRecommendations?.recommendations ? (
+            <div className="space-y-4">
+              {aiRecommendations.recommendations.slice(0, 3).map((rec, idx) => {
+                const candidate = pool.find(p => p.id === rec.userId);
+                return (
+                  <div key={rec.userId} className="bg-surface-container rounded-2xl p-5 border border-on-surface/5 hover:border-purple-500/30 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-black text-lg">
+                          {idx + 1}
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-black text-on-surface">{rec.name}</h4>
+                          {candidate && (
+                            <p className="text-xs text-on-surface-variant">{candidate.specialization} • {candidate.email}</p>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => openRecruit(candidate)}
+                        className="flex items-center gap-2 px-4 py-2 bg-primary text-black rounded-lg text-xs font-bold hover:bg-primary/90 transition-colors"
+                      >
+                        <Briefcase size={12} /> Recruit
+                      </button>
+                    </div>
+                    <div className="mt-3 bg-surface-container-low rounded-lg p-3">
+                      <p className="text-xs text-on-surface-variant leading-relaxed">
+                        <Sparkles size={12} className="inline mr-1 text-purple-500" />
+                        {rec.reasoning}
+                      </p>
+                    </div>
+                    {candidate && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {(candidate.skills || []).slice(0, 5).map(s => (
+                          <span key={s.skillName} className="px-2 py-1 bg-purple-500/10 text-purple-500 rounded-md text-[9px] font-bold uppercase tracking-wider border border-purple-500/20">
+                            {s.skillName} ({s.proficiency})
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-on-surface-variant opacity-50 text-sm">
+              No recommendations available. Try again later.
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Add Employee Modal */}
       {showAddForm && (

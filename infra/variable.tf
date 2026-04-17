@@ -39,3 +39,10 @@ variable "aws_postgres_host" {
   type        = string
   default     = null
 }
+
+variable "gemini_api_key" {
+  description = "Google Gemini API key for AI-powered candidate recommendations."
+  type        = string
+  default     = null
+  sensitive   = true
+}
